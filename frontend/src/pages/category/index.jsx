@@ -6,8 +6,10 @@ import Footer from "../../components/common/footer.jsx";
 import { motion, AnimatePresence } from "framer-motion";
 import { Pencil, Trash2, GripVertical, Search, Plus, X, Upload, Save, Check } from "lucide-react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
+import { usePopup } from "../../context/PopupContext";
 
 export default function Category() {
+  const { showPopup } = usePopup();
   const API = import.meta.env.VITE_API_URL;
   const API_BASE = API ? API.replace(/\/api\/?$/i, "") : "";
   const token = localStorage.getItem("token");
@@ -100,13 +102,21 @@ export default function Category() {
       });
       const data = await res.json();
       if (data.count > 0) {
-        alert(`Successfully imported ${data.count} products for "${categoryName}".`);
+        showPopup({
+          title: "Import Success",
+          message: `Successfully imported ${data.count} products for "${categoryName}".`,
+          type: "success"
+        });
       } else {
-        alert(`No new products found for "${categoryName}" to import.`);
+        showPopup({
+          title: "Import Info",
+          message: `No new products found for "${categoryName}" to import.`,
+          type: "info"
+        });
       }
     } catch (err) {
       console.error("Import products error:", err);
-      alert("Failed to import products.");
+      showPopup({ title: "Import Failed", message: "Failed to import products.", type: "error" });
     }
   };
 
@@ -120,48 +130,63 @@ export default function Category() {
     );
 
     if (existingCat) {
-      if (confirm(`Category "${cat.name}" already exists in your list. Do you want to check and add any remaining products for it?`)) {
-        await handleImportProducts(cat.name, existingCat.id);
-      }
-      setShowSearchModal(false);
-      setGlobalSearchQuery("");
+      showPopup({
+        title: "Duplicate Category",
+        message: `Category "${cat.name}" already exists. Do you want to check and add any remaining products for it?`,
+        type: "confirm",
+        onConfirm: async () => {
+          await handleImportProducts(cat.name, existingCat.id);
+          setShowSearchModal(false);
+          setGlobalSearchQuery("");
+        }
+      });
       return;
     }
 
-    if (!confirm(`Add "${cat.name}" to your categories?`)) return;
+    showPopup({
+      title: "Add Global Category?",
+      message: `Add "${cat.name}" and its products to your list?`,
+      type: "confirm",
+      onConfirm: async () => {
+        const fd = new FormData();
+        fd.append("name", cat.name.trim());
+        if (cat.image) fd.append("existingImage", cat.image);
 
-    const fd = new FormData();
-    fd.append("name", cat.name.trim());
-    if (cat.image) fd.append("existingImage", cat.image);
+        try {
+          const res = await fetch(`${API}/category`, {
+            method: "POST",
+            headers: { Authorization: `Bearer ${token}` },
+            body: fd,
+          });
 
-    try {
-      const res = await fetch(`${API}/category`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-        body: fd,
-      });
+          if (!res.ok) {
+            const err = await res.json();
+            showPopup({ title: "Failed", message: err.message || "Failed to add", type: "error" });
+            return;
+          }
 
-      if (!res.ok) {
-        const err = await res.json();
-        alert(err.message || "Failed to add");
-        return;
+          const newData = await res.json();
+          setCategories((prev) =>
+            [...prev, newData].sort((a, b) => a.sort_order - b.sort_order)
+          );
+          setShowSearchModal(false);
+          setGlobalSearchQuery("");
+
+          // ASK TO ADD PRODUCTS for NEWly added
+          showPopup({
+            title: "Category Added",
+            message: `Category "${cat.name}" added. Do you want to add all related products to it?`,
+            type: "confirm",
+            onConfirm: async () => {
+              await handleImportProducts(cat.name, newData.id);
+            }
+          });
+        } catch (err) {
+          console.error("Add global error:", err);
+          showPopup({ title: "Error", message: "Something went wrong", type: "error" });
+        }
       }
-
-      const newData = await res.json();
-      setCategories((prev) =>
-        [...prev, newData].sort((a, b) => a.sort_order - b.sort_order)
-      );
-      setShowSearchModal(false);
-      setGlobalSearchQuery("");
-
-      // ASK TO ADD PRODUCTS for NEWly added
-      if (confirm(`Category "${cat.name}" added. Do you want to add all related products to it?`)) {
-        await handleImportProducts(cat.name, newData.id);
-      }
-    } catch (err) {
-      console.error("Add global error:", err);
-      alert("Something went wrong");
-    }
+    });
   };
 
   // =============================
@@ -198,14 +223,14 @@ export default function Category() {
     e.preventDefault();
 
     const nameTrim = form.name.trim();
-    if (!nameTrim) return alert("Please enter a category name");
+    if (!nameTrim) return showPopup({ title: "Input Required", message: "Please enter a category name", type: "warning" });
 
     const exists = categories.some(
       (c) =>
         c.id !== form.id &&
         c.name.trim().toLowerCase() === nameTrim.toLowerCase()
     );
-    if (exists) return alert("Category name already exists");
+    if (exists) return showPopup({ title: "Duplicate Name", message: "Category name already exists", type: "warning" });
 
     const fd = new FormData();
     fd.append("name", nameTrim);
@@ -229,9 +254,14 @@ export default function Category() {
         );
 
         // ASK TO ADD PRODUCTS (New Category)
-        if (confirm(`Category "${nameTrim}" added. Do you want to add all related products to it?`)) {
-          await handleImportProducts(nameTrim, newData.id);
-        }
+        showPopup({
+          title: "Category Added",
+          message: `Category "${nameTrim}" added. Do you want to add all related products to it?`,
+          type: "confirm",
+          onConfirm: async () => {
+            await handleImportProducts(nameTrim, newData.id);
+          }
+        });
       } else {
         // UPDATE
         res = await fetch(`${API}/category/${form.id}`, {
@@ -251,6 +281,7 @@ export default function Category() {
             )
             .sort((a, b) => a.sort_order - b.sort_order)
         );
+        showPopup({ title: "Success", message: "Category updated successfully", type: "success" });
       }
 
       // RESET
@@ -260,7 +291,7 @@ export default function Category() {
       setPreviewUrl("");
     } catch (err) {
       console.error("Save error:", err);
-      alert("Something went wrong.");
+      showPopup({ title: "Error", message: "Something went wrong.", type: "error" });
     }
   };
 
@@ -283,18 +314,25 @@ export default function Category() {
   // DELETE CATEGORY
   // =============================
   const handleDelete = async (id) => {
-    if (!confirm("Delete category?")) return;
+    showPopup({
+      title: "Delete Category?",
+      message: "This will permanently remove the category. Are you sure?",
+      type: "confirm",
+      onConfirm: async () => {
+        try {
+          await fetch(`${API}/category/${id}`, {
+            method: "DELETE",
+            headers: { Authorization: `Bearer ${token}` },
+          });
 
-    try {
-      await fetch(`${API}/category/${id}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      setCategories((prev) => prev.filter((c) => c.id !== id));
-    } catch (e) {
-      console.error("Delete error:", e);
-    }
+          setCategories((prev) => prev.filter((c) => c.id !== id));
+          showPopup({ title: "Deleted", message: "Category has been removed.", type: "success" });
+        } catch (e) {
+          console.error("Delete error:", e);
+          showPopup({ title: "Error", message: "Failed to delete category.", type: "error" });
+        }
+      }
+    });
   };
 
   // =============================

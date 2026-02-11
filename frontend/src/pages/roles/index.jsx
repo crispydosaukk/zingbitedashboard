@@ -5,6 +5,7 @@ import Footer from "../../components/common/footer.jsx";
 import api from "../../api.js";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, Plus, Edit, Trash2, X, Shield, ChevronDown, Check } from "lucide-react";
+import { usePopup } from "../../context/PopupContext";
 
 // Helper: Custom Glass MultiSelect
 const GlassMultiSelect = ({ loading, options, selected, onToggle, label }) => {
@@ -75,6 +76,7 @@ const GlassMultiSelect = ({ loading, options, selected, onToggle, label }) => {
 
 
 export default function Roles() {
+  const { showPopup } = usePopup();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Create modal
@@ -159,8 +161,9 @@ export default function Roles() {
       setRoleTitle("");
       setSelectedIds([]);
       setOpenCreate(false);
+      showPopup({ title: "Success", message: `Role "${roleTitle}" created.`, type: "success" });
     } catch (e) {
-      alert(e?.response?.data?.message || "Failed to create role");
+      showPopup({ title: "Error", message: e?.response?.data?.message || "Failed to create role", type: "error" });
     } finally {
       setSubmitting(false);
     }
@@ -187,8 +190,9 @@ export default function Roles() {
       setEditRole(null);
       setEditTitle("");
       setEditSelectedIds([]);
+      showPopup({ title: "Success", message: "Role updated successfully.", type: "success" });
     } catch (e) {
-      alert(e?.response?.data?.message || "Failed to update role");
+      showPopup({ title: "Error", message: e?.response?.data?.message || "Failed to update role", type: "error" });
     } finally {
       setUpdating(false);
     }
@@ -198,16 +202,23 @@ export default function Roles() {
   const [deletingId, setDeletingId] = useState(null);
   const handleDelete = async (role) => {
     if (!role?.id) return;
-    if (!window.confirm(`Delete role "${role.title}"?`)) return;
-    try {
-      setDeletingId(role.id);
-      await api.delete(`/roles/${role.id}`);
-      await fetchRoles();
-    } catch (e) {
-      alert(e?.response?.data?.message || "Failed to delete role");
-    } finally {
-      setDeletingId(null);
-    }
+    showPopup({
+      title: "Delete Role?",
+      message: `Are you sure you want to delete the role "${role.title}"?`,
+      type: "confirm",
+      onConfirm: async () => {
+        try {
+          setDeletingId(role.id);
+          await api.delete(`/roles/${role.id}`);
+          await fetchRoles();
+          showPopup({ title: "Deleted", message: "Role removed successfully.", type: "success" });
+        } catch (e) {
+          showPopup({ title: "Error", message: e?.response?.data?.message || "Failed to delete role", type: "error" });
+        } finally {
+          setDeletingId(null);
+        }
+      }
+    });
   };
 
   // Filter

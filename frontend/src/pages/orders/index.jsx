@@ -10,6 +10,7 @@ import {
   MapPin, Phone, Car, Clock, CheckCircle, XCircle, AlertCircle, ShoppingBag, CreditCard, Eye, X
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { usePopup } from "../../context/PopupContext";
 
 function safeNumber(value) {
   const n = parseFloat(value);
@@ -54,6 +55,11 @@ const OrderDetailsModal = ({ order, onClose }) => {
           <div>
             <h2 className="text-2xl font-bold text-white flex items-center gap-3">
               <ShoppingBag className="text-emerald-400" /> Order #{order.order_number}
+              {order.order_source === 'Dashboard' && (
+                <div className="flex items-center justify-center w-7 h-7 rounded-full bg-emerald-500 text-white text-[10px] font-black border border-white/20 shadow-lg" title="Dashboard Order">
+                  D
+                </div>
+              )}
             </h2>
             <p className="text-white/50 text-sm mt-1">Placed on {new Date(order.created_at).toLocaleString()}</p>
           </div>
@@ -200,6 +206,7 @@ const OrderDetailsModal = ({ order, onClose }) => {
 };
 
 export default function Orders() {
+  const { showPopup } = usePopup();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [orders, setOrders] = useState([]);
   const [filteredOrders, setFilteredOrders] = useState([]);
@@ -255,7 +262,11 @@ export default function Orders() {
       loadOrders();
     } catch (error) {
       console.error("Failed to update status", error);
-      alert("Failed to update status");
+      showPopup({
+        title: "Update Failed",
+        message: "Could not update order status. Please try again.",
+        type: "error"
+      });
     }
   };
 
@@ -509,6 +520,11 @@ export default function Orders() {
                           {autoRefresh && order.order_status === 0 && (
                             <span className="flex h-2 w-2 rounded-full bg-amber-500 animate-pulse shrink-0"></span>
                           )}
+                          {order.order_source === 'Dashboard' && (
+                            <div className="flex items-center justify-center w-6 h-6 rounded-full bg-emerald-500 text-white text-[10px] font-black border border-white/20 shadow-lg" title="Dashboard Order">
+                              D
+                            </div>
+                          )}
                         </div>
                         <div className="text-xs text-white/60 mt-1 flex items-center gap-2">
                           <Calendar size={12} />
@@ -629,7 +645,7 @@ export default function Orders() {
                             </button>
                             <button
                               onClick={() => updateOrderStatus(order.order_number, 2)}
-                              className="py-3 bg-white/5 border border-red-500/30 text-red-300 hover:bg-red-500/20 hover:text-red-200 font-bold rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2"
+                              className="py-3 bg-rose-600 hover:bg-rose-500 text-white font-bold rounded-xl shadow-lg shadow-rose-900/20 transition-all active:scale-95 flex items-center justify-center gap-2"
                             >
                               <XCircle size={18} /> Reject
                             </button>
@@ -648,9 +664,9 @@ export default function Orders() {
                         {order.order_status === 3 && (
                           <button
                             onClick={() => updateOrderStatus(order.order_number, 4)}
-                            className="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2"
+                            className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl shadow-lg shadow-emerald-900/20 transition-all active:scale-95 flex items-center justify-center gap-2"
                           >
-                            <Truck size={18} /> Mark Collected
+                            <CheckCircle size={18} /> Mark Collected
                           </button>
                         )}
                       </div>

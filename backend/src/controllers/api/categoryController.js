@@ -11,7 +11,7 @@ export const getCategories = async (req, res) => {
       category_image AS image,
       sort_order
     FROM categories
-    WHERE user_id = ? AND category_status = 1 AND status = 1
+    WHERE user_id = ? AND status = 1
     ORDER BY sort_order ASC, id ASC
   `;
 

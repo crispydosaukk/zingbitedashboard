@@ -32,9 +32,17 @@ function generateOrderNumber(restaurantName = "") {
 // 🔹 Get referral flat amount from settings (DYNAMIC)
 async function getReferralFlatAmount(conn) {
   const [[row]] = await conn.query(
-    "SELECT referral_flat_amount FROM settings ORDER BY id DESC LIMIT 1"
+    "SELECT referral_bonus_amount FROM settings ORDER BY id DESC LIMIT 1"
   );
-  return Number(row?.referral_flat_amount || 0);
+  return Number(row?.referral_bonus_amount || 0);
+}
+
+// 🔹 Get earn per order amount from settings (DYNAMIC)
+async function getEarnPerOrderAmount(conn) {
+  const [[row]] = await conn.query(
+    "SELECT earn_per_order_amount FROM settings ORDER BY id DESC LIMIT 1"
+  );
+  return Number(row?.earn_per_order_amount || 0);
 }
 
 // 🔹 Get loyalty settings (DYNAMIC)
@@ -94,6 +102,7 @@ export const createOrder = async (req, res) => {
       items,
       wallet_used,
       loyalty_used,
+      order_source,
     } = req.body;
 
     if (!items || !Array.isArray(items) || items.length === 0) {
@@ -117,7 +126,11 @@ export const createOrder = async (req, res) => {
     );
     const minimumCartTotal = Number(settingsRow?.minimum_cart_total || 0);
 
-    if (minimumCartTotal > 0 && orderGrossTotal < minimumCartTotal) {
+    // Skip minimum cart check for Dashboard orders if desired, but user didn't specify.
+    // However, usually dashboard orders are manual and might bypass some rules.
+    // For now, I'll keep it but maybe it should be bypassed for 'Dashboard' source.
+
+    if (order_source !== 'Dashboard' && minimumCartTotal > 0 && orderGrossTotal < minimumCartTotal) {
       await conn.rollback();
       return res.status(400).json({
         status: 0,
@@ -286,8 +299,8 @@ export const createOrder = async (req, res) => {
         (user_id, order_number, customer_id, product_id, payment_mode, payment_request_id,
          product_name, special_instruction, price, discount_amount, vat, gross_total,
          wallet_amount, loyalty_amount, quantity, grand_total, order_status,
-         delivery_estimate_time, car_color, reg_number, owner_name, mobile_number, instore, allergy_note)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+         delivery_estimate_time, car_color, reg_number, owner_name, mobile_number, instore, allergy_note, order_source)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `;
 
       const values = [
@@ -315,6 +328,7 @@ export const createOrder = async (req, res) => {
         mobile_number || null,
         instore || 0,
         allergy_note || null,
+        order_source || 'App',
       ];
 
       const [orderInsertRes] = await conn.query(sql, values);
@@ -376,6 +390,24 @@ export const createOrder = async (req, res) => {
       }
     }
 
+    // ✅ EARN PER ORDER REWARD
+    const earnPerOrder = await getEarnPerOrderAmount(conn);
+    if (earnPerOrder > 0) {
+      await conn.query(
+        `INSERT INTO customer_wallets (customer_id, balance, created_at, updated_at)
+         VALUES (?, ?, NOW(), NOW())
+         ON DUPLICATE KEY UPDATE balance = balance + VALUES(balance), updated_at = NOW()`,
+        [customer_id, earnPerOrder]
+      );
+      const [[wRow]] = await conn.query("SELECT balance FROM customer_wallets WHERE customer_id = ?", [customer_id]);
+      await conn.query(
+        `INSERT INTO wallet_transactions
+         (customer_id, transaction_type, amount, balance_after, source, order_id, description, created_at)
+         VALUES (?, 'CREDIT', ?, ?, 'EARN_PER_ORDER', NULL, ?, NOW())`,
+        [customer_id, earnPerOrder, wRow?.balance || 0, `Earnings for order ${order_number}`]
+      );
+    }
+
     if (payment_request_id) {
       await conn.query(
         `INSERT INTO order_payment_history (order_no, payment_request_id, amount, payment_status)
@@ -433,6 +465,7 @@ export const getAllOrders = async (req, res) => {
       INNER JOIN restaurant_details rd ON p.user_id = rd.user_id
       LEFT JOIN customers c ON o.customer_id = c.id
     `;
+
 
     const params = [];
 

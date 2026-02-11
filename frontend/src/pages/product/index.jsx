@@ -8,8 +8,10 @@ import {
   Search, Plus, X, Edit, Trash2, Save, Upload, Filter,
   GripVertical, DollarSign, Tag, Image as ImageIcon, AlertCircle
 } from "lucide-react";
+import { usePopup } from "../../context/PopupContext";
 
 export default function ProductPage() {
+  const { showPopup } = usePopup();
   const API = import.meta.env.VITE_API_URL;
   const token = localStorage.getItem("token");
 
@@ -117,90 +119,105 @@ export default function ProductPage() {
   // ADD GLOBAL PRODUCT
   // =============================
   const handleAddGlobalProduct = async (item) => {
-    if (!confirm(`Add "${item.name}"?`)) return;
+    showPopup({
+      title: "Add Global Product?",
+      message: `Do you want to add "${item.name}" to your menu?`,
+      type: "confirm",
+      onConfirm: async () => {
+        try {
+          let targetCatId = null;
 
-    try {
-      let targetCatId = null;
+          // 1. Check Category
+          if (item.category_name) {
+            const match = categories.find(c => c.name.toLowerCase() === item.category_name.toLowerCase());
+            if (match) {
+              targetCatId = match.id;
+            } else {
+              // Create Category
+              const catFd = new FormData();
+              catFd.append("name", item.category_name);
+              if (item.category_image) catFd.append("existingImage", item.category_image);
 
-      // 1. Check Category
-      if (item.category_name) {
-        const match = categories.find(c => c.name.toLowerCase() === item.category_name.toLowerCase());
-        if (match) {
-          targetCatId = match.id;
-        } else {
-          // Create Category
-          const catFd = new FormData();
-          catFd.append("name", item.category_name);
-          if (item.category_image) catFd.append("existingImage", item.category_image);
-          // We don't have cat image from product search unfortunately, or we could add it to query?
-          // For now creates category with no image
+              const catRes = await fetch(`${API}/category`, {
+                method: "POST",
+                headers: { Authorization: `Bearer ${token}` },
+                body: catFd
+              });
 
-          const catRes = await fetch(`${API}/category`, {
+              if (catRes.ok) {
+                const newCat = await catRes.json();
+                setCategories(prev => [...prev, newCat].sort((a, b) => a.sort_order - b.sort_order));
+                targetCatId = newCat.id;
+              }
+            }
+          }
+
+          if (!targetCatId) {
+            if (categories.length > 0) targetCatId = categories[0].id;
+            else {
+              showPopup({
+                title: "No Categories",
+                message: "Please create at least one category before adding products.",
+                type: "warning"
+              });
+              return;
+            }
+          }
+
+          // 2. Create Product
+          const fd = new FormData();
+          fd.append("name", item.name);
+          fd.append("description", item.description || "");
+          fd.append("price", item.price || 0);
+          fd.append("discountPrice", item.discountPrice || "");
+          fd.append("cat_id", targetCatId);
+          fd.append("contains", JSON.stringify(item.contains || []));
+          if (item.image) fd.append("existingImage", item.image);
+
+          const res = await fetch(`${API}/products`, {
             method: "POST",
             headers: { Authorization: `Bearer ${token}` },
-            body: catFd
+            body: fd
           });
 
-          if (catRes.ok) {
-            const newCat = await catRes.json();
-            setCategories(prev => [...prev, newCat].sort((a, b) => a.sort_order - b.sort_order));
-            targetCatId = newCat.id;
+          if (!res.ok) {
+            const err = await res.json();
+            showPopup({
+              title: "Import Failed",
+              message: res.status === 409 ? "Product already exists in your menu." : (err.message || "Failed to add product"),
+              type: "error"
+            });
+            return;
           }
+
+          const saved = await res.json();
+          let savedContains = saved.contains;
+          try {
+            if (typeof savedContains === 'string') savedContains = JSON.parse(savedContains);
+            if (typeof savedContains === 'string') savedContains = JSON.parse(savedContains);
+          } catch (e) { }
+          saved.contains = Array.isArray(savedContains) ? savedContains : [];
+
+          setProducts(prev => [saved, ...prev].sort((a, b) => a.sort_order - b.sort_order));
+
+          setShowSearchModal(false);
+          setGlobalSearchQuery("");
+          showPopup({
+            title: "Success",
+            message: "Product imported and added to menu.",
+            type: "success"
+          });
+
+        } catch (err) {
+          console.error("Add global product error:", err);
+          showPopup({
+            title: "System Error",
+            message: "Something went wrong while importing the product.",
+            type: "error"
+          });
         }
       }
-
-      if (!targetCatId) {
-        // If still no category (no name in global item, or creation failed), fallback to first or alert?
-        // Lets try to use the first available category if exists
-        if (categories.length > 0) targetCatId = categories[0].id;
-        else {
-          alert("Please create a category first!");
-          return;
-        }
-      }
-
-      // 2. Create Product
-      const fd = new FormData();
-      fd.append("name", item.name);
-      fd.append("description", item.description || "");
-      fd.append("price", item.price || 0);
-      fd.append("discountPrice", item.discountPrice || "");
-      fd.append("cat_id", targetCatId);
-      fd.append("contains", JSON.stringify(item.contains || []));
-      if (item.image) fd.append("existingImage", item.image);
-
-      const res = await fetch(`${API}/products`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-        body: fd
-      });
-
-      if (!res.ok) {
-        const err = await res.json();
-        if (res.status === 409) alert("Product already exists.");
-        else alert(err.message || "Failed to add product");
-        return;
-      }
-
-      const saved = await res.json();
-      // Fix contains parsing
-      let savedContains = saved.contains;
-      try {
-        if (typeof savedContains === 'string') savedContains = JSON.parse(savedContains);
-        if (typeof savedContains === 'string') savedContains = JSON.parse(savedContains);
-      } catch (e) { }
-      saved.contains = Array.isArray(savedContains) ? savedContains : [];
-
-      setProducts(prev => [saved, ...prev].sort((a, b) => a.sort_order - b.sort_order));
-
-      setShowSearchModal(false);
-      setGlobalSearchQuery("");
-      alert("Product added successfully!");
-
-    } catch (err) {
-      console.error("Add global product error:", err);
-      alert("Something went wrong");
-    }
+    });
   };
 
   // --- Helpers
@@ -278,7 +295,7 @@ export default function ProductPage() {
 
     const nameTrim = form.name?.trim();
     if (!nameTrim) {
-      alert("Please enter product name");
+      showPopup({ title: "Validation Error", message: "Please enter product name", type: "warning" });
       return;
     }
 
@@ -286,13 +303,13 @@ export default function ProductPage() {
       (p) => p.id !== form.id && p.name?.trim().toLowerCase() === nameTrim.toLowerCase()
     );
     if (localExists) {
-      alert("Product name already exists");
+      showPopup({ title: "Validation Error", message: "Product name already exists", type: "warning" });
       return;
     }
 
     const rawPrice = parseFloat(form.price || 0);
     if (rawPrice <= 0) {
-      alert("Price must be greater than zero");
+      showPopup({ title: "Validation Error", message: "Price must be greater than zero", type: "warning" });
       return;
     }
 
@@ -303,7 +320,7 @@ export default function ProductPage() {
       const discountInput = parseFloat(form.discountPrice.toString().replace("%", "").trim());
 
       if (Number.isNaN(discountInput) || discountInput < 0) {
-        alert("Invalid discount value");
+        showPopup({ title: "Validation Error", message: "Invalid discount value", type: "warning" });
         return;
       }
 
@@ -342,11 +359,11 @@ export default function ProductPage() {
 
       if (!res.ok) {
         const err = await res.json().catch(() => ({ message: "Server error" }));
-        if (res.status === 409) {
-          alert(err.message || "Product name already exists");
-          return;
-        }
-        alert(err.message || "Failed to save product");
+        showPopup({
+          title: "Save Failed",
+          message: res.status === 409 ? (err.message || "Product name already exists") : (err.message || "Failed to save product"),
+          type: "error"
+        });
         return;
       }
 
@@ -376,9 +393,10 @@ export default function ProductPage() {
         setShowModal(false);
         resetForm();
       }
+      showPopup({ title: "Success", message: "Product saved successfully", type: "success" });
     } catch (error) {
       console.error("Save product error:", error);
-      alert("Something went wrong. Please try again.");
+      showPopup({ title: "System Error", message: "Something went wrong. Please try again.", type: "error" });
     }
   };
 
@@ -398,24 +416,29 @@ export default function ProductPage() {
 
   // --- Delete
   const handleDelete = async (id) => {
-    if (!confirm("Are you sure you want to delete this product?")) return;
-
-    // play quick visual shake on the delete icon - we will trigger this by toggling a temporary state
-    try {
-      const res = await fetch(`${API}/products/${id}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({ message: "Server error" }));
-        alert(err.message || "Failed to delete product");
-        return;
+    showPopup({
+      title: "Delete Product?",
+      message: "This action cannot be undone. Are you sure you want to delete this item?",
+      type: "confirm",
+      onConfirm: async () => {
+        try {
+          const res = await fetch(`${API}/products/${id}`, {
+            method: "DELETE",
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (!res.ok) {
+            const err = await res.json().catch(() => ({ message: "Server error" }));
+            showPopup({ title: "Error", message: err.message || "Failed to delete product", type: "error" });
+            return;
+          }
+          setProducts((prev) => prev.filter((item) => item.id !== id));
+          showPopup({ title: "Deleted", message: "Product has been removed.", type: "success" });
+        } catch (err) {
+          console.error("Delete product error:", err);
+          showPopup({ title: "Error", message: "Something went wrong while deleting.", type: "error" });
+        }
       }
-      setProducts((prev) => prev.filter((item) => item.id !== id));
-    } catch (err) {
-      console.error("Delete product error:", err);
-      alert("Something went wrong while deleting.");
-    }
+    });
   };
 
   // --- Toggle status (optimistic)

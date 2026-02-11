@@ -74,12 +74,12 @@ async function generateUniqueReferralCode() {
 // 🔸 Get current signup flat amount from `settings` table
 async function getSignupFlatAmount() {
   const [rows] = await db.execute(
-    "SELECT signup_flat_amount FROM settings ORDER BY id DESC LIMIT 1"
+    "SELECT signup_bonus_amount FROM settings ORDER BY id DESC LIMIT 1"
   );
 
   if (!rows.length) return 0;
 
-  const value = parseFloat(rows[0].signup_flat_amount || 0);
+  const value = parseFloat(rows[0].signup_bonus_amount || 0);
   return isNaN(value) ? 0 : value;
 }
 

@@ -12,6 +12,7 @@ import CustomerInfo from "./pages/customerinfo/index.jsx";
 import Orders from "./pages/orders/index.jsx";
 import Settings from "./pages/settings/index.jsx";
 import CustomerDetails from "./pages/customerdetails/index.jsx";
+import { PopupProvider } from "./context/PopupContext";
 
 function PrivateRoute({ children }) {
   const token = localStorage.getItem("token");
@@ -20,129 +21,132 @@ function PrivateRoute({ children }) {
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/login" element={<LoginPage />} />
+    <PopupProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
 
-        <Route
-          path="/dashboard"
-          element={
-            <PrivateRoute>
-              <RequirePerm perm="dashboard"><Dashboard /></RequirePerm>
-            </PrivateRoute>
-          }
-        />
-
-
-        <Route
-          path="/restuarent"
-          element={
-            <PrivateRoute>
-              <RequirePerm perm="restaurant"><Restuarent /></RequirePerm>
-            </PrivateRoute>
-          }
-        />
-
-        <Route
-          path="/access"
-          element={
-            <PrivateRoute>
-              <RequirePerm perm="access"><AccessManagement /></RequirePerm>
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/access/roles"
-          element={
-            <PrivateRoute>
-              <RequirePerm perm="access"><Roles /></RequirePerm>
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/access/users"
-          element={
-            <PrivateRoute>
-              <RequirePerm perm="access"><Users /></RequirePerm>
-            </PrivateRoute>
-          }
-        />
-
-        <Route
-          path="/category"
-          element={
-            <PrivateRoute>
-              <RequirePerm perm="category"><Category /></RequirePerm>
-            </PrivateRoute>
-          }
-        />
-
-        <Route
-          path="/product"
-          element={
-            <PrivateRoute>
-              <RequirePerm perm="product"><Product /></RequirePerm>
-            </PrivateRoute>
-          }
-        />
-
-        <Route
-          path="/customerinfo"
-          element={
-            <PrivateRoute>
-              <RequirePerm perm="customer_info">
-                <CustomerInfo />
-              </RequirePerm>
-            </PrivateRoute>
-          }
-        />
-
-        <Route
-          path="/customerdetails"
-          element={
-            <PrivateRoute>
-              <RequirePerm perm="customer_details">
-                <CustomerDetails />
-              </RequirePerm>
-            </PrivateRoute>
-          }
-        />
-
-        <Route
-          path="/"
-          element={
-            localStorage.getItem("token") ? (
-              <Navigate to="/dashboard" replace />
-            ) : (
-              <Navigate to="/login" replace />
-            )
-          }
-        />
-        <Route
-          path="/orders"
-          element={
-            <PrivateRoute>
-              <RequirePerm perm="order_management">
-                <Orders />
-              </RequirePerm>
-            </PrivateRoute>
-          }
-        />
-
-        <Route
-          path="/settings"
-          element={
-            <PrivateRoute>
-              <RequirePerm perm="settings">
-                <Settings />
-              </RequirePerm>
-            </PrivateRoute>
-          }
-        />
+          <Route
+            path="/dashboard"
+            element={
+              <PrivateRoute>
+                <RequirePerm perm="dashboard"><Dashboard /></RequirePerm>
+              </PrivateRoute>
+            }
+          />
 
 
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </BrowserRouter>
+          <Route
+            path="/restuarent"
+            element={
+              <PrivateRoute>
+                <RequirePerm perm="restaurant"><Restuarent /></RequirePerm>
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/access"
+            element={
+              <PrivateRoute>
+                <RequirePerm perm="access"><AccessManagement /></RequirePerm>
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/access/roles"
+            element={
+              <PrivateRoute>
+                <RequirePerm perm="access"><Roles /></RequirePerm>
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/access/users"
+            element={
+              <PrivateRoute>
+                <RequirePerm perm="access"><Users /></RequirePerm>
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/category"
+            element={
+              <PrivateRoute>
+                <RequirePerm perm="category"><Category /></RequirePerm>
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/product"
+            element={
+              <PrivateRoute>
+                <RequirePerm perm="product"><Product /></RequirePerm>
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/customerinfo"
+            element={
+              <PrivateRoute>
+                <RequirePerm perm="customer_info">
+                  <CustomerInfo />
+                </RequirePerm>
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/customerdetails"
+            element={
+              <PrivateRoute>
+                <RequirePerm perm="customer_details">
+                  <CustomerDetails />
+                </RequirePerm>
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/"
+            element={
+              localStorage.getItem("token") ? (
+                <Navigate to="/dashboard" replace />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            }
+          />
+          <Route
+            path="/orders"
+            element={
+              <PrivateRoute>
+                <RequirePerm perm="order_management">
+                  <Orders />
+                </RequirePerm>
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/settings"
+            element={
+              <PrivateRoute>
+                <RequirePerm perm="settings">
+                  <Settings />
+                </RequirePerm>
+              </PrivateRoute>
+            }
+          />
+
+
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </BrowserRouter>
+    </PopupProvider>
   );
 }
+

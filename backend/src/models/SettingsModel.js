@@ -5,15 +5,16 @@ export async function getSettingsModel() {
   const [rows] = await db.query(
     `SELECT 
        id,
-       signup_flat_amount,
-       referral_flat_amount,
+       signup_bonus_amount,
+       referral_bonus_amount,
        minimum_order,
        minimum_cart_total,
        loyalty_points_per_gbp,
        loyalty_redeem_points,
        loyalty_redeem_value,
        loyalty_available_after_hours,
-       loyalty_expiry_days
+       loyalty_expiry_days,
+       earn_per_order_amount
      FROM settings
      ORDER BY id ASC
      LIMIT 1`
@@ -22,10 +23,11 @@ export async function getSettingsModel() {
   if (rows.length === 0) {
     return {
       id: null,
-      signup_flat_amount: 0.0,
-      referral_flat_amount: 0.0,
+      signup_bonus_amount: 0.0,
+      referral_bonus_amount: 0.0,
       minimum_order: 0.0,
       minimum_cart_total: 0.0,
+      earn_per_order_amount: 0.0,
 
       loyalty_points_per_gbp: 1,
       loyalty_redeem_points: 10,
@@ -39,8 +41,8 @@ export async function getSettingsModel() {
 }
 
 export async function upsertSettingsModel({
-  signup_flat_amount,
-  referral_flat_amount,
+  signup_bonus_amount,
+  referral_bonus_amount,
   minimum_order,
   minimum_cart_total,
   loyalty_points_per_gbp,
@@ -48,15 +50,16 @@ export async function upsertSettingsModel({
   loyalty_redeem_value,
   loyalty_available_after_hours,
   loyalty_expiry_days,
+  earn_per_order_amount,
 }) {
   const signup =
-    signup_flat_amount !== undefined && signup_flat_amount !== ""
-      ? Number(signup_flat_amount)
+    signup_bonus_amount !== undefined && signup_bonus_amount !== ""
+      ? Number(signup_bonus_amount)
       : 0;
 
   const referral =
-    referral_flat_amount !== undefined && referral_flat_amount !== ""
-      ? Number(referral_flat_amount)
+    referral_bonus_amount !== undefined && referral_bonus_amount !== ""
+      ? Number(referral_bonus_amount)
       : 0;
 
   const minOrder =
@@ -67,6 +70,11 @@ export async function upsertSettingsModel({
   const minCartTotal =
     minimum_cart_total !== undefined && minimum_cart_total !== ""
       ? Number(minimum_cart_total)
+      : 0;
+
+  const earnPerOrder =
+    earn_per_order_amount !== undefined && earn_per_order_amount !== ""
+      ? Number(earn_per_order_amount)
       : 0;
 
   // ✅ loyalty dynamic conversions (existing logic untouched)
@@ -87,7 +95,7 @@ export async function upsertSettingsModel({
 
   const availableHours =
     loyalty_available_after_hours !== undefined &&
-    loyalty_available_after_hours !== ""
+      loyalty_available_after_hours !== ""
       ? Number(loyalty_available_after_hours)
       : 24;
 
@@ -104,8 +112,8 @@ export async function upsertSettingsModel({
 
     await db.query(
       `UPDATE settings
-       SET signup_flat_amount = ?,
-           referral_flat_amount = ?,
+       SET signup_bonus_amount = ?,
+           referral_bonus_amount = ?,
            minimum_order = ?,
            minimum_cart_total = ?,
            loyalty_points_per_gbp = ?,
@@ -113,6 +121,7 @@ export async function upsertSettingsModel({
            loyalty_redeem_value = ?,
            loyalty_available_after_hours = ?,
            loyalty_expiry_days = ?,
+           earn_per_order_amount = ?,
            updated_at = NOW()
        WHERE id = ?`,
       [
@@ -125,6 +134,7 @@ export async function upsertSettingsModel({
         redeemValue,
         availableHours,
         expiryDays,
+        earnPerOrder,
         id,
       ]
     );
@@ -132,15 +142,16 @@ export async function upsertSettingsModel({
     const [rows] = await db.query(
       `SELECT 
          id,
-         signup_flat_amount,
-         referral_flat_amount,
+         signup_bonus_amount,
+         referral_bonus_amount,
          minimum_order,
          minimum_cart_total,
          loyalty_points_per_gbp,
          loyalty_redeem_points,
          loyalty_redeem_value,
          loyalty_available_after_hours,
-         loyalty_expiry_days
+         loyalty_expiry_days,
+         earn_per_order_amount
        FROM settings
        WHERE id = ?`,
       [id]
@@ -150,16 +161,17 @@ export async function upsertSettingsModel({
   } else {
     const [result] = await db.query(
       `INSERT INTO settings
-       (signup_flat_amount,
-        referral_flat_amount,
+       (signup_bonus_amount,
+        referral_bonus_amount,
         minimum_order,
         minimum_cart_total,
         loyalty_points_per_gbp,
         loyalty_redeem_points,
         loyalty_redeem_value,
         loyalty_available_after_hours,
-        loyalty_expiry_days)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        loyalty_expiry_days,
+        earn_per_order_amount)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         signup,
         referral,
@@ -170,21 +182,23 @@ export async function upsertSettingsModel({
         redeemValue,
         availableHours,
         expiryDays,
+        earnPerOrder,
       ]
     );
 
     const [rows] = await db.query(
       `SELECT 
          id,
-         signup_flat_amount,
-         referral_flat_amount,
+         signup_bonus_amount,
+         referral_bonus_amount,
          minimum_order,
          minimum_cart_total,
          loyalty_points_per_gbp,
          loyalty_redeem_points,
          loyalty_redeem_value,
          loyalty_available_after_hours,
-         loyalty_expiry_days
+         loyalty_expiry_days,
+         earn_per_order_amount
        FROM settings
        WHERE id = ?`,
       [result.insertId]

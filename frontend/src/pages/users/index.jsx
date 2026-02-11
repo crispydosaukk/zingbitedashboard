@@ -5,6 +5,7 @@ import Footer from "../../components/common/footer.jsx";
 import api from "../../api.js";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, Plus, Edit, Trash2, X, Users as UsersIcon, ChevronDown, Check, User, Mail, Lock } from "lucide-react";
+import { usePopup } from "../../context/PopupContext";
 
 // Helper: Custom Glass MultiSelect (reused concept)
 const GlassMultiSelect = ({ loading, options, selected, onToggle, label }) => {
@@ -74,6 +75,7 @@ const GlassMultiSelect = ({ loading, options, selected, onToggle, label }) => {
 };
 
 export default function Users() {
+  const { showPopup } = usePopup();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Table state
@@ -175,8 +177,9 @@ export default function Users() {
       setCName(""); setCEmail(""); setCPassword(""); setCRoleIds([]);
       setOpenCreate(false);
       await fetchUsers();
+      showPopup({ title: "User Created", message: `Successfully added ${cName}.`, type: "success" });
     } catch (e) {
-      alert(e?.response?.data?.message || "Failed to create user");
+      showPopup({ title: "Error", message: e?.response?.data?.message || "Failed to create user", type: "error" });
     } finally {
       setSaving(false);
     }
@@ -203,8 +206,9 @@ export default function Users() {
       await api.put(`/users/${eId}`, body);
       setOpenEdit(false);
       await fetchUsers();
+      showPopup({ title: "Success", message: "User updated successfully.", type: "success" });
     } catch (e) {
-      alert(e?.response?.data?.message || "Failed to update user");
+      showPopup({ title: "Error", message: e?.response?.data?.message || "Failed to update user", type: "error" });
     } finally {
       setUpdating(false);
     }
@@ -212,13 +216,20 @@ export default function Users() {
 
   // Delete
   const handleDelete = async (u) => {
-    if (!window.confirm(`Delete user "${u.name}"?`)) return;
-    try {
-      await api.delete(`/users/${u.id}`);
-      await fetchUsers();
-    } catch (e) {
-      alert(e?.response?.data?.message || "Failed to delete");
-    }
+    showPopup({
+      title: "Delete User?",
+      message: `Are you sure you want to delete "${u.name}"? This action cannot be undone.`,
+      type: "confirm",
+      onConfirm: async () => {
+        try {
+          await api.delete(`/users/${u.id}`);
+          await fetchUsers();
+          showPopup({ title: "Deleted", message: "User has been removed.", type: "success" });
+        } catch (e) {
+          showPopup({ title: "Error", message: e?.response?.data?.message || "Failed to delete user", type: "error" });
+        }
+      }
+    });
   };
 
   return (

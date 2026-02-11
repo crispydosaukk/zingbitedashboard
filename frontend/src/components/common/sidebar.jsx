@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useCallback, useState } from "react";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { can } from "../../utils/perm";
+import { usePopup } from "../../context/PopupContext";
 
 /* Sidebar link item */
 const Item = ({ to = "#", icon, label }) => (
@@ -64,6 +65,8 @@ function Group({ label, icon, children, defaultOpen = false, hidden = false, ope
 }
 
 export default function Sidebar({ open, onClose }) {
+  const { showPopup } = usePopup();
+  const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
@@ -247,8 +250,15 @@ export default function Sidebar({ open, onClose }) {
 
           <button
             onClick={() => {
-              localStorage.clear();
-              window.location.href = "/login";
+              showPopup({
+                title: "Confirm Logout",
+                message: "Are you sure you want to log out?",
+                type: "confirm",
+                onConfirm: () => {
+                  localStorage.clear();
+                  navigate("/login", { replace: true });
+                }
+              });
             }}
             className="w-full bg-white/25 hover:bg-white/35 text-white py-2 rounded-xl font-semibold transition"
           >

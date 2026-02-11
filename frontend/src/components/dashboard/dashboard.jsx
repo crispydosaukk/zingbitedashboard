@@ -6,11 +6,12 @@ import { useNavigate } from "react-router-dom";
 import {
   ShoppingBag, Users, Store, UserPlus, ArrowUp, ArrowRight, CheckCircle, Clock, Eye, X,
   Calendar, DollarSign, TrendingUp, CreditCard, ChevronDown, PoundSterling, Package,
-  RotateCcw, AlertCircle, Box
+  RotateCcw, AlertCircle, Box, Truck, XCircle, Plus, Phone
 } from "lucide-react";
 import Header from "../common/header.jsx";
 import Sidebar from "../common/sidebar.jsx";
 import Footer from "../common/footer.jsx";
+import ReadyInModal from "../common/ReadyInModal.jsx";
 import api from "../../api.js";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -72,7 +73,7 @@ const StatCard = ({ title, value, subtext, icon: Icon, colorClass, delay, onEyeC
   </motion.div>
 );
 
-const MetricDetailsModal = ({ isOpen, onClose, title, items = [], type }) => {
+const MetricDetailsModal = ({ isOpen, onClose, title, items = [], type, onUpdateStatus, onReadyClick }) => {
   const navigate = useNavigate();
 
   if (!isOpen) return null;
@@ -135,6 +136,7 @@ const MetricDetailsModal = ({ isOpen, onClose, title, items = [], type }) => {
                       <th className="px-6 py-4">Customer</th>
                       <th className="px-6 py-4">Amount</th>
                       <th className="px-6 py-4 text-center">Status</th>
+                      <th className="px-6 py-4 text-center">Actions</th>
                     </>
                   )}
                 </tr>
@@ -184,7 +186,14 @@ const MetricDetailsModal = ({ isOpen, onClose, title, items = [], type }) => {
                     ) : (
                       <>
                         <td className="px-6 py-4 font-bold text-white">
-                          <span className="text-sm group-hover:text-emerald-400 transition-colors">#{item.order_number}</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm group-hover:text-emerald-400 transition-colors">#{item.order_number}</span>
+                            {item.order_source === 'Dashboard' && (
+                              <div className="flex items-center justify-center w-5 h-5 rounded-full bg-emerald-500 text-white text-[9px] font-black border border-white/10" title="Dashboard Order">
+                                D
+                              </div>
+                            )}
+                          </div>
                           <span className="block text-[10px] font-medium text-white/40 mt-1">
                             {new Date(item.created_at).toLocaleDateString()} at {new Date(item.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                           </span>
@@ -203,6 +212,46 @@ const MetricDetailsModal = ({ isOpen, onClose, title, items = [], type }) => {
                                   Number(item.order_status) === 3 ? 'Ready' :
                                     Number(item.order_status) === 4 ? 'Collected' : 'Cancelled'}
                           </span>
+                        </td>
+                        <td className="px-6 py-4 text-center">
+                          <div className="flex justify-center gap-2" onClick={(e) => e.stopPropagation()}>
+                            {Number(item.order_status) === 0 && (
+                              <>
+                                <button
+                                  onClick={() => onReadyClick(item.order_number)}
+                                  className="p-1.5 bg-emerald-500/20 hover:bg-emerald-500/40 text-emerald-400 rounded-lg transition-all"
+                                  title="Accept"
+                                >
+                                  <CheckCircle size={16} />
+                                </button>
+                                <button
+                                  onClick={() => onUpdateStatus(item.order_number, 2)}
+                                  className="p-1.5 bg-rose-500/20 hover:bg-rose-500/40 text-rose-400 rounded-lg transition-all"
+                                  title="Reject"
+                                >
+                                  <XCircle size={16} />
+                                </button>
+                              </>
+                            )}
+                            {Number(item.order_status) === 1 && (
+                              <button
+                                onClick={() => onUpdateStatus(item.order_number, 3)}
+                                className="p-1.5 bg-purple-500/20 hover:bg-purple-500/40 text-purple-400 rounded-lg transition-all"
+                                title="Mark as Ready"
+                              >
+                                <ShoppingBag size={16} />
+                              </button>
+                            )}
+                            {Number(item.order_status) === 3 && (
+                              <button
+                                onClick={() => onUpdateStatus(item.order_number, 4)}
+                                className="p-1.5 bg-emerald-500/20 hover:bg-emerald-500/40 text-emerald-400 rounded-lg transition-all"
+                                title="Mark Collected"
+                              >
+                                <CheckCircle size={16} />
+                              </button>
+                            )}
+                          </div>
                         </td>
                       </>
                     )}
@@ -233,7 +282,7 @@ const MetricDetailsModal = ({ isOpen, onClose, title, items = [], type }) => {
   );
 };
 
-const OrderDetailsModal = ({ order, onClose }) => {
+const OrderDetailsModal = ({ order, onClose, onUpdateStatus, onReadyClick }) => {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -387,8 +436,42 @@ const OrderDetailsModal = ({ order, onClose }) => {
           </div>
         </div>
 
-        <div className="bg-white/5 p-4 border-t border-white/10 flex justify-end shrink-0">
-          <button onClick={onClose} className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors font-medium">
+        <div className="bg-white/5 p-4 border-t border-white/10 flex justify-between items-center shrink-0">
+          <div className="flex gap-2">
+            {Number(order.order_status) === 0 && (
+              <>
+                <button
+                  onClick={() => onReadyClick(order.order_number)}
+                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg transition-colors font-bold text-sm flex items-center gap-2 shadow-lg shadow-emerald-900/30"
+                >
+                  <CheckCircle size={16} /> Accept
+                </button>
+                <button
+                  onClick={() => onUpdateStatus(order.order_number, 2)}
+                  className="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white rounded-lg transition-colors font-bold text-sm flex items-center gap-2 shadow-lg shadow-rose-900/30"
+                >
+                  <XCircle size={16} /> Reject
+                </button>
+              </>
+            )}
+            {Number(order.order_status) === 1 && (
+              <button
+                onClick={() => onUpdateStatus(order.order_number, 3)}
+                className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg transition-colors font-bold text-sm flex items-center gap-2"
+              >
+                <ShoppingBag size={16} /> Mark as Ready
+              </button>
+            )}
+            {Number(order.order_status) === 3 && (
+              <button
+                onClick={() => onUpdateStatus(order.order_number, 4)}
+                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg transition-colors font-bold text-sm flex items-center gap-2"
+              >
+                <CheckCircle size={16} /> Mark Collected
+              </button>
+            )}
+          </div>
+          <button onClick={onClose} className="px-6 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors font-medium">
             Close
           </button>
         </div>
@@ -476,6 +559,450 @@ const ProductDetailsModal = ({ product, onClose }) => {
 };
 
 
+const NewOrderModal = ({ isOpen, onClose, onOrderPlaced, initialUserId, restaurants, isSuperAdmin }) => {
+  const [step, setStep] = useState(1); // 1: Customer/Restaurant, 2: Items
+  const [localUserId, setLocalUserId] = useState(initialUserId || "");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [customer, setCustomer] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const [categories, setCategories] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [cart, setCart] = useState([]);
+  const [loadingItems, setLoadingItems] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [successOrderNumber, setSuccessOrderNumber] = useState("");
+
+  useEffect(() => {
+    if (isOpen) {
+      resetModal();
+      if (initialUserId) {
+        setLocalUserId(initialUserId);
+      }
+    }
+  }, [isOpen, initialUserId]);
+
+  useEffect(() => {
+    if (localUserId) {
+      fetchCategories();
+    } else {
+      setCategories([]);
+    }
+  }, [localUserId]);
+
+  const resetModal = () => {
+    setStep(1);
+    setIsSuccess(false);
+    setPhoneNumber("");
+    setCustomer(null);
+    setCart([]);
+    setError("");
+    setSelectedCategory("");
+    setSearchTerm("");
+    setSuccessOrderNumber("");
+  };
+
+  const fetchCategories = async () => {
+    try {
+      if (!localUserId) return;
+      setLoadingItems(true);
+      const res = await api.get(`/mobile/categories?user_id=${localUserId}`);
+      if (res.data.status === 1) {
+        const cats = res.data.data || [];
+        setCategories(cats);
+        if (cats.length > 0 && !selectedCategory) {
+          setSelectedCategory(cats[0].id);
+          fetchProductsForCategory(cats[0].id);
+        }
+      }
+    } catch (err) {
+      console.error("Failed to fetch categories", err);
+    } finally {
+      setLoadingItems(false);
+    }
+  };
+
+  const fetchProductsForCategory = async (catId) => {
+    try {
+      if (!localUserId) return;
+      setLoadingItems(true);
+      const res = await api.get(`/mobile/products?cat_id=${catId}&user_id=${localUserId}`);
+      if (res.data.status === 1) {
+        setProducts(res.data.data || []);
+      }
+    } catch (err) {
+      console.error("Failed to fetch products", err);
+    } finally {
+      setLoadingItems(false);
+    }
+  };
+
+  const searchCustomer = async () => {
+    if (isSuperAdmin && !localUserId) {
+      setError("Please select a restaurant first.");
+      return;
+    }
+    if (!phoneNumber) return;
+    setLoading(true);
+    setError("");
+    try {
+      const res = await api.get("/customers");
+      const found = (res.data || []).find(c => c.mobile_number === phoneNumber);
+      if (found) {
+        setCustomer(found);
+        setStep(2);
+      } else {
+        setError("Customer not found with this phone number.");
+      }
+    } catch (err) {
+      setError("Failed to search customer.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const addToCart = (prod, qty = 1) => {
+    const existing = cart.find(item => item.product_id === prod.id);
+    if (existing) {
+      setCart(cart.map(item =>
+        item.product_id === prod.id
+          ? { ...item, quantity: item.quantity + qty }
+          : item
+      ));
+    } else {
+      setCart([...cart, {
+        product_id: prod.id,
+        product_name: prod.name,
+        price: prod.price,
+        quantity: qty,
+        discount_amount: 0,
+        vat: 0
+      }]);
+    }
+  };
+
+  const updateQuantity = (productId, delta) => {
+    setCart(cart.map(item => {
+      if (item.product_id === productId) {
+        const newQty = Math.max(0, item.quantity + delta);
+        return { ...item, quantity: newQty };
+      }
+      return item;
+    }).filter(item => item.quantity > 0));
+  };
+
+  const removeFromCart = (pid) => {
+    setCart(cart.filter(item => item.product_id !== pid));
+  };
+
+  const placeOrder = async () => {
+    if (cart.length === 0) return;
+    setLoading(true);
+    try {
+      const res = await api.post("/create-order", {
+        customer_id: customer.id,
+        payment_mode: 0, // COD
+        instore: 1, // Default to Instore for Dashboard orders
+        items: cart,
+        order_source: 'Dashboard',
+        user_id: localUserId // Ensure order is linked to correct restaurant
+      });
+
+      if (res.data.status === 1) {
+        setIsSuccess(true);
+        setSuccessOrderNumber(res.data.order_number || "");
+        onOrderPlaced();
+        // Don't close immediately, show success screen
+      } else {
+        setError(res.data.message || "Failed to place order.");
+      }
+    } catch (err) {
+      setError("Error placing order. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-black/70 backdrop-blur-md z-[110] flex items-center justify-center p-4"
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ scale: 0.95, opacity: 0, y: 20 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        onClick={(e) => e.stopPropagation()}
+        className="bg-[#1a1c23] border border-white/10 rounded-3xl shadow-2xl max-w-5xl w-full overflow-hidden flex flex-col max-h-[90vh]"
+      >
+        <div className="bg-gradient-to-r from-emerald-900 to-teal-900 px-8 py-5 flex justify-between items-center border-b border-white/10">
+          <h3 className="text-xl font-black text-white flex items-center gap-3 uppercase tracking-wider">
+            <Plus size={24} className="text-emerald-400" /> New Order
+          </h3>
+          <button onClick={onClose} className="p-2.5 bg-white/5 hover:bg-white/10 rounded-2xl text-white/70 hover:text-white transition-all">
+            <X size={20} />
+          </button>
+        </div>
+
+        <div className="p-8 overflow-y-auto custom-scrollbar flex-1 min-h-0">
+          {isSuccess ? (
+            <div className="flex flex-col items-center justify-center py-12 text-center h-full">
+              <div className="w-24 h-24 bg-emerald-500/20 rounded-full flex items-center justify-center mb-6 border border-emerald-500/30 text-emerald-400">
+                <CheckCircle size={64} />
+              </div>
+              <h2 className="text-3xl font-black text-white mb-2 uppercase tracking-wider">Order Placed!</h2>
+              <p className="text-white/50 mb-8 max-w-sm">
+                Order <span className="text-emerald-400 font-bold">#{successOrderNumber}</span> has been successfully created and sent to the kitchen.
+              </p>
+              <div className="flex gap-4">
+                <button
+                  onClick={resetModal}
+                  className="px-8 py-3 bg-white/10 hover:bg-white/20 text-white rounded-2xl font-bold transition-all border border-white/10"
+                >
+                  Create Another
+                </button>
+                <button
+                  onClick={onClose}
+                  className="px-8 py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl font-bold transition-all shadow-xl shadow-emerald-900/40"
+                >
+                  Close Manager
+                </button>
+              </div>
+            </div>
+          ) : step === 1 ? (
+            <div className="space-y-6">
+              <div className="text-center mb-8">
+                <div className="w-16 h-16 bg-emerald-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-emerald-500/30 text-emerald-400">
+                  <UserPlus size={32} />
+                </div>
+                <h4 className="text-white font-bold text-xl">Order Initialization</h4>
+                <p className="text-white/50 text-sm mt-1">Select restaurant and customer</p>
+              </div>
+
+              {isSuperAdmin && (
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-white/40 uppercase tracking-widest px-1">Select Restaurant</label>
+                  <div className="relative">
+                    <Store className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30" size={18} />
+                    <select
+                      value={localUserId}
+                      onChange={(e) => {
+                        setLocalUserId(e.target.value);
+                        if (error) setError("");
+                      }}
+                      className="w-full bg-white/5 border border-white/10 rounded-2xl pl-12 pr-10 py-4 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 appearance-none text-lg font-medium"
+                    >
+                      <option value="" className="bg-slate-900">Choose Restaurant...</option>
+                      {restaurants.map(r => (
+                        <option key={r.user_id} value={r.user_id} className="bg-slate-900">{r.restaurant_name}</option>
+                      ))}
+                    </select>
+                    <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-white/30 pointer-events-none" size={20} />
+                  </div>
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-white/40 uppercase tracking-widest px-1">Customer Phone Number</label>
+                <div className="relative">
+                  <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30" size={20} />
+                  <input
+                    type="text"
+                    placeholder="Enter Mobile Number..."
+                    value={phoneNumber}
+                    onChange={(e) => {
+                      setPhoneNumber(e.target.value);
+                      if (error) setError("");
+                    }}
+                    className="w-full bg-white/5 border border-white/10 rounded-2xl pl-12 pr-4 py-4 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 text-lg font-medium"
+                  />
+                </div>
+              </div>
+
+              {error && <p className="text-rose-400 text-sm font-medium bg-rose-500/10 p-3 rounded-xl border border-rose-500/20">{error}</p>}
+
+              <button
+                onClick={searchCustomer}
+                disabled={loading || !phoneNumber}
+                className="w-full py-4 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white rounded-2xl font-black uppercase tracking-widest transition-all shadow-xl shadow-emerald-900/40"
+              >
+                {loading ? "Searching..." : "Find Customer"}
+              </button>
+            </div>
+          ) : (
+            <div className="flex flex-col lg:flex-row gap-6 h-full">
+              {/* Menu Column */}
+              <div className="flex-1 flex flex-col min-h-0 min-w-0">
+                {/* Search & Header */}
+                <div className="flex flex-col sm:flex-row gap-4 mb-6">
+                  <div className="relative flex-1">
+                    <ShoppingBag className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30" size={18} />
+                    <input
+                      type="text"
+                      placeholder="Search items..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="w-full bg-white/5 border border-white/10 rounded-2xl pl-12 pr-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+                    />
+                  </div>
+                  <div className="flex items-center gap-3 px-4 py-2 bg-emerald-500/10 rounded-2xl border border-emerald-500/20">
+                    <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center font-bold text-white shadow-lg">
+                      {customer?.full_name?.charAt(0) || "G"}
+                    </div>
+                    <div>
+                      <h5 className="text-white text-xs font-bold truncate max-w-[100px]">{customer?.full_name || "Guest"}</h5>
+                      <button onClick={() => setStep(1)} className="text-[10px] text-emerald-400 font-bold hover:underline uppercase tracking-widest">Change</button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Categories Tabs */}
+                <div className="flex gap-2 overflow-x-auto pb-4 no-scrollbar mb-4">
+                  {categories.map((cat) => (
+                    <button
+                      key={cat.id}
+                      onClick={() => {
+                        setSelectedCategory(cat.id);
+                        fetchProductsForCategory(cat.id);
+                      }}
+                      className={`px-5 py-2.5 rounded-xl whitespace-nowrap font-bold text-xs uppercase tracking-widest transition-all border ${selectedCategory === cat.id
+                        ? "bg-emerald-600 border-emerald-500 text-white shadow-lg shadow-emerald-900/40"
+                        : "bg-white/5 border-white/10 text-white/40 hover:bg-white/10 hover:text-white"
+                        }`}
+                    >
+                      {cat.name}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Products Grid */}
+                <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 min-h-[300px]">
+                  {loadingItems ? (
+                    <div className="flex flex-col items-center justify-center py-20 text-white/20">
+                      <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-emerald-500 mb-4" />
+                      <p className="font-bold uppercase tracking-widest text-xs">Loading items...</p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                      {products
+                        .filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase()))
+                        .map((p) => {
+                          const inCart = cart.find(c => c.product_id === p.id);
+                          return (
+                            <motion.div
+                              layout
+                              key={p.id}
+                              className={`group relative bg-white/5 border rounded-2xl p-4 transition-all cursor-pointer hover:bg-white/10 ${inCart ? "border-emerald-500/50 bg-emerald-500/5 shadow-lg shadow-emerald-900/20" : "border-white/10"
+                                }`}
+                              onClick={() => addToCart(p)}
+                            >
+                              <div className="flex gap-3">
+                                <div className="w-16 h-16 rounded-xl bg-white/5 overflow-hidden flex-shrink-0 border border-white/10 group-hover:border-white/20 transition-all">
+                                  {p.image ? (
+                                    <img src={p.image} alt={p.name} className="w-full h-full object-cover transition-transform group-hover:scale-110" />
+                                  ) : (
+                                    <ShoppingBag size={24} className="m-auto mt-4 text-white/10" />
+                                  )}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <h6 className="text-white font-bold text-sm truncate group-hover:text-emerald-400 transition-colors">{p.name}</h6>
+                                  <p className="text-emerald-400 font-black text-sm mt-1">£{Number(p.price).toFixed(2)}</p>
+                                  {inCart && (
+                                    <div className="mt-2 flex items-center justify-between">
+                                      <div className="flex items-center gap-2 bg-emerald-500/20 px-2 py-1 rounded-lg">
+                                        <button
+                                          onClick={(e) => { e.stopPropagation(); updateQuantity(p.id, -1); }}
+                                          className="text-emerald-400 hover:text-white"
+                                        >-</button>
+                                        <span className="text-white text-xs font-bold">{inCart.quantity}</span>
+                                        <button
+                                          onClick={(e) => { e.stopPropagation(); updateQuantity(p.id, 1); }}
+                                          className="text-emerald-400 hover:text-white"
+                                        >+</button>
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </motion.div>
+                          );
+                        })}
+                    </div>
+                  )}
+                  {!loadingItems && products.length === 0 && (
+                    <div className="text-center py-20 text-white/20">
+                      <ShoppingBag size={48} className="mx-auto mb-4" />
+                      <p className="font-bold uppercase tracking-widest text-xs">No products in this category</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Cart Column */}
+              <div className="w-full lg:w-80 flex flex-col bg-white/5 rounded-3xl border border-white/10 overflow-hidden shrink-0">
+                <div className="p-5 border-b border-white/10 bg-white/5">
+                  <h6 className="text-white font-black text-xs uppercase tracking-widest flex items-center gap-2">
+                    <ShoppingBag size={14} className="text-emerald-400" /> Cart Summary
+                  </h6>
+                </div>
+
+                <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-3 min-h-[200px] max-h-[300px] lg:max-h-none">
+                  {cart.length === 0 ? (
+                    <div className="h-full flex flex-col items-center justify-center text-white/20">
+                      <ShoppingBag size={32} className="mb-2" />
+                      <p className="text-[10px] font-bold uppercase tracking-widest">Cart is empty</p>
+                    </div>
+                  ) : (
+                    cart.map((item) => (
+                      <div key={item.product_id} className="flex justify-between items-center group">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-white text-xs font-bold truncate pr-2">{item.product_name}</p>
+                          <p className="text-white/40 text-[10px]">£{Number(item.price).toFixed(2)} x {item.quantity}</p>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <span className="text-emerald-400 font-bold text-xs">£{(item.price * item.quantity).toFixed(2)}</span>
+                          <button onClick={() => updateQuantity(item.product_id, -100)} className="text-white/20 hover:text-rose-400 transition-colors">
+                            <X size={14} />
+                          </button>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+
+                <div className="p-5 bg-white/5 border-t border-white/10 space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Total Amount</span>
+                    <span className="text-emerald-400 text-xl font-black">
+                      £{cart.reduce((s, i) => s + i.price * i.quantity, 0).toFixed(2)}
+                    </span>
+                  </div>
+                  {error && <p className="text-rose-400 text-[10px] font-bold bg-rose-500/10 p-2 rounded-lg border border-rose-500/20 text-center">{error}</p>}
+                  <button
+                    onClick={placeOrder}
+                    disabled={cart.length === 0 || loading}
+                    className="w-full py-4 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white rounded-2xl font-black uppercase tracking-widest transition-all shadow-xl shadow-emerald-900/40 active:scale-95"
+                  >
+                    {loading ? "Placing..." : "Confirm Order"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+};
+
+
 // --- Main Dashboard ---
 
 export default function Dashboard() {
@@ -506,6 +1033,9 @@ export default function Dashboard() {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [detailModal, setDetailModal] = useState({ isOpen: false, title: "", items: [], type: "" });
+  const [isReadyModalOpen, setIsReadyModalOpen] = useState(false);
+  const [orderForReady, setOrderForReady] = useState(null);
+  const [isNewOrderModalOpen, setIsNewOrderModalOpen] = useState(false);
 
   // Restaurant Filter State (Super Admin)
   const [restaurants, setRestaurants] = useState([]);
@@ -557,18 +1087,45 @@ export default function Dashboard() {
     }
   };
 
+  const updateOrderStatus = async (orderNumber, status, readyInMinutes = null) => {
+    try {
+      await api.post("/mobile/orders/update-status", {
+        order_number: orderNumber,
+        status,
+        ready_in_minutes: readyInMinutes
+      });
+      fetchStats();
+      // Also update modal items if open
+      if (detailModal.isOpen) {
+        setDetailModal(prev => ({
+          ...prev,
+          items: prev.items.map(o => o.order_number === orderNumber ? { ...o, order_status: status } : o)
+        }));
+      }
+      // If selectedOrder (OrderDetailsModal) is open, update it too
+      if (selectedOrder && selectedOrder.order_number === orderNumber) {
+        setSelectedOrder(prev => ({ ...prev, order_status: status }));
+      }
+    } catch (error) {
+      console.error("Failed to update status", error);
+    }
+  };
+
   const openDetailModal = async (type, title) => {
     let items = [];
+    const res = await api.get('/mobile/orders');
+    const allOrders = (res.data.status === 1 && Array.isArray(res.data.orders)) ? res.data.orders : [];
+
     if (type === 'pending') {
-      items = stats.recent_orders?.filter(o => [0, 1, 3].includes(Number(o.order_status))) || [];
+      items = allOrders.filter(o => [0, 1, 3].includes(Number(o.order_status)));
     } else if (type === 'completed') {
-      items = stats.recent_orders?.filter(o => o.order_status === 4) || [];
+      items = allOrders.filter(o => Number(o.order_status) === 4);
     } else if (type === 'cancelled') {
-      items = stats.recent_orders?.filter(o => Number(o.order_status) === 5) || [];
+      items = allOrders.filter(o => Number(o.order_status) === 5);
     } else if (type === 'orders') {
       items = stats.recent_orders || [];
     } else if (type === 'payments') {
-      items = stats.recent_orders?.filter(o => Number(o.payment_mode) === 0 && Number(o.order_status) < 4) || [];
+      items = allOrders.filter(o => Number(o.payment_mode) === 0 && Number(o.order_status) < 4);
     } else if (type === 'products' || type === 'deactive') {
       try {
         const res = await api.get('/products');
@@ -671,6 +1228,60 @@ export default function Dashboard() {
     return <span className="px-2 py-1 rounded-full text-xs font-bold bg-gray-500/20 text-gray-300">Cancelled</span>;
   };
 
+  const OrderActions = ({ order }) => {
+    const status = Number(order.order_status);
+    return (
+      <div className="flex items-center justify-center gap-2">
+        <button
+          onClick={() => setSelectedOrder(order)}
+          className="p-2 bg-white/10 hover:bg-white/20 rounded-lg text-emerald-300 hover:text-emerald-200 transition-all shadow-md active:scale-95"
+          title="View Details"
+        >
+          <Eye size={18} />
+        </button>
+        {status === 0 && (
+          <>
+            <button
+              onClick={() => {
+                setOrderForReady(order.order_number);
+                setIsReadyModalOpen(true);
+              }}
+              className="p-2 bg-emerald-500/20 hover:bg-emerald-500/40 rounded-lg text-emerald-400 transition-all shadow-md active:scale-95"
+              title="Accept"
+            >
+              <CheckCircle size={18} />
+            </button>
+            <button
+              onClick={() => updateOrderStatus(order.order_number, 2)}
+              className="p-2 bg-rose-500/20 hover:bg-rose-500/40 rounded-lg text-rose-400 transition-all shadow-md active:scale-95"
+              title="Reject"
+            >
+              <XCircle size={18} />
+            </button>
+          </>
+        )}
+        {status === 1 && (
+          <button
+            onClick={() => updateOrderStatus(order.order_number, 3)}
+            className="p-2 bg-purple-500/20 hover:bg-purple-500/40 rounded-lg text-purple-400 transition-all shadow-md active:scale-95"
+            title="Mark as Ready"
+          >
+            <ShoppingBag size={18} />
+          </button>
+        )}
+        {status === 3 && (
+          <button
+            onClick={() => updateOrderStatus(order.order_number, 4)}
+            className="p-2 bg-emerald-500/20 hover:bg-emerald-500/40 rounded-lg text-emerald-400 transition-all shadow-md active:scale-95"
+            title="Mark Collected"
+          >
+            <CheckCircle size={18} />
+          </button>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-900 via-teal-800 to-emerald-900 text-white font-sans selection:bg-emerald-500/30">
       <style dangerouslySetInnerHTML={{
@@ -713,8 +1324,11 @@ export default function Dashboard() {
               <button className="flex items-center gap-2 px-6 py-2 bg-white/10 backdrop-blur-md rounded-xl border border-white/20 text-white font-bold hover:bg-white/20 transition-all text-sm uppercase tracking-wider">
                 <ArrowRight className="rotate-90" size={18} /> Export
               </button>
-              <button className="flex items-center gap-2 px-6 py-2 bg-indigo-600 rounded-xl text-white font-bold hover:bg-indigo-500 transition-all text-sm uppercase tracking-wider shadow-lg shadow-indigo-900/40">
-                <X className="rotate-45" size={18} /> New Order
+              <button
+                onClick={() => setIsNewOrderModalOpen(true)}
+                className="flex items-center gap-2 px-6 py-2 bg-emerald-600 rounded-xl text-white font-bold hover:bg-emerald-500 transition-all text-sm uppercase tracking-wider shadow-lg shadow-emerald-900/40"
+              >
+                <Plus size={18} /> New Order
               </button>
             </div>
           </div>
@@ -963,7 +1577,16 @@ export default function Dashboard() {
                     ) : currentOrders.length > 0 ? (
                       currentOrders.map((order, i) => (
                         <tr key={i} className="hover:bg-white/5 transition-colors group">
-                          <td className="px-6 py-4 font-medium">#{order.order_number}</td>
+                          <td className="px-6 py-4 font-medium">
+                            <div className="flex items-center gap-2">
+                              #{order.order_number}
+                              {order.order_source === 'Dashboard' && (
+                                <div className="flex items-center justify-center w-5 h-5 rounded-full bg-emerald-500 text-white text-[9px] font-black border border-white/10 shadow-sm" title="Dashboard Order">
+                                  D
+                                </div>
+                              )}
+                            </div>
+                          </td>
                           <td className="px-6 py-4 text-white/80">{order.customer_name || "Guest"}</td>
                           <td className="px-6 py-4 font-semibold text-emerald-300">{formatCurrency(order.grand_total)}</td>
                           <td className="px-6 py-4">{getStatusBadge(order.order_status)}</td>
@@ -973,12 +1596,7 @@ export default function Dashboard() {
                             <span className="text-xs text-white/40">{new Date(order.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                           </td>
                           <td className="px-6 py-4 text-center">
-                            <button
-                              onClick={() => setSelectedOrder(order)}
-                              className="p-2 bg-white/10 hover:bg-white/20 rounded-lg text-emerald-300 hover:text-emerald-200 transition-all shadow-md active:scale-95"
-                            >
-                              <Eye size={18} />
-                            </button>
+                            <OrderActions order={order} />
                           </td>
                         </tr>
                       ))
@@ -1056,7 +1674,15 @@ export default function Dashboard() {
 
       <AnimatePresence>
         {selectedOrder && (
-          <OrderDetailsModal order={selectedOrder} onClose={() => setSelectedOrder(null)} />
+          <OrderDetailsModal
+            order={selectedOrder}
+            onUpdateStatus={updateOrderStatus}
+            onReadyClick={(num) => {
+              setOrderForReady(num);
+              setIsReadyModalOpen(true);
+            }}
+            onClose={() => setSelectedOrder(null)}
+          />
         )}
         {selectedProduct && (
           <ProductDetailsModal product={selectedProduct} onClose={() => setSelectedProduct(null)} />
@@ -1067,10 +1693,48 @@ export default function Dashboard() {
             title={detailModal.title}
             items={detailModal.items}
             type={detailModal.type}
+            onUpdateStatus={updateOrderStatus}
+            onReadyClick={(num) => {
+              setOrderForReady(num);
+              setIsReadyModalOpen(true);
+            }}
             onClose={() => setDetailModal({ ...detailModal, isOpen: false })}
           />
         )}
+        <NewOrderModal
+          isOpen={isNewOrderModalOpen}
+          onClose={() => setIsNewOrderModalOpen(false)}
+          onOrderPlaced={fetchStats}
+          restaurants={restaurants}
+          isSuperAdmin={stats?.is_super_admin}
+          initialUserId={(() => {
+            if (stats?.is_super_admin) {
+              return (selectedRestaurant && selectedRestaurant !== 'all') ? selectedRestaurant : "";
+            }
+            const userStr = localStorage.getItem("user");
+            if (userStr) {
+              try {
+                const u = JSON.parse(userStr);
+                return u.id;
+              } catch (e) { }
+            }
+            return "";
+          })()}
+        />
       </AnimatePresence>
+
+      <ReadyInModal
+        isOpen={isReadyModalOpen}
+        onClose={() => setIsReadyModalOpen(false)}
+        onConfirm={(mins) => {
+          if (orderForReady) {
+            updateOrderStatus(orderForReady, 1, mins);
+            setIsReadyModalOpen(false);
+            setOrderForReady(null);
+          }
+        }}
+        orderNumber={orderForReady}
+      />
 
     </div>
   );

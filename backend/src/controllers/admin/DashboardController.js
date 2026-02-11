@@ -383,9 +383,9 @@ export const getDashboardStats = async (req, res) => {
                 FROM orders o
                 JOIN products p ON o.product_id = p.id
                 JOIN restaurant_details rd ON p.user_id = rd.user_id
-                WHERE o.order_status IN (0, 1, 3) AND ${effectiveWhere} AND DATE(o.created_at) >= ? AND DATE(o.created_at) <= ?
+                WHERE o.order_status IN (0, 1, 3) AND ${effectiveWhere}
             `;
-            const [[pendingRes]] = await conn.query(pendingQuery, [...effectiveParams, targetStartDateStr, targetEndDateStr]);
+            const [[pendingRes]] = await conn.query(pendingQuery, effectiveParams);
             pendingOrdersVal = pendingRes?.count || 0;
 
             // Fetch Cancelled Orders (Status 5)
@@ -394,9 +394,9 @@ export const getDashboardStats = async (req, res) => {
                 FROM orders o
                 JOIN products p ON o.product_id = p.id
                 JOIN restaurant_details rd ON p.user_id = rd.user_id
-                WHERE o.order_status = 5 AND ${effectiveWhere} AND DATE(o.created_at) >= ? AND DATE(o.created_at) <= ?
+                WHERE o.order_status = 5 AND ${effectiveWhere}
             `;
-            const [[cancelledRes]] = await conn.query(cancelledQuery, [...effectiveParams, targetStartDateStr, targetEndDateStr]);
+            const [[cancelledRes]] = await conn.query(cancelledQuery, effectiveParams);
             cancelledOrdersVal = cancelledRes?.count || 0;
 
             // Yet to receive payments (Assume Cash and not Collected/Ready)
@@ -405,9 +405,9 @@ export const getDashboardStats = async (req, res) => {
                 FROM orders o
                 JOIN products p ON o.product_id = p.id
                 JOIN restaurant_details rd ON p.user_id = rd.user_id
-                WHERE o.payment_mode = 0 AND o.order_status < 4 AND ${effectiveWhere} AND DATE(o.created_at) >= ? AND DATE(o.created_at) <= ?
+                WHERE o.payment_mode = 0 AND o.order_status < 4 AND ${effectiveWhere}
             `;
-            const [[paymentsRes]] = await conn.query(paymentsQuery, [...effectiveParams, targetStartDateStr, targetEndDateStr]);
+            const [[paymentsRes]] = await conn.query(paymentsQuery, effectiveParams);
             yetToReceivePaymentsVal = paymentsRes?.count || 0;
 
             // Deactive Products (status = 0)
@@ -436,9 +436,9 @@ export const getDashboardStats = async (req, res) => {
                 FROM orders o
                 JOIN products p ON o.product_id = p.id
                 JOIN restaurant_details rd ON p.user_id = rd.user_id
-                WHERE o.order_status = 4 AND ${effectiveWhere} AND DATE(o.created_at) >= ? AND DATE(o.created_at) <= ?
+                WHERE o.order_status = 4 AND ${effectiveWhere}
             `;
-            const [[completedRes]] = await conn.query(completedQuery, [...effectiveParams, targetStartDateStr, targetEndDateStr]);
+            const [[completedRes]] = await conn.query(completedQuery, effectiveParams);
             completedOrdersVal = completedRes?.count || 0;
 
             if (isSuperAdmin) {

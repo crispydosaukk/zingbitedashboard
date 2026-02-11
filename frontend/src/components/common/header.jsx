@@ -4,6 +4,7 @@ import { Search, Bell, Menu, User, LogOut, Settings, ChevronDown, X, MapPin, Nav
 import { motion, AnimatePresence } from "framer-motion";
 import api from "../../api.js";
 import ReadyInModal from "./ReadyInModal.jsx";
+import { usePopup } from "../../context/PopupContext";
 
 // Helper to load Google Maps Script dynamically
 const loadGoogleMapsScript = (apiKey, callback) => {
@@ -264,6 +265,7 @@ const LocationModal = ({ isOpen, onClose, onSelectLocation, onUseCurrentLocation
 };
 
 export default function Header({ onToggleSidebar, darkMode = true }) {
+  const { showPopup } = usePopup();
   const navigate = useNavigate();
   const menuRef = useRef(null);
   const notifyRef = useRef(null);
@@ -287,8 +289,15 @@ export default function Header({ onToggleSidebar, darkMode = true }) {
 
   // Logout
   const logout = () => {
-    localStorage.clear();
-    navigate("/login", { replace: true });
+    showPopup({
+      title: "Confirm Logout",
+      message: "Are you sure you want to log out of your session?",
+      type: "confirm",
+      onConfirm: () => {
+        localStorage.clear();
+        navigate("/login", { replace: true });
+      }
+    });
   };
 
   // Close dropdowns on outside click

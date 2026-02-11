@@ -4,16 +4,22 @@ import Sidebar from "../../components/common/sidebar.jsx";
 import Footer from "../../components/common/footer.jsx";
 import api from "../../api.js";
 import { motion } from "framer-motion";
-import { Settings as SettingsIcon, Save, CreditCard, Gift, ShoppingCart, Percent, Clock, AlertCircle } from "lucide-react";
+import {
+  Settings as SettingsIcon, Save, CreditCard, Gift, ShoppingCart,
+  Percent, Clock, AlertCircle, Users, Wallet, Award, Calendar, Coins, ShieldCheck
+} from "lucide-react";
+import { usePopup } from "../../context/PopupContext";
 
 export default function Settings() {
+  const { showPopup } = usePopup();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const [form, setForm] = useState({
-    signup_flat_amount: "",
-    referral_flat_amount: "",
+    signup_bonus_amount: "",
+    referral_bonus_amount: "",
     minimum_order: "",
     minimum_cart_total: "",
+    earn_per_order_amount: "",
 
     // ✅ Loyalty dynamic settings
     loyalty_points_per_gbp: "",
@@ -45,10 +51,11 @@ export default function Settings() {
         const s = res.data.data;
 
         setForm({
-          signup_flat_amount: s.signup_flat_amount ?? "",
-          referral_flat_amount: s.referral_flat_amount ?? "",
+          signup_bonus_amount: s.signup_bonus_amount ?? "",
+          referral_bonus_amount: s.referral_bonus_amount ?? "",
           minimum_order: s.minimum_order ?? "",
           minimum_cart_total: s.minimum_cart_total ?? "",
+          earn_per_order_amount: s.earn_per_order_amount ?? "",
 
           loyalty_points_per_gbp: s.loyalty_points_per_gbp ?? "",
           loyalty_redeem_points: s.loyalty_redeem_points ?? "",
@@ -76,10 +83,12 @@ export default function Settings() {
         const s = res.data.data;
 
         setForm({
-          signup_flat_amount: s.signup_flat_amount ?? "",
-          referral_flat_amount: s.referral_flat_amount ?? "",
+          signup_bonus_amount: s.signup_bonus_amount ?? "",
+          referral_bonus_amount: s.referral_bonus_amount ?? "",
           minimum_order: s.minimum_order ?? "",
           minimum_cart_total: s.minimum_cart_total ?? "",
+          earn_per_order_amount: s.earn_per_order_amount ?? "",
+
           loyalty_points_per_gbp: s.loyalty_points_per_gbp ?? "",
           loyalty_redeem_points: s.loyalty_redeem_points ?? "",
           loyalty_redeem_value: s.loyalty_redeem_value ?? "",
@@ -87,13 +96,25 @@ export default function Settings() {
           loyalty_expiry_days: s.loyalty_expiry_days ?? "",
         });
 
-        alert("Settings saved successfully");
+        showPopup({
+          title: "Settings Updated",
+          message: "Global configuration has been saved successfully.",
+          type: "success"
+        });
       } else {
-        alert(res.data?.message || "Failed to save settings");
+        showPopup({
+          title: "Save Failed",
+          message: res.data?.message || "Could not save settings. Please try again.",
+          type: "error"
+        });
       }
     } catch (err) {
       console.error("Save settings error:", err);
-      alert("Something went wrong while saving settings");
+      showPopup({
+        title: "System Error",
+        message: "Something went wrong while saving settings.",
+        type: "error"
+      });
     } finally {
       setSaving(false);
     }
@@ -119,274 +140,252 @@ export default function Settings() {
                   <SettingsIcon className="text-white" size={28} />
                 </div>
                 <div>
-                  <h1 className="text-3xl font-bold text-white drop-shadow-lg">Settings</h1>
+                  <h1 className="text-3xl font-bold text-white drop-shadow-lg">Global Settings</h1>
                   <p className="text-white/90 mt-1 text-base drop-shadow">
-                    Configure base amounts used for wallet, referral & loyalty logic (GBP £).
+                    Configure bonuses, order rules, and loyalty rewards (GBP £).
                   </p>
                 </div>
               </div>
 
-              {/* MAIN CARD */}
+              {/* MAIN FORM */}
               <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-6 sm:p-8 shadow-2xl border border-white/20">
                 {loading ? (
-                  <div className="text-center py-10 text-white/70 animate-pulse">
-                    Loading settings...
+                  <div className="text-center py-20 text-white/70 flex flex-col items-center gap-4">
+                    <div className="w-12 h-12 border-4 border-emerald-500/30 border-t-emerald-500 rounded-full animate-spin"></div>
+                    <span className="text-lg animate-pulse">Loading Configuration...</span>
                   </div>
                 ) : (
-                  <form onSubmit={handleSubmit} className="space-y-8">
-                    {/* SECTION HEADING */}
-                    <div className="border-b border-white/10 pb-4">
-                      <h3 className="text-xl font-bold text-white drop-shadow flex items-center gap-2">
-                        <Wallet className="text-emerald-300" size={24} />
-                        Wallet, Referral & Loyalty Settings
-                      </h3>
-                      <p className="text-white/70 mt-1 text-sm">
-                        All amounts are in GBP (£). These values will be used for
-                        signup credits, referral rewards, minimum order validation,
-                        and loyalty points rules.
-                      </p>
+                  <form onSubmit={handleSubmit} className="space-y-12">
+
+                    {/* SECTION 1: CUSTOMER REWARDS & BONUSES */}
+                    <div className="space-y-6">
+                      <div className="flex items-center gap-3 border-b border-white/10 pb-3">
+                        <Gift className="text-amber-400" size={24} />
+                        <div>
+                          <h3 className="text-xl font-bold text-white drop-shadow">Customer Rewards & Bonuses</h3>
+                          <p className="text-white/60 text-sm">Credits and earnings for customer acquisition and retention.</p>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        {/* Signup Bonus Amount */}
+                        <div className="space-y-2">
+                          <label className="block text-sm font-medium text-white/90 ml-1">Signup Bonus (£)</label>
+                          <div className="relative group">
+                            <Gift className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40 group-focus-within:text-amber-400 transition-colors" size={18} />
+                            <input
+                              type="number"
+                              step="0.01"
+                              name="signup_bonus_amount"
+                              value={form.signup_bonus_amount}
+                              onChange={handleChange}
+                              placeholder="0.00"
+                              className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/20 focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:bg-white/10 transition-all hover:bg-white/10 shadow-inner"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Referral Bonus Amount */}
+                        <div className="space-y-2">
+                          <label className="block text-sm font-medium text-white/90 ml-1">Referral Bonus (£)</label>
+                          <div className="relative group">
+                            <Users className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40 group-focus-within:text-amber-400 transition-colors" size={18} />
+                            <input
+                              type="number"
+                              step="0.01"
+                              name="referral_bonus_amount"
+                              value={form.referral_bonus_amount}
+                              onChange={handleChange}
+                              placeholder="0.00"
+                              className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/20 focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:bg-white/10 transition-all hover:bg-white/10 shadow-inner"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Earn Per Order Amount */}
+                        <div className="space-y-2">
+                          <label className="block text-sm font-medium text-white/90 ml-1">Earn Per Order (£)</label>
+                          <div className="relative group">
+                            <Coins className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40 group-focus-within:text-amber-400 transition-colors" size={18} />
+                            <input
+                              type="number"
+                              step="0.01"
+                              name="earn_per_order_amount"
+                              value={form.earn_per_order_amount}
+                              onChange={handleChange}
+                              placeholder="0.00"
+                              className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/20 focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:bg-white/10 transition-all hover:bg-white/10 shadow-inner"
+                            />
+                          </div>
+                        </div>
+                      </div>
                     </div>
 
-                    {/* FIELDS GRID */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
-                      {/* Signup Flat Amount */}
-                      <div>
-                        <label className="block text-sm font-medium text-white/90 mb-2">
-                          Signup Flat Amount (1st User)
-                        </label>
-                        <div className="relative">
-                          <Gift className="absolute left-3 top-1/2 -translate-y-1/2 text-white/50" size={18} />
-                          <input
-                            type="number"
-                            step="0.01"
-                            name="signup_flat_amount"
-                            value={form.signup_flat_amount}
-                            onChange={handleChange}
-                            placeholder="e.g. 5.00"
-                            className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 transition-all hover:bg-white/10"
-                          />
+                    {/* SECTION 2: ORDER CONSTRAINTS */}
+                    <div className="space-y-6">
+                      <div className="flex items-center gap-3 border-b border-white/10 pb-3">
+                        <ShieldCheck className="text-emerald-400" size={24} />
+                        <div>
+                          <h3 className="text-xl font-bold text-white drop-shadow">Order Constraints</h3>
+                          <p className="text-white/60 text-sm">Rules for order eligibility and checkout validation.</p>
                         </div>
-                        <p className="text-xs text-white/50 mt-1.5">
-                          Flat amount (in £) credited to the customer wallet after first signup.
-                        </p>
                       </div>
 
-                      {/* Referral Flat Amount */}
-                      <div>
-                        <label className="block text-sm font-medium text-white/90 mb-2">
-                          Referral Flat Amount
-                        </label>
-                        <div className="relative">
-                          <Users className="absolute left-3 top-1/2 -translate-y-1/2 text-white/50" size={18} />
-                          <input
-                            type="number"
-                            step="0.01"
-                            name="referral_flat_amount"
-                            value={form.referral_flat_amount}
-                            onChange={handleChange}
-                            placeholder="e.g. 2.50"
-                            className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 transition-all hover:bg-white/10"
-                          />
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {/* Minimum Order */}
+                        <div className="space-y-2">
+                          <label className="block text-sm font-medium text-white/90 ml-1">Minimum Order for Rewards (£)</label>
+                          <div className="relative group">
+                            <ShoppingCart className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40 group-focus-within:text-emerald-400 transition-colors" size={18} />
+                            <input
+                              type="number"
+                              step="0.01"
+                              name="minimum_order"
+                              value={form.minimum_order}
+                              onChange={handleChange}
+                              placeholder="0.00"
+                              className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/20 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:bg-white/10 transition-all hover:bg-white/10"
+                            />
+                          </div>
                         </div>
-                        <p className="text-xs text-white/50 mt-1.5">
-                          Amount (in £) credited when a referral successfully completes an order.
-                        </p>
+
+                        {/* Minimum Cart Total */}
+                        <div className="space-y-2">
+                          <label className="block text-sm font-medium text-white/90 ml-1">Minimum Final Checkout Total (£)</label>
+                          <div className="relative group">
+                            <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40 group-focus-within:text-emerald-400 transition-colors" size={18} />
+                            <input
+                              type="number"
+                              step="0.01"
+                              name="minimum_cart_total"
+                              value={form.minimum_cart_total}
+                              onChange={handleChange}
+                              placeholder="0.00"
+                              className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/20 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:bg-white/10 transition-all hover:bg-white/10"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* SECTION 3: LOYALTY PROGRAM */}
+                    <div className="space-y-6">
+                      <div className="flex items-center gap-3 border-b border-white/10 pb-3">
+                        <Award className="text-teal-400" size={24} />
+                        <div>
+                          <h3 className="text-xl font-bold text-white drop-shadow">Loyalty Program Dynamics</h3>
+                          <p className="text-white/60 text-sm">Points calculation and redemption rules for repeat customers.</p>
+                        </div>
                       </div>
 
-                      {/* Minimum Order */}
-                      <div>
-                        <label className="block text-sm font-medium text-white/90 mb-2">
-                          Minimum Order
-                        </label>
-                        <div className="relative">
-                          <ShoppingCart className="absolute left-3 top-1/2 -translate-y-1/2 text-white/50" size={18} />
-                          <input
-                            type="number"
-                            step="0.01"
-                            name="minimum_order"
-                            value={form.minimum_order}
-                            onChange={handleChange}
-                            placeholder="e.g. 10.00"
-                            className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 transition-all hover:bg-white/10"
-                          />
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {/* Loyalty Points Per GBP */}
+                        <div className="space-y-2">
+                          <label className="block text-sm font-medium text-white/90 ml-1">Points Earned Per £1</label>
+                          <div className="relative group">
+                            <Percent className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40 group-focus-within:text-teal-400 transition-colors" size={18} />
+                            <input
+                              type="number"
+                              step="0.01"
+                              name="loyalty_points_per_gbp"
+                              value={form.loyalty_points_per_gbp}
+                              onChange={handleChange}
+                              placeholder="1"
+                              className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/20 focus:outline-none focus:ring-2 focus:ring-teal-500/40 focus:bg-white/10 transition-all hover:bg-white/10"
+                            />
+                          </div>
                         </div>
-                        <p className="text-xs text-white/50 mt-1.5">
-                          Orders below this amount (in £) will not be eligible for certain offers / wallet usage.
-                        </p>
-                      </div>
 
-                      {/* Minimum Cart Total */}
-                      <div>
-                        <label className="block text-sm font-medium text-white/90 mb-2">
-                          Minimum Final Order Amount
-                        </label>
-                        <div className="relative">
-                          <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 text-white/50" size={18} />
-                          <input
-                            type="number"
-                            step="0.01"
-                            name="minimum_cart_total"
-                            value={form.minimum_cart_total}
-                            onChange={handleChange}
-                            placeholder="e.g. 12.00"
-                            className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 transition-all hover:bg-white/10"
-                          />
+                        {/* Loyalty Redeem Points */}
+                        <div className="space-y-2">
+                          <label className="block text-sm font-medium text-white/90 ml-1">Points Needed to Redeem</label>
+                          <div className="relative group">
+                            <Award className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40 group-focus-within:text-teal-400 transition-colors" size={18} />
+                            <input
+                              type="number"
+                              step="1"
+                              name="loyalty_redeem_points"
+                              value={form.loyalty_redeem_points}
+                              onChange={handleChange}
+                              placeholder="10"
+                              className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/20 focus:outline-none focus:ring-2 focus:ring-teal-500/40 focus:bg-white/10 transition-all hover:bg-white/10"
+                            />
+                          </div>
                         </div>
-                        <p className="text-xs text-white/50 mt-1.5">
-                          Orders below this amount cannot be placed (wallet cannot bypass).
-                        </p>
-                      </div>
 
-                      {/* Loyalty Points Per GBP */}
-                      <div>
-                        <label className="block text-sm font-medium text-white/90 mb-2">
-                          Loyalty Points Per £ (Earn Rate)
-                        </label>
-                        <div className="relative">
-                          <Percent className="absolute left-3 top-1/2 -translate-y-1/2 text-white/50" size={18} />
-                          <input
-                            type="number"
-                            step="0.01"
-                            name="loyalty_points_per_gbp"
-                            value={form.loyalty_points_per_gbp}
-                            onChange={handleChange}
-                            placeholder="e.g. 1"
-                            className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 transition-all hover:bg-white/10"
-                          />
+                        {/* Loyalty Redeem Value */}
+                        <div className="space-y-2">
+                          <label className="block text-sm font-medium text-white/90 ml-1">Value Per Redemption (£)</label>
+                          <div className="relative group">
+                            <Wallet className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40 group-focus-within:text-teal-400 transition-colors" size={18} />
+                            <input
+                              type="number"
+                              step="0.01"
+                              name="loyalty_redeem_value"
+                              value={form.loyalty_redeem_value}
+                              onChange={handleChange}
+                              placeholder="1.00"
+                              className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/20 focus:outline-none focus:ring-2 focus:ring-teal-500/40 focus:bg-white/10 transition-all hover:bg-white/10"
+                            />
+                          </div>
                         </div>
-                        <p className="text-xs text-white/50 mt-1.5">
-                          Example: 1 means £11.50 → 11 points (floor).
-                        </p>
-                      </div>
 
-                      {/* Loyalty Redeem Points */}
-                      <div>
-                        <label className="block text-sm font-medium text-white/90 mb-2">
-                          Loyalty Redeem Points
-                        </label>
-                        <div className="relative">
-                          <Award className="absolute left-3 top-1/2 -translate-y-1/2 text-white/50" size={18} />
-                          <input
-                            type="number"
-                            step="1"
-                            name="loyalty_redeem_points"
-                            value={form.loyalty_redeem_points}
-                            onChange={handleChange}
-                            placeholder="e.g. 10"
-                            className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 transition-all hover:bg-white/10"
-                          />
-                        </div>
-                        <p className="text-xs text-white/50 mt-1.5">
-                          Points required to redeem once.
-                        </p>
-                      </div>
-
-                      {/* Loyalty Redeem Value */}
-                      <div>
-                        <label className="block text-sm font-medium text-white/90 mb-2">
-                          Loyalty Redeem Value (£)
-                        </label>
-                        <div className="relative">
-                          <Wallet className="absolute left-3 top-1/2 -translate-y-1/2 text-white/50" size={18} />
-                          <input
-                            type="number"
-                            step="0.01"
-                            name="loyalty_redeem_value"
-                            value={form.loyalty_redeem_value}
-                            onChange={handleChange}
-                            placeholder="e.g. 1.00"
-                            className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 transition-all hover:bg-white/10"
-                          />
-                        </div>
-                        <p className="text-xs text-white/50 mt-1.5">
-                          Wallet amount credited when redeem points reached.
-                        </p>
-                      </div>
-
-                      {/* Loyalty Available After (Hours) */}
-                      <div>
-                        <label className="block text-sm font-medium text-white/90 mb-2">
-                          Loyalty Available After (Hours)
-                        </label>
-                        <div className="relative">
-                          <Clock className="absolute left-3 top-1/2 -translate-y-1/2 text-white/50" size={18} />
+                        {/* Loyalty Available After (Hours) */}
+                        <div className="space-y-2 text-white/50 focus-within:text-white transition-colors">
+                          <label className="block text-sm font-medium ml-1 flex items-center gap-1.5">
+                            <Clock size={14} /> Available After (Hours)
+                          </label>
                           <input
                             type="number"
                             step="1"
                             name="loyalty_available_after_hours"
                             value={form.loyalty_available_after_hours}
                             onChange={handleChange}
-                            placeholder="e.g. 24"
-                            className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 transition-all hover:bg-white/10"
+                            placeholder="24"
+                            className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-teal-500/40 focus:bg-white/10 transition-all hover:bg-white/10"
                           />
                         </div>
-                        <p className="text-xs text-white/50 mt-1.5">
-                          Points can be redeemed only after this time.
-                        </p>
-                      </div>
 
-                      {/* Loyalty Expiry Days */}
-                      <div>
-                        <label className="block text-sm font-medium text-white/90 mb-2">
-                          Loyalty Expiry (Days)
-                        </label>
-                        <div className="relative">
-                          <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-white/50" size={18} />
+                        {/* Loyalty Expiry Days */}
+                        <div className="space-y-2 text-white/50 focus-within:text-white transition-colors">
+                          <label className="block text-sm font-medium ml-1 flex items-center gap-1.5">
+                            <Calendar size={14} /> Points Expiry (Days)
+                          </label>
                           <input
                             type="number"
                             step="1"
                             name="loyalty_expiry_days"
                             value={form.loyalty_expiry_days}
                             onChange={handleChange}
-                            placeholder="e.g. 30"
-                            className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 transition-all hover:bg-white/10"
+                            placeholder="30"
+                            className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-teal-500/40 focus:bg-white/10 transition-all hover:bg-white/10"
                           />
                         </div>
-                        <p className="text-xs text-white/50 mt-1.5">
-                          Points expire after these days.
-                        </p>
                       </div>
                     </div>
 
-                    {/* INFO BOX */}
-                    <div className="rounded-xl border border-white/10 bg-white/5 p-4 text-sm text-white/80 backdrop-blur-md">
-                      <div className="font-bold mb-2 flex items-center gap-2 text-emerald-300">
-                        <AlertCircle size={18} />
-                        Implementation Note
+                    {/* ACTION BUTTONS */}
+                    <div className="flex flex-col sm:flex-row justify-between items-center gap-6 pt-6 border-t border-white/10">
+                      <div className="flex items-start gap-3 max-w-xl text-xs text-white/40 italic">
+                        <AlertCircle className="shrink-0" size={16} />
+                        <p>Changes to these settings will apply immediately to all new registrations, orders, and rewards processing. Please double-check values before saving.</p>
                       </div>
-                      <ul className="list-disc ml-5 space-y-2 text-xs text-white/70">
-                        <li>
-                          <strong className="text-white">Signup amount</strong> will be credited to the customer wallet after
-                          successful registration.
-                        </li>
-                        <li>
-                          <strong className="text-white">Referral amount</strong> will be credited once the referred user
-                          completes their first order.
-                        </li>
-                        <li>
-                          <strong className="text-white">Minimum order</strong> will be validated during checkout and wallet
-                          usage.
-                        </li>
-                        <li>
-                          <strong className="text-white">Loyalty points</strong> will be earned based on “paid total” and
-                          will be redeemable after the configured hours.
-                        </li>
-                        <li>
-                          Redeem rule: <strong className="text-white">redeem_points → redeem_value</strong> (credited to
-                          wallet).
-                        </li>
-                      </ul>
-                    </div>
-
-                    {/* ACTION BUTTON */}
-                    <div className="flex justify-end pt-4">
                       <button
                         type="submit"
                         disabled={saving}
-                        className="flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold rounded-xl shadow-lg hover:shadow-emerald-500/30 transform hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed border border-white/20"
+                        className="w-full sm:w-auto flex items-center justify-center gap-2 px-10 py-4 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold rounded-2xl shadow-xl hover:shadow-emerald-500/30 transform hover:-translate-y-1 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed border border-white/20"
                       >
-                        <Save size={20} />
-                        {saving ? "Saving..." : "Save Settings"}
+                        {saving ? (
+                          <>
+                            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                            Processing...
+                          </>
+                        ) : (
+                          <>
+                            <Save size={22} />
+                            Commit Changes
+                          </>
+                        )}
                       </button>
                     </div>
                   </form>
@@ -397,14 +396,7 @@ export default function Settings() {
         </main>
         <Footer />
       </div>
-
-      {/* Helper imports for icons that weren't in the top list but used in code */}
-      {/* Accessing hidden icon components if not imported at top would fail, so I'll make sure they are imported. */}
-      {/* I used: Users, Wallet, Check, etc. Let's fix the imports at the top. */}
     </div>
   );
 }
-
-// Re-importing icons to be safe and clean within the replacement block
-import { Users, Wallet, Award, Calendar } from "lucide-react";
 

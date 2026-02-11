@@ -9,10 +9,12 @@ import {
   ParkingCircle, Upload, X, Clock, Plus, Trash2, Save, Image as ImageIcon,
   CheckCircle2, AlertCircle, Calendar
 } from "lucide-react";
+import { usePopup } from "../../context/PopupContext";
 
 const WEEKDAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
 export default function Restuarent() {
+  const { showPopup } = usePopup();
   const API = import.meta.env.VITE_API_URL;
   const API_BASE = API ? API.replace(/\/api\/?$/i, "") : "";
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -221,10 +223,18 @@ export default function Restuarent() {
       setPhotoFile(null);
       setPhotoPreview(null);
 
-      alert("Saved Successfully!");
+      showPopup({
+        title: "Success",
+        message: "Restaurant profile saved successfully!",
+        type: "success"
+      });
     } catch (e) {
       console.error(e);
-      alert("Save failed");
+      showPopup({
+        title: "Save Failed",
+        message: "Something went wrong while saving your profile.",
+        type: "error"
+      });
     } finally {
       setSaving(false);
     }

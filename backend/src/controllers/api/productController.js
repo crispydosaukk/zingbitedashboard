@@ -26,7 +26,6 @@ export const getProducts = async (req, res) => {
     FROM products
     WHERE user_id = ?
       AND cat_id = ?
-      AND product_status = 1
       AND status = 1
     ORDER BY sort_order ASC, id ASC
   `;
