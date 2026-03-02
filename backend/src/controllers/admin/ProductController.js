@@ -8,11 +8,19 @@ import pool from "../../config/db.js";
 export const getProducts = async (req, res) => {
   try {
     const userId = req.user.id;
-    // Debug logging
-    try {
-      const logPath = path.resolve("debug_log.txt");
-      fs.appendFileSync(logPath, `[${new Date().toISOString()}] getProducts: userId=${userId}\n`);
-    } catch (e) { }
+    const roleId = req.user.role_id;
+    const roleName = req.user.role || req.user.role_title || null;
+    const isSuperAdmin = (Number(roleId) === 6) || (typeof roleName === "string" && roleName.toLowerCase() === "super admin");
+
+    const { restaurantId } = req.query;
+
+    let targetWhere = isSuperAdmin ? "1=1" : "p.user_id = ?";
+    let targetParams = isSuperAdmin ? [] : [userId];
+
+    if (restaurantId && restaurantId !== "all") {
+      targetWhere = "p.user_id = ?";
+      targetParams = [restaurantId];
+    }
 
     const [rows] = await pool.query(
       `SELECT 
@@ -27,9 +35,9 @@ export const getProducts = async (req, res) => {
         IFNULL(p.status,1) AS status,
         IFNULL(p.sort_order,9999) AS sort_order
       FROM products p
-      WHERE p.user_id = ?
+      WHERE ${targetWhere}
       ORDER BY p.sort_order ASC`,
-      [userId]
+      targetParams
     );
 
     const data = rows.map((r) => ({

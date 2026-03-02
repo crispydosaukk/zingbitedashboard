@@ -17,13 +17,17 @@ export const getDashboardStats = async (req, res) => {
         // time-of-day range.  These are only applied to the *selected range* queries
         // (not lifetime stats) so that the dashboard can show data for particular
         // customers/times on the chosen date.
-        const { startDate, endDate, restaurantId, customerIds, startTime, endTime } = req.query;
+        const { startDate, endDate, restaurantId, customerIds, startTime, endTime, compareStartDate, compareEndDate } = req.query;
         let targetUserId = userId;
-        let effectiveWhere = whereClause;
-        let effectiveParams = [...baseParams];
+
+        // Define where clauses for different tables
+        let orderWhere = isSuperAdmin ? "1=1" : "o.user_id = ?";
+        let productWhere = isSuperAdmin ? "1=1" : "p.user_id = ?";
+        let effectiveParams = isSuperAdmin ? [] : [userId];
 
         if (isSuperAdmin && restaurantId && restaurantId !== "all") {
-            effectiveWhere = "rd.user_id = ?";
+            orderWhere = "o.user_id = ?";
+            productWhere = "p.user_id = ?";
             effectiveParams = [restaurantId];
             targetUserId = restaurantId;
         }
@@ -58,7 +62,11 @@ export const getDashboardStats = async (req, res) => {
 
         // Determine Previous Range
         let prevStartDateStr, prevEndDateStr;
-        if (isSingleDay) {
+
+        if (compareStartDate && compareEndDate) {
+            prevStartDateStr = compareStartDate;
+            prevEndDateStr = compareEndDate;
+        } else if (isSingleDay) {
             // Previous day
             const d = new Date(targetStartDateStr);
             d.setDate(d.getDate() - 1);
@@ -98,23 +106,20 @@ export const getDashboardStats = async (req, res) => {
             // 1. LIFETIME STATS
             const totalOrderQuery = `
                 SELECT 
-                    COUNT(*) as total_orders, 
-                    SUM(grand_total) as total_revenue
+                    COUNT(DISTINCT o.order_number) as total_orders, 
+                    SUM(o.grand_total) as total_revenue
                 FROM orders o
-                JOIN products p ON o.product_id = p.id
-                JOIN restaurant_details rd ON p.user_id = rd.user_id
-                WHERE ${effectiveWhere}
+                WHERE ${orderWhere}
             `;
             const [[totalStats]] = await conn.query(totalOrderQuery, effectiveParams);
 
             const customerQuery = `
                 SELECT COUNT(DISTINCT o.customer_id) as total_customers
                 FROM orders o
-                JOIN products p ON o.product_id = p.id
-                JOIN restaurant_details rd ON p.user_id = rd.user_id
-                WHERE ${effectiveWhere}
+                WHERE ${orderWhere} ${extraWhere}
+                  AND DATE(o.created_at) >= ? AND DATE(o.created_at) <= ?
             `;
-            const [[customerStats]] = await conn.query(customerQuery, effectiveParams);
+            const [[customerStats]] = await conn.query(customerQuery, [...effectiveParams, ...extraParams, targetStartDateStr, targetEndDateStr]);
 
 
             // 2. SELECTED RANGE STATS
@@ -123,12 +128,13 @@ export const getDashboardStats = async (req, res) => {
                     COUNT(DISTINCT o.order_number) as count, 
                     SUM(o.grand_total) as revenue 
                 FROM orders o
-                JOIN products p ON o.product_id = p.id
-                JOIN restaurant_details rd ON p.user_id = rd.user_id
-                WHERE ${effectiveWhere} ${extraWhere}
+                WHERE ${orderWhere} ${extraWhere}
                   AND DATE(o.created_at) >= ? AND DATE(o.created_at) <= ?
             `;
-            const [[rangeStats]] = await conn.query(rangeStatsQuery, [...effectiveParams, targetStartDateStr, targetEndDateStr]);
+            const [[rangeStats]] = await conn.query(rangeStatsQuery, [...effectiveParams, ...extraParams, targetStartDateStr, targetEndDateStr]);
+
+            // PREVIOUS RANGE STATS
+            const [[prevRangeStats]] = await conn.query(rangeStatsQuery, [...effectiveParams, ...extraParams, prevStartDateStr, prevEndDateStr]);
 
 
             // 3. CHARTS
@@ -148,9 +154,8 @@ export const getDashboardStats = async (req, res) => {
                     FROM (
                          SELECT o.order_number, MAX(o.created_at) as created_at, MAX(o.grand_total) as grand_total
                          FROM orders o
-                         JOIN products p ON o.product_id = p.id
-                         JOIN restaurant_details rd ON p.user_id = rd.user_id
-                         WHERE ${effectiveWhere} AND DATE(o.created_at) IN (?, ?) ${extraWhere}                          GROUP BY o.order_number
+                         WHERE ${orderWhere} AND DATE(o.created_at) IN (?, ?) ${extraWhere}
+                         GROUP BY o.order_number
                     ) as o
                     GROUP BY DATE(o.created_at), HOUR(o.created_at)
                 `;
@@ -179,9 +184,7 @@ export const getDashboardStats = async (req, res) => {
                     FROM (
                          SELECT o.order_number, MAX(o.created_at) as created_at, MAX(o.grand_total) as grand_total
                          FROM orders o
-                         JOIN products p ON o.product_id = p.id
-                         JOIN restaurant_details rd ON p.user_id = rd.user_id
-                         WHERE ${effectiveWhere} ${extraWhere} AND (
+                         WHERE ${orderWhere} ${extraWhere} AND (
                              (DATE(o.created_at) >= ? AND DATE(o.created_at) <= ?) OR
                              (DATE(o.created_at) >= ? AND DATE(o.created_at) <= ?)
                          )
@@ -231,14 +234,13 @@ export const getDashboardStats = async (req, res) => {
                     FROM (
                         SELECT o.order_number, MAX(o.created_at) as created_at, MAX(o.grand_total) as grand_total
                         FROM orders o
-                        JOIN products p ON o.product_id = p.id
-                        JOIN restaurant_details rd ON p.user_id = rd.user_id
-                        WHERE ${effectiveWhere} AND DATE(o.created_at) = ? ${extraWhere}                         GROUP BY o.order_number
+                        WHERE ${orderWhere} AND DATE(o.created_at) = ? ${extraWhere}
+                        GROUP BY o.order_number
                     ) as unique_orders
                     GROUP BY HOUR(created_at)
                     ORDER BY unit ASC
                 `;
-const [rows] = await conn.query(hourlyAvgQuery, [...effectiveParams, targetStartDateStr, ...extraParams]);
+                const [rows] = await conn.query(hourlyAvgQuery, [...effectiveParams, targetStartDateStr, ...extraParams]);
 
                 for (let i = 0; i < 24; i++) {
                     const row = rows.find(r => r.unit === i);
@@ -255,9 +257,8 @@ const [rows] = await conn.query(hourlyAvgQuery, [...effectiveParams, targetStart
                     FROM (
                         SELECT o.order_number, MAX(o.created_at) as created_at, MAX(o.grand_total) as grand_total
                         FROM orders o
-                        JOIN products p ON o.product_id = p.id
-                        JOIN restaurant_details rd ON p.user_id = rd.user_id
-                        WHERE ${effectiveWhere} AND DATE(o.created_at) >= ? AND DATE(o.created_at) <= ? ${extraWhere}                         GROUP BY o.order_number
+                        WHERE ${orderWhere} AND DATE(o.created_at) >= ? AND DATE(o.created_at) <= ? ${extraWhere}
+                        GROUP BY o.order_number
                     ) as unique_orders
                     GROUP BY DATE(created_at)
                     ORDER BY date ASC
@@ -284,9 +285,7 @@ const [rows] = await conn.query(hourlyAvgQuery, [...effectiveParams, targetStart
             const ordersTrendQuery = `
                 SELECT DATE(o.created_at) as date, COUNT(DISTINCT o.order_number) as count
                 FROM orders o
-                JOIN products p ON o.product_id = p.id
-                JOIN restaurant_details rd ON p.user_id = rd.user_id
-                WHERE ${effectiveWhere} 
+                WHERE ${orderWhere} 
                   AND DATE(o.created_at) >= ? AND DATE(o.created_at) <= ?
                 GROUP BY DATE(o.created_at)
                 ORDER BY date ASC
@@ -322,10 +321,9 @@ const [rows] = await conn.query(hourlyAvgQuery, [...effectiveParams, targetStart
                 const weeklyQuery = `
                     SELECT DATE(o.created_at) as date, COUNT(DISTINCT o.order_number) as count
                     FROM orders o
-                    JOIN products p ON o.product_id = p.id
-                    JOIN restaurant_details rd ON p.user_id = rd.user_id
-                    WHERE ${effectiveWhere} 
-                      AND DATE(o.created_at) >= ? AND DATE(o.created_at) <= ?                     GROUP BY DATE(o.created_at)
+                    WHERE ${orderWhere} 
+                      AND DATE(o.created_at) >= ? AND DATE(o.created_at) <= ?
+                    GROUP BY DATE(o.created_at)
                     ORDER BY date ASC
                 `;
                 const [wRows] = await conn.query(weeklyQuery, [...effectiveParams, sStr, eStr, ...extraParams]);
@@ -352,10 +350,10 @@ const [rows] = await conn.query(hourlyAvgQuery, [...effectiveParams, targetStart
                     COUNT(*) as count
                 FROM orders o
                 JOIN products p ON o.product_id = p.id
-                JOIN restaurant_details rd ON p.user_id = rd.user_id
                 LEFT JOIN categories c ON p.cat_id = c.id
-                WHERE ${effectiveWhere}
-                  AND DATE(o.created_at) >= ? AND DATE(o.created_at) <= ?                 GROUP BY p.id, p.product_name, p.product_image, p.product_price, p.product_desc, c.category_name
+                WHERE ${orderWhere}
+                  AND DATE(o.created_at) >= ? AND DATE(o.created_at) <= ?
+                GROUP BY p.id, p.product_name, p.product_image, p.product_price, p.product_desc, c.category_name
                 ORDER BY count DESC
                 LIMIT 10
             `;
@@ -366,17 +364,15 @@ const [rows] = await conn.query(hourlyAvgQuery, [...effectiveParams, targetStart
             const recentOrdersQuery = `
                 SELECT 
                     o.order_number, 
-                    MAX(o.grand_total) as grand_total, 
+                    SUM(o.grand_total) as grand_total, 
                     MAX(o.created_at) as created_at, 
-                    o.order_status, 
+                    MAX(o.order_status) as order_status, 
                     MAX(c.full_name) as customer_name,
                     MAX(c.email) as customer_email,
                     MAX(c.mobile_number) as customer_phone
                 FROM orders o
-                JOIN products p ON o.product_id = p.id
-                JOIN restaurant_details rd ON p.user_id = rd.user_id
                 LEFT JOIN customers c ON o.customer_id = c.id
-                WHERE ${effectiveWhere} AND DATE(o.created_at) >= ? AND DATE(o.created_at) <= ? ${extraWhere} ${extraWhere} ${extraWhere}
+                WHERE ${orderWhere} AND DATE(o.created_at) >= ? AND DATE(o.created_at) <= ? ${extraWhere}
                 GROUP BY o.order_number
                 ORDER BY MAX(o.created_at) DESC
             `;
@@ -384,57 +380,60 @@ const [rows] = await conn.query(hourlyAvgQuery, [...effectiveParams, targetStart
 
             // 5. NEW METRICS & EXTRAS
             let pendingOrdersVal = 0;
-            let restaurantPerformance = [];
-
-            // New Metrics for Row 1
-            let complaintRequestsVal = 0; // Placeholder for now
+            let complaintRequestsVal = 0;
             let cancelledOrdersVal = 0;
             let yetToReceivePaymentsVal = 0;
             let deactiveProductsVal = 0;
-
-            // Additional Metrics for Row 2
             let totalProductsVal = 0;
             let completedOrdersVal = 0;
+            let restaurantPerformance = [];
 
             // Fetch Pending Orders (Status 0: Placed, 1: Accepted, 3: Ready)
             const pendingQuery = `
                 SELECT COUNT(DISTINCT o.order_number) as count
                 FROM orders o
-                JOIN products p ON o.product_id = p.id
-                JOIN restaurant_details rd ON p.user_id = rd.user_id
-                WHERE o.order_status IN (0, 1, 3) AND ${effectiveWhere}
+                WHERE o.order_status IN (0, 1, 3) AND ${orderWhere} ${extraWhere}
+                  AND DATE(o.created_at) >= ? AND DATE(o.created_at) <= ?
             `;
-            const [[pendingRes]] = await conn.query(pendingQuery, effectiveParams);
+            const [[pendingRes]] = await conn.query(pendingQuery, [...effectiveParams, ...extraParams, targetStartDateStr, targetEndDateStr]);
             pendingOrdersVal = pendingRes?.count || 0;
+
+            // Fetch Rejected Orders (Status 2: Rejected)
+            const rejectedQuery = `
+                SELECT COUNT(DISTINCT o.order_number) as count
+                FROM orders o
+                WHERE o.order_status = 2 AND ${orderWhere} ${extraWhere}
+                  AND DATE(o.created_at) >= ? AND DATE(o.created_at) <= ?
+            `;
+            const [[rejectedRes]] = await conn.query(rejectedQuery, [...effectiveParams, ...extraParams, targetStartDateStr, targetEndDateStr]);
+            rejectedOrdersVal = rejectedRes?.count || 0;
+            complaintRequestsVal = rejectedOrdersVal;
 
             // Fetch Cancelled Orders (Status 5)
             const cancelledQuery = `
                 SELECT COUNT(DISTINCT o.order_number) as count
                 FROM orders o
-                JOIN products p ON o.product_id = p.id
-                JOIN restaurant_details rd ON p.user_id = rd.user_id
-                WHERE o.order_status = 5 AND ${effectiveWhere}
+                WHERE o.order_status = 5 AND ${orderWhere} ${extraWhere}
+                  AND DATE(o.created_at) >= ? AND DATE(o.created_at) <= ?
             `;
-            const [[cancelledRes]] = await conn.query(cancelledQuery, effectiveParams);
+            const [[cancelledRes]] = await conn.query(cancelledQuery, [...effectiveParams, ...extraParams, targetStartDateStr, targetEndDateStr]);
             cancelledOrdersVal = cancelledRes?.count || 0;
 
             // Yet to receive payments (Assume Cash and not Collected/Ready)
             const paymentsQuery = `
                 SELECT COUNT(DISTINCT o.order_number) as count
                 FROM orders o
-                JOIN products p ON o.product_id = p.id
-                JOIN restaurant_details rd ON p.user_id = rd.user_id
-                WHERE o.payment_mode = 0 AND o.order_status < 4 AND ${effectiveWhere}
+                WHERE o.payment_mode = 0 AND o.order_status < 4 AND ${orderWhere} ${extraWhere}
+                  AND DATE(o.created_at) >= ? AND DATE(o.created_at) <= ?
             `;
-            const [[paymentsRes]] = await conn.query(paymentsQuery, effectiveParams);
+            const [[paymentsRes]] = await conn.query(paymentsQuery, [...effectiveParams, ...extraParams, targetStartDateStr, targetEndDateStr]);
             yetToReceivePaymentsVal = paymentsRes?.count || 0;
 
             // Deactive Products (status = 0)
             const stockQuery = `
                 SELECT COUNT(*) as count
                 FROM products p
-                JOIN restaurant_details rd ON p.user_id = rd.user_id
-                WHERE p.status = 0 AND ${effectiveWhere}
+                WHERE p.status = 0 AND ${productWhere}
             `;
             const [[stockRes]] = await conn.query(stockQuery, effectiveParams);
             deactiveProductsVal = stockRes?.count || 0;
@@ -443,8 +442,7 @@ const [rows] = await conn.query(hourlyAvgQuery, [...effectiveParams, targetStart
             const productsCountQuery = `
                 SELECT COUNT(*) as count
                 FROM products p
-                JOIN restaurant_details rd ON p.user_id = rd.user_id
-                WHERE ${effectiveWhere}
+                WHERE ${productWhere}
             `;
             const [[productsRes]] = await conn.query(productsCountQuery, effectiveParams);
             totalProductsVal = productsRes?.count || 0;
@@ -453,11 +451,10 @@ const [rows] = await conn.query(hourlyAvgQuery, [...effectiveParams, targetStart
             const completedQuery = `
                 SELECT COUNT(DISTINCT o.order_number) as count
                 FROM orders o
-                JOIN products p ON o.product_id = p.id
-                JOIN restaurant_details rd ON p.user_id = rd.user_id
-                WHERE o.order_status = 4 AND ${effectiveWhere}
+                WHERE o.order_status = 4 AND ${orderWhere} ${extraWhere}
+                  AND DATE(o.created_at) >= ? AND DATE(o.created_at) <= ?
             `;
-            const [[completedRes]] = await conn.query(completedQuery, effectiveParams);
+            const [[completedRes]] = await conn.query(completedQuery, [...effectiveParams, ...extraParams, targetStartDateStr, targetEndDateStr]);
             completedOrdersVal = completedRes?.count || 0;
 
             if (isSuperAdmin) {
@@ -488,6 +485,8 @@ const [rows] = await conn.query(hourlyAvgQuery, [...effectiveParams, targetStart
                     // Range Stats
                     today_users: rangeStats?.count || 0,
                     daily_revenue: rangeStats?.revenue || 0,
+                    prev_today_users: prevRangeStats?.count || 0,
+                    prev_daily_revenue: prevRangeStats?.revenue || 0,
 
                     followers: customerStats?.total_customers || 0,
 
@@ -502,7 +501,8 @@ const [rows] = await conn.query(hourlyAvgQuery, [...effectiveParams, targetStart
 
                     // Extras
                     pending_orders: pendingOrdersVal,
-                    complaint_requests: complaintRequestsVal,
+                    complaint_requests: rejectedOrdersVal,
+                    rejected_orders: rejectedOrdersVal,
                     cancelled_orders: cancelledOrdersVal,
                     yet_to_receive_payments: yetToReceivePaymentsVal,
                     deactive_products: deactiveProductsVal,

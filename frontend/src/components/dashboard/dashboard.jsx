@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import {
   ShoppingBag, Users, Store, UserPlus, ArrowUp, ArrowRight, CheckCircle, Clock, Eye, X,
   Calendar, PoundSterling, TrendingUp, CreditCard, ChevronDown, Package,
-  RotateCcw, AlertCircle, Box, Truck, XCircle, Plus, Phone
+  RotateCcw, AlertCircle, Box, Truck, XCircle, Plus, Phone, LayoutDashboard
 } from "lucide-react";
 import Header from "../common/header.jsx";
 import Sidebar from "../common/sidebar.jsx";
@@ -80,9 +80,9 @@ const MetricDetailsModal = ({ isOpen, onClose, title, items = [], type, onUpdate
   if (!isOpen) return null;
 
   const handleRowClick = (item) => {
-    if (type === 'orders' || type === 'pending' || type === 'completed' || type === 'payments') {
+    if (type === 'orders' || type === 'pending' || type === 'completed' || type === 'payments' || type === 'rejected' || type === 'complaints' || type === 'cancelled') {
       navigate('/orders', { state: { highlightOrder: item.order_number } });
-    } else if (type === 'products' || type === 'stock') {
+    } else if (type === 'products' || type === 'stock' || type === 'deactive') {
       navigate('/product');
     } else if (type === 'customers') {
       navigate('/customerinfo');
@@ -120,7 +120,7 @@ const MetricDetailsModal = ({ isOpen, onClose, title, items = [], type, onUpdate
             <table className="w-full text-left">
               <thead className="bg-white/10 text-white/40 text-[10px] uppercase font-black tracking-widest border-b border-white/10">
                 <tr>
-                  {type === 'products' || type === 'stock' ? (
+                  {type === 'products' || type === 'stock' || type === 'deactive' ? (
                     <>
                       <th className="px-6 py-4">Product</th>
                       <th className="px-6 py-4">Price</th>
@@ -149,7 +149,7 @@ const MetricDetailsModal = ({ isOpen, onClose, title, items = [], type, onUpdate
                     onClick={() => handleRowClick(item)}
                     className="hover:bg-white/[0.07] transition-all cursor-pointer group"
                   >
-                    {type === 'products' || type === 'stock' ? (
+                    {type === 'products' || type === 'stock' || type === 'deactive' ? (
                       <>
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-4">
@@ -1181,33 +1181,62 @@ export default function Dashboard() {
 
   const openDetailModal = async (type, title) => {
     let items = [];
-    const res = await api.get('/mobile/orders');
-    const allOrders = (res.data.status === 1 && Array.isArray(res.data.orders)) ? res.data.orders : [];
+    const includeDates = (type !== 'total_bookings' && type !== 'products' && type !== 'deactive' && type !== 'stock');
 
-    if (type === 'pending') {
-      items = allOrders.filter(o => [0, 1, 3].includes(Number(o.order_status)));
-    } else if (type === 'completed') {
-      items = allOrders.filter(o => Number(o.order_status) === 4);
-    } else if (type === 'cancelled') {
-      items = allOrders.filter(o => Number(o.order_status) === 5);
-    } else if (type === 'orders') {
-      items = stats.recent_orders || [];
-    } else if (type === 'payments') {
-      items = allOrders.filter(o => Number(o.payment_mode) === 0 && Number(o.order_status) < 4);
-    } else if (type === 'products' || type === 'deactive') {
+    let filterParams = `?restaurantId=${selectedRestaurant}`;
+    if (includeDates) {
+      filterParams += `&startDate=${dateRange.start}&endDate=${dateRange.end}`;
+    }
+
+    if (type === 'pending' || type === 'completed' || type === 'cancelled' || type === 'rejected' || type === 'orders' || type === 'total_bookings' || type === 'payments') {
       try {
-        const res = await api.get('/products');
+        const res = await api.get(`/mobile/orders${filterParams}`);
+        const allOrders = (res.data.status === 1 && Array.isArray(res.data.orders)) ? res.data.orders : [];
+
+        if (type === 'pending') {
+          items = allOrders.filter(o => [0, 1, 3].includes(Number(o.order_status)));
+        } else if (type === 'completed') {
+          items = allOrders.filter(o => Number(o.order_status) === 4);
+        } else if (type === 'cancelled') {
+          items = allOrders.filter(o => Number(o.order_status) === 5);
+        } else if (type === 'rejected') {
+          items = allOrders.filter(o => Number(o.order_status) === 2);
+        } else if (type === 'payments') {
+          items = allOrders.filter(o => Number(o.payment_mode) === 0 && Number(o.order_status) < 4);
+        } else {
+          items = allOrders;
+        }
+
+        // Additional safety: If we are in TODAY mode and includeDates is true, 
+        // further ensure on frontend that we don't show old records accidentally
+        if (includeDates) {
+          const startDateStr = dateRange.start;
+          const endDateStr = dateRange.end;
+          items = items.filter(o => {
+            const oDate = new Date(o.created_at).toISOString().split('T')[0];
+            return oDate >= startDateStr && oDate <= endDateStr;
+          });
+        }
+
+      } catch (err) { console.error(err); }
+    } else if (type === 'products' || type === 'deactive' || type === 'stock') {
+      try {
+        const res = await api.get(`/products${filterParams}`);
         if (Array.isArray(res.data)) {
-          items = type === 'deactive' ? res.data.filter(p => Number(p.status) === 0) : res.data;
+          if (type === 'deactive') {
+            items = res.data.filter(p => Number(p.status) === 0);
+          } else if (type === 'stock') {
+            items = res.data.filter(p => Number(p.status) === 1);
+          } else {
+            items = res.data;
+          }
         }
       } catch (err) { console.error(err); }
     } else if (type === 'customers') {
       try {
-        const res = await api.get('/customers/by-user'); // Use specific endpoint
+        const res = await api.get(`/customers/by-user${filterParams}`);
         if (Array.isArray(res.data)) {
           items = res.data;
-        } else if (res.data.status === 1) {
-          items = res.data.data || [];
         }
       } catch (err) { console.error(err); }
     }
@@ -1276,7 +1305,7 @@ export default function Dashboard() {
     // Apply the filters: date range, customer IDs, and time range
     const startDate = filters.startDate;
     const endDate = filters.endDate;
-    const label = startDate === endDate ? startDate : `${startDate} to ${endDate}`;
+    const label = filters.label || (startDate === endDate ? startDate : `${startDate} to ${endDate}`);
 
     setDateRange({ start: startDate, end: endDate, label });
 
@@ -1284,6 +1313,9 @@ export default function Dashboard() {
     const params = new URLSearchParams();
     params.append('startDate', startDate);
     params.append('endDate', endDate);
+    if (filters.compareStartDate) params.append('compareStartDate', filters.compareStartDate);
+    if (filters.compareEndDate) params.append('compareEndDate', filters.compareEndDate);
+
     if (filters.customerIds) params.append('customerIds', filters.customerIds);
     if (filters.startTime) params.append('startTime', filters.startTime);
     if (filters.endTime) params.append('endTime', filters.endTime);
@@ -1298,6 +1330,12 @@ export default function Dashboard() {
       })
       .catch(err => console.error("Failed to fetch filtered stats", err))
       .finally(() => setLoading(false));
+  };
+
+  const calculateTrend = (current, previous) => {
+    if (!previous || Number(previous) === 0) return Number(current) > 0 ? "+100%" : "0%";
+    const diff = ((Number(current) - Number(previous)) / Number(previous)) * 100;
+    return `${diff > 0 ? '+' : ''}${diff.toFixed(1)}%`;
   };
 
   const formatCurrency = (amount) => {
@@ -1404,28 +1442,70 @@ export default function Dashboard() {
         <div className="max-w-7xl mx-auto">
 
           {/* Header Section */}
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-8 gap-4">
+          <div className="flex flex-col items-center text-center mb-10 gap-8">
             <div>
-              <h1 className="text-3xl font-bold text-white drop-shadow-md">
+              <h1 className="text-3xl sm:text-4xl font-black text-white drop-shadow-lg tracking-tight whitespace-nowrap">
                 {stats.restaurant_name ? `Welcome to ${stats.restaurant_name}` : "Dashboard"}
               </h1>
-              <p className="text-white/70 mt-1">Real-time overview of your restaurant's performance</p>
+              <p className="text-white/60 mt-2 text-sm uppercase tracking-[0.2em] font-medium">Real-time overview of your restaurant's performance</p>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-wrap justify-center items-center gap-4">
+              {/* Restaurant Filter (Super Admin) */}
+              {stats.is_super_admin && (
+                <div className="relative">
+                  <button
+                    onClick={() => setShowRestaurantMenu(!showRestaurantMenu)}
+                    className="flex items-center gap-2 px-6 py-2 bg-white/10 backdrop-blur-md rounded-xl border border-white/20 text-white font-bold hover:bg-white/20 transition-all text-sm uppercase tracking-wider h-full whitespace-nowrap"
+                  >
+                    <LayoutDashboard size={18} />
+                    {selectedRestaurant ? (restaurants.find(r => String(r.user_id) === String(selectedRestaurant))?.restaurant_name || "Restaurant") : "All Restaurants"}
+                    <ChevronDown size={14} className={`transition-transform ${showRestaurantMenu ? 'rotate-180' : ''}`} />
+                  </button>
+
+                  {showRestaurantMenu && (
+                    <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-64 bg-slate-900/95 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl z-[100] py-2 overflow-hidden text-left">
+                      <div className="max-h-60 overflow-y-auto custom-scrollbar">
+                        <button
+                          onClick={() => {
+                            setSelectedRestaurant("");
+                            setShowRestaurantMenu(false);
+                          }}
+                          className={`w-full px-4 py-2 text-left hover:bg-white/10 transition-colors text-sm ${selectedRestaurant === "" ? 'text-emerald-400 bg-white/5' : 'text-white/80'}`}
+                        >
+                          All Restaurants
+                        </button>
+                        {restaurants.map((r) => (
+                          <button
+                            key={r.user_id}
+                            onClick={() => {
+                              setSelectedRestaurant(String(r.user_id));
+                              setShowRestaurantMenu(false);
+                            }}
+                            className={`w-full px-4 py-2 text-left hover:bg-white/10 transition-colors text-sm ${String(selectedRestaurant) === String(r.user_id) ? 'text-emerald-400 bg-white/5' : 'text-white/80'}`}
+                          >
+                            {r.restaurant_name}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* Super Admin Buttons (Matches reference image style) */}
               <button
                 onClick={() => setIsDateTimeFilterModalOpen(true)}
-                className="flex items-center gap-2 px-6 py-2 bg-white/10 backdrop-blur-md rounded-xl border border-white/20 text-white font-bold hover:bg-white/20 transition-all text-sm uppercase tracking-wider"
+                className="flex items-center gap-2 px-6 py-2 bg-white/10 backdrop-blur-md rounded-xl border border-white/20 text-white font-bold hover:bg-white/20 transition-all text-sm uppercase tracking-wider whitespace-nowrap"
               >
                 <Calendar size={18} /> {dateRange.label} <ChevronDown size={14} />
               </button>
-              <button className="flex items-center gap-2 px-6 py-2 bg-white/10 backdrop-blur-md rounded-xl border border-white/20 text-white font-bold hover:bg-white/20 transition-all text-sm uppercase tracking-wider">
+              <button className="flex items-center gap-2 px-6 py-2 bg-white/10 backdrop-blur-md rounded-xl border border-white/20 text-white font-bold hover:bg-white/20 transition-all text-sm uppercase tracking-wider whitespace-nowrap">
                 <ArrowRight className="rotate-90" size={18} /> Export
               </button>
               <button
                 onClick={() => setIsNewOrderModalOpen(true)}
-                className="flex items-center gap-2 px-6 py-2 bg-emerald-600 rounded-xl text-white font-bold hover:bg-emerald-500 transition-all text-sm uppercase tracking-wider shadow-lg shadow-emerald-900/40"
+                className="flex items-center gap-2 px-6 py-2 bg-emerald-600 rounded-xl text-white font-bold hover:bg-emerald-500 transition-all text-sm uppercase tracking-wider shadow-lg shadow-emerald-900/40 whitespace-nowrap"
               >
                 <Plus size={18} /> New Order
               </button>
@@ -1444,22 +1524,22 @@ export default function Dashboard() {
               onEyeClick={() => openDetailModal('pending', 'Pending Orders')}
             />
             <StatCard
-              title="Complaint Request"
-              value={stats.complaint_requests}
-              subtext="To Be Reviewed"
-              icon={RotateCcw}
-              colorClass="bg-orange-500/20 border border-orange-400/30"
+              title="Total Bookings"
+              value={stats.total_bookings}
+              subtext="Lifetime Orders"
+              icon={ShoppingBag}
+              colorClass="bg-indigo-500/20 border border-indigo-400/30"
               delay={0.1}
-              onEyeClick={() => openDetailModal('complaints', 'Complaint Requests')}
+              onEyeClick={() => openDetailModal('total_bookings', 'Total Bookings')}
             />
             <StatCard
-              title="Cancelled Orders"
-              value={stats.cancelled_orders}
-              subtext="Total Cancelled"
-              icon={AlertCircle}
+              title="Rejected Orders"
+              value={stats.rejected_orders || stats.complaint_requests}
+              subtext="To Be Reviewed"
+              icon={RotateCcw}
               colorClass="bg-rose-500/20 border border-rose-400/30"
               delay={0.2}
-              onEyeClick={() => openDetailModal('cancelled', 'Cancelled Orders')}
+              onEyeClick={() => openDetailModal('rejected', 'Rejected Orders')}
             />
             <StatCard
               title="Yet to Receive Payments"
@@ -1500,7 +1580,7 @@ export default function Dashboard() {
               icon={ShoppingBag}
               colorClass="bg-rose-500/20 border border-rose-400/30"
               delay={0.6}
-              trend="0%"
+              trend={calculateTrend(stats.today_users, stats.prev_today_users)}
               onEyeClick={() => openDetailModal('orders', 'Orders Overview')}
             />
             <StatCard
@@ -1510,7 +1590,7 @@ export default function Dashboard() {
               icon={PoundSterling}
               colorClass="bg-emerald-500/20 border border-emerald-400/30"
               delay={0.7}
-              trend="0%"
+              trend={calculateTrend(stats.daily_revenue, stats.prev_daily_revenue)}
               onEyeClick={() => openDetailModal('orders', 'Revenue Details')}
             />
             <StatCard
@@ -1541,8 +1621,22 @@ export default function Dashboard() {
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={stats.sales_comparison || []}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.1)" />
-                  <XAxis dataKey="label" axisLine={false} tickLine={false} tick={{ fill: '#9ca3af', fontSize: 10 }} interval={3} />
-                  <YAxis axisLine={false} tickLine={false} tick={{ fill: '#9ca3af', fontSize: 10 }} tickFormatter={(v) => `£${v}`} />
+                  <XAxis
+                    dataKey="label"
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fill: '#fff', fontSize: 11 }}
+                    interval="preserveStartEnd"
+                    angle={-45}
+                    textAnchor="end"
+                    height={60}
+                  />
+                  <YAxis
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fill: '#fff', fontSize: 11 }}
+                    tickFormatter={(v) => `£${v}`}
+                  />
                   <Tooltip
                     cursor={{ fill: 'rgba(255,255,255,0.05)' }}
                     contentStyle={{ borderRadius: '12px', background: '#1f2937', border: '1px solid rgba(255,255,255,0.1)', color: '#fff' }}
@@ -1565,8 +1659,22 @@ export default function Dashboard() {
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.1)" />
-                  <XAxis dataKey="label" axisLine={false} tickLine={false} tick={{ fill: '#9ca3af', fontSize: 10 }} interval={3} />
-                  <YAxis axisLine={false} tickLine={false} tick={{ fill: '#9ca3af', fontSize: 10 }} tickFormatter={(v) => `£${Math.round(v)}`} />
+                  <XAxis
+                    dataKey="label"
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fill: '#fff', fontSize: 11 }}
+                    interval="preserveStartEnd"
+                    angle={-45}
+                    textAnchor="end"
+                    height={60}
+                  />
+                  <YAxis
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fill: '#fff', fontSize: 11 }}
+                    tickFormatter={(v) => `£${Math.round(v)}`}
+                  />
                   <Tooltip
                     contentStyle={{ borderRadius: '12px', background: '#1f2937', border: '1px solid rgba(255,255,255,0.1)', color: '#fff' }}
                     formatter={(value) => [`£${Number(value).toFixed(2)}`, "Avg Value"]}
@@ -1580,8 +1688,22 @@ export default function Dashboard() {
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={stats.weekly_orders || []}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.1)" />
-                  <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: '#9ca3af', fontSize: 10 }} tickFormatter={(str) => new Date(str).getDate()} />
-                  <YAxis axisLine={false} tickLine={false} tick={{ fill: '#9ca3af', fontSize: 10 }} />
+                  <XAxis
+                    dataKey="date"
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fill: '#fff', fontSize: 11 }}
+                    tickFormatter={(str) => new Date(str).toLocaleDateString([], { month: 'short', day: 'numeric' })}
+                    interval="preserveStartEnd"
+                    angle={-45}
+                    textAnchor="end"
+                    height={60}
+                  />
+                  <YAxis
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fill: '#fff', fontSize: 11 }}
+                  />
                   <Tooltip contentStyle={{ borderRadius: '12px', background: '#1f2937', border: '1px solid rgba(255,255,255,0.1)', color: '#fff' }} />
                   <Line type="monotone" dataKey="count" stroke="#6366f1" strokeWidth={3} dot={{ r: 4, fill: '#6366f1', strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 6 }} />
                 </LineChart>

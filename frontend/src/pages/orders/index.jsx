@@ -443,7 +443,7 @@ export default function Orders() {
                   className="w-full bg-white/5 border border-white/10 rounded-xl pl-9 pr-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 appearance-none"
                 >
                   <option value="all" className="bg-slate-800">All Payments</option>
-                  <option value="cod" className="bg-slate-800">COD</option>
+                  {/* <option value="cod" className="bg-slate-800">COD</option> */}
                   <option value="online" className="bg-slate-800">Online</option>
                 </select>
               </div>

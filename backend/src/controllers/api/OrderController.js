@@ -451,31 +451,47 @@ export const getAllOrders = async (req, res) => {
     const userId = req.user.id;
     const roleId = req.user.role_id;
     const roleName = req.user.role || req.user.role_title || null;
+    const { restaurantId, startDate, endDate } = req.query;
 
-    // consider role_id 6 as Super Admin (legacy frontend uses role_id === 6)
     const isSuperAdmin = (Number(roleId) === 6) || (typeof roleName === "string" && roleName.toLowerCase() === "super admin");
+
+    const now = new Date();
+    const todayStr = now.toISOString().split('T')[0];
+    const targetStartDate = startDate || todayStr;
+    const targetEndDate = endDate || startDate || todayStr;
 
     let sql = `
       SELECT 
-        o.*,
-        c.full_name AS customer_name,
-        rd.restaurant_name AS restaurant_name
+        o.order_number,
+        o.customer_id,
+        MIN(o.id) as id,
+        SUM(o.grand_total) as grand_total,
+        MAX(o.order_status) as order_status,
+        MAX(o.created_at) as created_at,
+        MAX(o.order_source) as order_source,
+        MAX(c.full_name) AS customer_name,
+        MAX(rd.restaurant_name) AS restaurant_name
       FROM orders o
-      INNER JOIN products p ON o.product_id = p.id
-      INNER JOIN restaurant_details rd ON p.user_id = rd.user_id
+      LEFT JOIN products p ON o.product_id = p.id
+      LEFT JOIN restaurant_details rd ON o.user_id = rd.user_id
       LEFT JOIN customers c ON o.customer_id = c.id
+      WHERE 1=1
     `;
-
 
     const params = [];
 
-    // 🔐 FILTER ONLY IF NOT SUPER ADMIN
     if (!isSuperAdmin) {
-      sql += ` WHERE rd.user_id = ? `;
+      sql += ` AND o.user_id = ? `;
       params.push(userId);
+    } else if (restaurantId && restaurantId !== "all") {
+      sql += ` AND o.user_id = ? `;
+      params.push(restaurantId);
     }
 
-    sql += ` ORDER BY o.id DESC `;
+    sql += ` AND DATE(o.created_at) >= ? AND DATE(o.created_at) <= ? `;
+    params.push(targetStartDate, targetEndDate);
+
+    sql += ` GROUP BY o.order_number ORDER BY MAX(o.created_at) DESC `;
 
     const [rows] = await db.query(sql, params);
 
