@@ -145,19 +145,21 @@ export const createOrder = async (req, res) => {
 
     await conn.beginTransaction();
 
-    let restaurantName = "";
+    let restaurantId = null;
     let restaurantOwnerId = null;
+    let restaurantName = "";
 
     if (Array.isArray(items) && items.length > 0 && items[0].product_id) {
       const firstProductId = items[0].product_id;
       const [prdRows] = await conn.query(
-        `SELECT rd.restaurant_name, p.user_id as owner_id
+        `SELECT rd.id as restaurant_id, rd.restaurant_name, p.user_id as owner_id
          FROM products p
          JOIN restaurant_details rd ON p.user_id = rd.user_id
          WHERE p.id = ? LIMIT 1`,
         [firstProductId]
       );
       if (prdRows.length) {
+        restaurantId = prdRows[0].restaurant_id;
         restaurantName = prdRows[0].restaurant_name || "";
         restaurantOwnerId = prdRows[0].owner_id;
       }
@@ -165,12 +167,15 @@ export const createOrder = async (req, res) => {
 
     const finalUserId = restaurantOwnerId || user_id;
 
-    if (!restaurantName && user_id) {
+    if (!restaurantId && finalUserId) {
       const [rData] = await conn.query(
-        "SELECT restaurant_name FROM restaurant_details WHERE user_id = ? LIMIT 1",
-        [user_id]
+        "SELECT id, restaurant_name FROM restaurant_details WHERE user_id = ? LIMIT 1",
+        [finalUserId]
       );
-      restaurantName = rData.length ? rData[0].restaurant_name : "";
+      if (rData.length) {
+        restaurantId = rData[0].id;
+        restaurantName = rData[0].restaurant_name;
+      }
     }
 
     const order_number = generateOrderNumber(restaurantName);
@@ -410,9 +415,9 @@ export const createOrder = async (req, res) => {
 
     if (payment_request_id) {
       await conn.query(
-        `INSERT INTO order_payment_history (order_no, payment_request_id, amount, payment_status)
-         VALUES (?, ?, ?, 'success')`,
-        [order_number, payment_request_id, paidTotal]
+        `INSERT INTO order_payment_history (order_no, payment_request_id, amount, payment_status, restaurant_id)
+         VALUES (?, ?, ?, 'success', ?)`,
+        [order_number, payment_request_id, paidTotal, restaurantId]
       );
     }
 

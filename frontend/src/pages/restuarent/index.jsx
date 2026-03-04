@@ -22,7 +22,7 @@ const InputField = ({ icon: Icon, label, value, onChange, placeholder, type = "t
     <div className="relative">
       <input
         type={type}
-        value={value}
+        value={value || ""}
         onChange={onChange}
         placeholder={placeholder}
         className="w-full px-4 py-3 bg-white/10 backdrop-blur-md border-2 border-white/20 rounded-xl text-white placeholder-white/50 
@@ -52,7 +52,9 @@ export default function Restuarent() {
     kerbside: false,
     latitude: "",
     longitude: "",
-    photo: ""
+    photo: "",
+    stripe_secret_key: "",
+    stripe_publishable_key: ""
   });
 
   const [photoFile, setPhotoFile] = useState(null);
@@ -168,6 +170,8 @@ export default function Restuarent() {
       kerbside: info.kerbside ? 1 : 0,
       latitude: info.latitude || null,
       longitude: info.longitude || null,
+      stripe_secret_key: info.stripe_secret_key || null,
+      stripe_publishable_key: info.stripe_publishable_key || null,
       timings: timings.map((t) => ({
         day: t.day,
         opening_time: toSqlTime(t.start),
@@ -194,7 +198,9 @@ export default function Restuarent() {
       kerbside: !!restaurant.kerbside,
       latitude: restaurant.latitude ?? "",
       longitude: restaurant.longitude ?? "",
-      photo: restaurant.restaurant_photo ?? ""
+      photo: restaurant.restaurant_photo ?? "",
+      stripe_secret_key: restaurant.stripe_secret_key ?? "",
+      stripe_publishable_key: restaurant.stripe_publishable_key ?? ""
     });
 
     if (restaurant.timings?.length) {
@@ -222,6 +228,7 @@ export default function Restuarent() {
     setSaving(true);
     try {
       const payload = frontendToApiPayload();
+
       let res;
 
       if (photoFile) {
@@ -237,7 +244,9 @@ export default function Restuarent() {
       }
 
       if (res?.data?.data) {
+
         apiToFrontend(res.data.data);
+        showPopup?.("success", "Saved", "Restaurant details updated successfully");
       }
 
       setPhotoFile(null);
@@ -330,15 +339,15 @@ export default function Restuarent() {
                     </label>
                     <div className="space-y-4">
                       <div className="relative">
-                        <textarea
-                          rows={2}
+                        <input
+                          type="text"
                           id="restaurant_address_autocomplete"
                           value={info.address}
                           onChange={onInfoChange("address")}
                           placeholder="Search for restaurant address..."
                           className="w-full px-4 py-3 bg-white/10 backdrop-blur-md border-2 border-white/20 rounded-xl text-white placeholder-white/50 
                                    focus:outline-none focus:border-emerald-400 focus:ring-4 focus:ring-emerald-400/20 
-                                   transition-all duration-200 hover:border-white/30 resize-none shadow-lg"
+                                   transition-all duration-200 hover:border-white/30 shadow-lg"
                         />
                         <div className="mt-2 flex gap-4">
                           <div className="flex-1">
@@ -413,6 +422,28 @@ export default function Restuarent() {
                     value={info.linkedin}
                     onChange={onInfoChange("linkedin")}
                     placeholder="LinkedIn profile URL"
+                  />
+                </div>
+              </div>
+
+              {/* Stripe Details Card */}
+              <div className="bg-white/10 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 overflow-hidden">
+                <div className="bg-white/10 backdrop-blur-md px-6 py-4 border-b border-white/10">
+                  <h2 className="text-xl font-bold text-white drop-shadow-lg">Stripe Payments</h2>
+                </div>
+
+                <div className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  <InputField
+                    label="Stripe Publishable Key"
+                    value={info.stripe_publishable_key}
+                    onChange={onInfoChange("stripe_publishable_key")}
+                    placeholder="pk_test_..."
+                  />
+                  <InputField
+                    label="Stripe Secret Key"
+                    value={info.stripe_secret_key}
+                    onChange={onInfoChange("stripe_secret_key")}
+                    placeholder="sk_test_..."
                   />
                 </div>
               </div>

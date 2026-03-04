@@ -5,12 +5,12 @@ import pool from "../config/db.js";
  * Get restaurant (and timings) by user id
  * returns null if none
  */
-export async function getRestaurantByUserId(userId) {
+export async function getRestaurantById(restaurantId) {
   const conn = await pool.getConnection();
   try {
     const [rows] = await conn.query(
-      `SELECT rd.* FROM restaurant_details rd WHERE rd.user_id = ? LIMIT 1`,
-      [userId]
+      `SELECT rd.* FROM restaurant_details rd WHERE rd.id = ? LIMIT 1`,
+      [restaurantId]
     );
 
     if (!rows.length) return null;
@@ -32,6 +32,23 @@ export async function getRestaurantByUserId(userId) {
 }
 
 /**
+ * Wrapper to get restaurant by user_id
+ */
+export async function getRestaurantByUserId(userId) {
+  const conn = await pool.getConnection();
+  try {
+    const [rows] = await conn.query(
+      `SELECT id FROM restaurant_details WHERE user_id = ? LIMIT 1`,
+      [userId]
+    );
+    if (!rows.length) return null;
+    return await getRestaurantById(rows[0].id);
+  } finally {
+    conn.release();
+  }
+}
+
+/**
  * Insert a restaurant row and return inserted id
  */
 async function insertRestaurant(conn, userId, payload) {
@@ -40,8 +57,9 @@ async function insertRestaurant(conn, userId, payload) {
       `INSERT INTO restaurant_details
         (user_id, restaurant_name, restaurant_address, restaurant_phonenumber,
         restaurant_email, restaurant_facebook, restaurant_twitter, restaurant_instagram,
-        restaurant_linkedin, parking_info, instore, kerbside, latitude, longitude, restaurant_photo)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        restaurant_linkedin, parking_info, instore, kerbside, latitude, longitude, restaurant_photo,
+        stripe_secret_key, stripe_publishable_key)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         userId,
         payload.restaurant_name ?? null,
@@ -58,69 +76,51 @@ async function insertRestaurant(conn, userId, payload) {
         payload.latitude ?? null,
         payload.longitude ?? null,
         payload.restaurant_photo ?? null,
+        payload.stripe_secret_key ?? null,
+        payload.stripe_publishable_key ?? null,
       ]
     );
     return res.insertId;
   } catch (err) {
-    console.error("insertRestaurant error:", err && (err.sqlMessage || err.message) ? (err.sqlMessage || err.message) : err);
     throw err;
   }
 }
 
 async function updateRestaurant(conn, restaurantId, payload) {
   try {
-    // base fields
-    const fields = [
-      "restaurant_name",
-      "restaurant_address",
-      "restaurant_phonenumber",
-      "restaurant_email",
-      "restaurant_facebook",
-      "restaurant_twitter",
-      "restaurant_instagram",
-      "restaurant_linkedin",
-      "parking_info",
-      "instore",
-      "kerbside",
-      "latitude",
-      "longitude"
-    ];
+    const fieldsMap = {
+      restaurant_name: payload.restaurant_name ?? null,
+      restaurant_address: payload.restaurant_address ?? null,
+      restaurant_phonenumber: payload.restaurant_phonenumber ?? null,
+      restaurant_email: payload.restaurant_email ?? null,
+      restaurant_facebook: payload.restaurant_facebook ?? null,
+      restaurant_twitter: payload.restaurant_twitter ?? null,
+      restaurant_instagram: payload.restaurant_instagram ?? null,
+      restaurant_linkedin: payload.restaurant_linkedin ?? null,
+      parking_info: payload.parking_info ?? null,
+      instore: payload.instore ?? 0,
+      kerbside: payload.kerbside ?? 0,
+      latitude: payload.latitude ?? null,
+      longitude: payload.longitude ?? null,
+      stripe_secret_key: payload.stripe_secret_key ?? null,
+      stripe_publishable_key: payload.stripe_publishable_key ?? null,
+    };
 
-    const values = [
-      payload.restaurant_name ?? null,
-      payload.restaurant_address ?? null,
-      payload.restaurant_phonenumber ?? null,
-      payload.restaurant_email ?? null,
-      payload.restaurant_facebook ?? null,
-      payload.restaurant_twitter ?? null,
-      payload.restaurant_instagram ?? null,
-      payload.restaurant_linkedin ?? null,
-      payload.parking_info ?? null,
-      payload.instore ?? 0,
-      payload.kerbside ?? 0,
-      payload.latitude ?? null,
-      payload.longitude ?? null,
-    ];
-
-    // 👇 Only update restaurant_photo if it exists in payload
+    // Only update photo if explicitly provided
     if (Object.prototype.hasOwnProperty.call(payload, "restaurant_photo")) {
-      fields.splice(8, 0, "restaurant_photo"); // before parking_info
-      values.splice(8, 0, payload.restaurant_photo ?? null);
+      fieldsMap.restaurant_photo = payload.restaurant_photo ?? null;
     }
+
+    const fields = Object.keys(fieldsMap);
+    const values = Object.values(fieldsMap);
 
     const setClause = fields.map((f) => `${f} = ?`).join(", ");
 
-    await conn.query(
-      `UPDATE restaurant_details
-       SET ${setClause}, updated_at = CURRENT_TIMESTAMP
-       WHERE id = ?`,
+    const [res] = await conn.query(
+      `UPDATE restaurant_details SET ${setClause}, updated_at = CURRENT_TIMESTAMP WHERE id = ?`,
       [...values, restaurantId]
     );
   } catch (err) {
-    console.error(
-      "updateRestaurant error:",
-      err && (err.sqlMessage || err.message) ? (err.sqlMessage || err.message) : err
-    );
     throw err;
   }
 }
@@ -154,7 +154,6 @@ async function syncTimings(conn, restaurantId, payloadTimings = []) {
     const raw = String(t.day).trim();
     const day = raw.charAt(0).toUpperCase() + raw.slice(1).toLowerCase();
     if (!validDays.includes(day)) {
-      console.warn("syncTimings: skipping invalid day value:", t.day);
       continue;
     }
 
@@ -174,7 +173,7 @@ async function syncTimings(conn, restaurantId, payloadTimings = []) {
 
   try {
     const [existing] = await conn.query(
-      `SELECT id, day FROM restaurant_timings WHERE restaurant_id = ?`,
+      `SELECT id, day FROM restaurant_timings WHERE restaurant_id = ? `,
       [restaurantId]
     );
 
@@ -186,7 +185,7 @@ async function syncTimings(conn, restaurantId, payloadTimings = []) {
     if (daysToDelete.length) {
       const placeholders = daysToDelete.map(() => "?").join(",");
       await conn.query(
-        `DELETE FROM restaurant_timings WHERE restaurant_id = ? AND day IN (${placeholders})`,
+        `DELETE FROM restaurant_timings WHERE restaurant_id = ? AND day IN(${placeholders})`,
         [restaurantId, ...daysToDelete]
       );
     }
@@ -198,19 +197,18 @@ async function syncTimings(conn, restaurantId, payloadTimings = []) {
         await conn.query(
           `UPDATE restaurant_timings
            SET opening_time = ?, closing_time = ?, is_active = ?, updated_at = CURRENT_TIMESTAMP
-           WHERE id = ?`,
+           WHERE id = ? `,
           [t.opening_time, t.closing_time, t.is_active, existingByDay[day]]
         );
       } else {
         await conn.query(
-          `INSERT INTO restaurant_timings (restaurant_id, day, opening_time, closing_time, is_active)
-           VALUES (?, ?, ?, ?, ?)`,
+          `INSERT INTO restaurant_timings(restaurant_id, day, opening_time, closing_time, is_active)
+           VALUES(?, ?, ?, ?, ?)`,
           [restaurantId, day, t.opening_time, t.closing_time, t.is_active]
         );
       }
     }
   } catch (err) {
-    console.error("syncTimings error:", err && (err.sqlMessage || err.message) ? (err.sqlMessage || err.message) : err);
     throw err;
   }
 }
@@ -243,7 +241,8 @@ export async function upsertRestaurantForUser(userId, payload) {
 
     await conn.commit();
 
-    return await getRestaurantByUserId(userId);
+    // Fetch the fresh data by the EXACT ID we just updated/inserted
+    return await getRestaurantById(restaurantId);
   } catch (err) {
     await conn.rollback();
     throw err;

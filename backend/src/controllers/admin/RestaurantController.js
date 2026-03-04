@@ -21,7 +21,6 @@ function extractUserId(req) {
     const decoded = jwt.verify(token, process.env.JWT_SECRET || "devsecret");
     return decoded?.id || decoded?.userId || decoded?.sub || null;
   } catch (err) {
-    console.error("JWT verify error:", err && err.message ? err.message : err);
     return null;
   }
 }
@@ -34,7 +33,6 @@ export async function show(req, res) {
     const restaurant = await getRestaurantByUserId(userId);
     return res.json({ success: true, data: restaurant || null });
   } catch (err) {
-    console.error("Error fetching restaurant:", err);
     return res.status(500).json({ success: false, message: "Server Error" });
   }
 }
@@ -56,7 +54,7 @@ export async function upsert(req, res) {
 
   // Parse timings if still string
   if (body.timings && typeof body.timings === "string") {
-    try { body.timings = JSON.parse(body.timings); } catch {}
+    try { body.timings = JSON.parse(body.timings); } catch { }
   }
 
   // ✅ FIX: Only set photo if file was uploaded, otherwise preserve existing
@@ -67,14 +65,16 @@ export async function upsert(req, res) {
     delete body.restaurant_photo;
   }
 
+
+
   try {
     const updated = await upsertRestaurantForUser(userId, body);
-    
+
     // ✅ CRITICAL: Return the full updated restaurant with photo field
     return res.json({ success: true, data: updated });
   } catch (err) {
-    console.log(err);
     return res.status(500).json({ success: false, message: "Server Error" });
   }
 }
+
 

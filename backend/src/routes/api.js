@@ -5,17 +5,17 @@ import { getRestaurants, getRestaurantById, getRestaurantTimings } from "../cont
 import { getCategories } from "../controllers/api/categoryController.js";
 import { getProducts } from "../controllers/api/productController.js";
 import { addToCart, getCart, removeFromCart } from "../controllers/api/cartController.js";
-import { 
-  createOrder, 
-  getAllOrders, 
-  getCustomerOrders, 
-  getOrder 
+import {
+  createOrder,
+  getAllOrders,
+  getCustomerOrders,
+  getOrder
 } from "../controllers/api/OrderController.js";
 
 import { getWalletSummary } from "../controllers/api/walletController.js";
 import { redeemLoyaltyToWallet } from "../controllers/api/loyaltyController.js";
 import { getProfile } from "../controllers/api/profileController.js";
-import { createPaymentIntent } from "../controllers/api/stripeController.js";
+import { createPaymentIntent, getRestaurantStripeKey } from "../controllers/api/stripeController.js";
 import { getPaymentHistory } from "../controllers/api/paymentController.js";
 import { saveFcmToken } from "../controllers/api/notificationController.js";
 import { updateOrderStatus } from "../controllers/api/OrderController.js";
@@ -44,6 +44,7 @@ router.get("/cart", getCart);
 router.post("/cart/remove", removeFromCart);
 
 router.post("/stripe/create-payment-intent", createPaymentIntent);
+router.get("/stripe/restaurant-key", getRestaurantStripeKey);
 // ORDERS
 router.post("/create-order", auth, createOrder);
 

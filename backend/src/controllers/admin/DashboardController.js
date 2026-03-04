@@ -406,7 +406,7 @@ export const getDashboardStats = async (req, res) => {
                   AND DATE(o.created_at) >= ? AND DATE(o.created_at) <= ?
             `;
             const [[rejectedRes]] = await conn.query(rejectedQuery, [...effectiveParams, ...extraParams, targetStartDateStr, targetEndDateStr]);
-            rejectedOrdersVal = rejectedRes?.count || 0;
+            const rejectedOrdersVal = rejectedRes?.count || 0;
             complaintRequestsVal = rejectedOrdersVal;
 
             // Fetch Cancelled Orders (Status 5)
@@ -519,7 +519,6 @@ export const getDashboardStats = async (req, res) => {
         }
 
     } catch (error) {
-        console.error("Dashboard stats error:", error);
         return res.status(500).json({ status: 0, message: "Server error" });
     }
 };
@@ -561,7 +560,6 @@ export const getOrderDetails = async (req, res) => {
         });
 
     } catch (error) {
-        console.error("Order details error:", error);
         return res.status(500).json({ status: 0, message: "Server error" });
     }
 };
@@ -574,7 +572,6 @@ export const getRestaurantsList = async (req, res) => {
         conn.release();
         return res.json({ status: 1, data: rows });
     } catch (error) {
-        console.error("Get restaurants error:", error);
         return res.status(500).json({ status: 0, message: "Server error" });
     }
 };
