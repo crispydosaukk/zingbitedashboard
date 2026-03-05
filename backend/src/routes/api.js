@@ -23,6 +23,7 @@ import {
   getNotifications,
   markNotificationRead
 } from "../controllers/api/notificationListController.js";
+import { getAppSettings } from "../controllers/api/settingsController.js";
 
 
 const router = express.Router();
@@ -36,6 +37,7 @@ router.get("/restaurants", getRestaurants);
 router.get("/restaurant/:id", getRestaurantById);
 router.get("/restaurant-timings/:restaurant_id", getRestaurantTimings);
 
+router.get("/app-settings", getAppSettings);
 router.get("/categories", getCategories);
 router.get("/products", getProducts);
 
@@ -69,4 +71,5 @@ router.put("/profile", auth, updateProfile);
 
 router.post("/loyalty/redeem", auth, redeemLoyaltyToWallet);
 
-export default router; 
+
+export default router;
