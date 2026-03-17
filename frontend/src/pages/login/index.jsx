@@ -110,7 +110,7 @@ export default function LoginPage() {
           {/* RIGHT */}
           <div className="flex-1 px-6 sm:px-10 py-10 bg-white">
             <div className="flex justify-center">
-              <img src="/Crispy-Dosalogo.png" alt="logo" className="h-14 object-contain" />
+              <img src="/zingbitelogo.png" alt="logo" className="h-14 object-contain" />
             </div>
             
             <h2 className="text-center mt-6 font-extrabold">

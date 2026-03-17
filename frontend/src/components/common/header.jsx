@@ -290,7 +290,7 @@ export default function Header({ onToggleSidebar, darkMode = true }) {
 
   // Generate Google Maps API Key
   const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
-      const [locationRequired, setLocationRequired] = useState(true); // New state for location requirement
+  const [locationRequired, setLocationRequired] = useState(true); // New state for location requirement
 
   // Logout
   const logout = () => {
@@ -438,27 +438,27 @@ export default function Header({ onToggleSidebar, darkMode = true }) {
       const uId = storedUserId;
       const res = await api.get(`/mobile/notifications?user_type=admin&user_id=${uId}`);
       if (res.data.status !== 1) return;
-      
+
       const newNotifs = res.data.data.filter(n => !n.is_read);
-      
+
       setGeneralNotifications(prev => {
         // If we have more unread notifs than before, or a newer max ID
         const hasNew = newNotifs.length > prev.length || (newNotifs.length > 0 && Math.max(...newNotifs.map(n => n.id)) > (prev.length > 0 ? Math.max(...prev.map(n => n.id)) : 0));
 
         if (hasNew) {
-           const audio = new Audio("/message.mp3");
-           audio.play().catch(e => {});
+          const audio = new Audio("/message.mp3");
+          audio.play().catch(e => { });
 
-           // Trigger popup for new registration just like orders
-           const latest = newNotifs[0];
-           if (latest) {
-              setNewOrderToast({
-                ...latest,
-                isRegistration: true,
-                items: [], // Registration doesn't have items
-                order_total: 0
-              });
-           }
+          // Trigger popup for new registration just like orders
+          const latest = newNotifs[0];
+          if (latest) {
+            setNewOrderToast({
+              ...latest,
+              isRegistration: true,
+              items: [], // Registration doesn't have items
+              order_total: 0
+            });
+          }
         }
         return newNotifs;
       });
@@ -483,8 +483,8 @@ export default function Header({ onToggleSidebar, darkMode = true }) {
       await api.put(`/merchant-profile/update-status/${profileId}`, { status });
       setNewOrderToast(null);
       fetchGeneralNotifications();
-    } catch { 
-      alert("Failed to update merchant status"); 
+    } catch {
+      alert("Failed to update merchant status");
     }
   };
 
@@ -550,7 +550,7 @@ export default function Header({ onToggleSidebar, darkMode = true }) {
 
             <div className="hidden lg:flex items-center gap-2 sm:gap-3">
               <img
-                src="/Crispy-Dosalogo.png"
+                src="/zingbitelogo.png"
                 alt="ZingBite"
                 className={`h-12 sm:h-14 w-auto transition-all duration-300 drop-shadow-md ${scrolled ? "scale-90" : "scale-100"}`}
               />
@@ -560,7 +560,7 @@ export default function Header({ onToggleSidebar, darkMode = true }) {
           {/* CENTER: Mobile Logo */}
           <div className="lg:hidden absolute left-1/2 -translate-x-1/2 flex items-center justify-center">
             <img
-              src="/Crispy-Dosalogo.png"
+              src="/zingbitelogo.png"
               alt="ZingBite"
               className="h-10 w-auto drop-shadow-md"
             />
@@ -574,7 +574,7 @@ export default function Header({ onToggleSidebar, darkMode = true }) {
               style={{ width: '440px', fontWeight: 600, fontSize: '1.15rem', letterSpacing: '0.02em' }}
             >
               <MapPin size={28} className="text-emerald-400 drop-shadow-md" />
-              <span className="truncate text-white" style={{fontSize: '1.15rem'}}>{locationName}</span>
+              <span className="truncate text-white" style={{ fontSize: '1.15rem' }}>{locationName}</span>
               <ChevronDown size={20} className="text-white/60 ml-auto" />
             </button>
           </div>
@@ -626,25 +626,25 @@ export default function Header({ onToggleSidebar, darkMode = true }) {
                         {/* General Notifications (Registrations etc) */}
                         {generalNotifications.map((notif) => (
                           <div key={`notif-${notif.id}`} className="p-4 sm:p-5 hover:bg-white/5 transition-colors cursor-pointer" onClick={() => navigate('/restaurantregistration')}>
-                             <div className="flex justify-between items-start mb-1">
-                                <p className="font-bold text-white text-sm sm:text-base">{notif.title}</p>
-                                <p className="text-[10px] text-white/40 uppercase font-medium">Just now</p>
-                             </div>
-                             <p className="text-xs text-white/70 leading-relaxed mb-3">{notif.body}</p>
-                             <div className="flex items-center gap-3">
-                                <button
-                                  onClick={(e) => { e.stopPropagation(); handleRegistrationStatusUpdate(notif, 1); }}
-                                  className="flex-1 flex items-center justify-center py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-bold rounded-lg transition-all"
-                                >
-                                  Accept
-                                </button>
-                                <button
-                                  onClick={(e) => { e.stopPropagation(); handleRegistrationStatusUpdate(notif, 2); }}
-                                  className="flex-1 flex items-center justify-center py-1.5 bg-white/5 border border-white/10 text-white/60 hover:text-rose-400 hover:bg-rose-500/10 text-[10px] font-medium rounded-lg transition-all"
-                                >
-                                  Reject
-                                </button>
-                             </div>
+                            <div className="flex justify-between items-start mb-1">
+                              <p className="font-bold text-white text-sm sm:text-base">{notif.title}</p>
+                              <p className="text-[10px] text-white/40 uppercase font-medium">Just now</p>
+                            </div>
+                            <p className="text-xs text-white/70 leading-relaxed mb-3">{notif.body}</p>
+                            <div className="flex items-center gap-3">
+                              <button
+                                onClick={(e) => { e.stopPropagation(); handleRegistrationStatusUpdate(notif, 1); }}
+                                className="flex-1 flex items-center justify-center py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-bold rounded-lg transition-all"
+                              >
+                                Accept
+                              </button>
+                              <button
+                                onClick={(e) => { e.stopPropagation(); handleRegistrationStatusUpdate(notif, 2); }}
+                                className="flex-1 flex items-center justify-center py-1.5 bg-white/5 border border-white/10 text-white/60 hover:text-rose-400 hover:bg-rose-500/10 text-[10px] font-medium rounded-lg transition-all"
+                              >
+                                Reject
+                              </button>
+                            </div>
                           </div>
                         ))}
 
@@ -738,7 +738,7 @@ export default function Header({ onToggleSidebar, darkMode = true }) {
                     let user = null;
                     try {
                       user = JSON.parse(localStorage.getItem("user"));
-                    } catch {}
+                    } catch { }
                     if (user && user.role_title === "Super Admin") {
                       return <p className="text-[10px] mt-1 font-medium tracking-wide text-white/60">SUPER ADMIN</p>;
                     }

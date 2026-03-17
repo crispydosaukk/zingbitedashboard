@@ -74,6 +74,14 @@ import {
   updateMyProfile as updateMyMerchantProfile,
 } from "../controllers/admin/MerchantStoreProfileController.js";
 
+import {
+  index as listOffers,
+  store as saveOffer,
+  update as updateOffer,
+  toggleStatus as toggleOfferStatus,
+  destroy as deleteOffer,
+} from "../controllers/admin/PromotionalOfferController.js";
+
 
 
 const router = express.Router();
@@ -142,11 +150,28 @@ router.get("/dashboard-stats", auth, getDashboardStats);
 router.get("/dashboard/order-details/:order_number", auth, getOrderDetails);
 
 
+const merchantUploadFields = upload.fields([
+  { name: 'food_business_license', maxCount: 1 },
+  { name: 'food_hygiene_certificate', maxCount: 1 },
+  { name: 'business_registration_certificate', maxCount: 1 },
+  { name: 'owner_id_proof_file', maxCount: 1 },
+  { name: 'bank_statement_file', maxCount: 1 },
+  { name: 'address_proof_file', maxCount: 1 },
+  { name: 'allergen_info_file', maxCount: 1 }
+]);
+
 /* MERCHANT STORE PROFILES */
 router.get("/merchant-profiles", auth, listMerchantProfiles);
-router.post("/merchant-profiles", auth, saveMerchantProfile);
+router.post("/merchant-profiles", auth, merchantUploadFields, saveMerchantProfile);
 router.put("/merchant-profile/update-status/:id", auth, updateMerchantStatus);
 router.get("/merchant-profile/me", auth, getMyMerchantProfile);
-router.put("/merchant-profile/my-update", auth, updateMyMerchantProfile);
+router.put("/merchant-profile/my-update", auth, merchantUploadFields, updateMyMerchantProfile);
+
+/* PROMOTIONAL OFFERS */
+router.get("/offers", auth, listOffers);
+router.post("/offers", auth, upload.single("banner"), saveOffer);
+router.put("/offers/:id", auth, upload.single("banner"), updateOffer);
+router.put("/offers/toggle/:id", auth, toggleOfferStatus);
+router.delete("/offers/:id", auth, deleteOffer);
 
 export default router;

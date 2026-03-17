@@ -43,7 +43,7 @@ import {
   Store, MapPin, Phone, Mail, Facebook, Twitter, Instagram, Linkedin,
   ParkingCircle, Upload, X, Clock, Plus, Trash2, Save, Image as ImageIcon,
   CheckCircle2, AlertCircle, Calendar, Utensils, ChefHat, Pizza, Soup, Flame,
-  Truck, Bike, ShoppingCart, Globe
+  Truck, Bike, ShoppingCart, Globe, Drumstick
 } from "lucide-react";
 import { usePopup } from "../../context/PopupContext";
 
@@ -474,7 +474,7 @@ export default function Restuarent() {
                       <span className="text-white">*</span>
                     </label>
                     <div className="bg-white/5 rounded-xl p-4 border border-white/10">
-                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-3">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-8 gap-3">
                         {[
                           { id: 0, label: "Indian", icon: Flame },
                           { id: 1, label: "Afghan", icon: ChefHat },
@@ -482,7 +482,8 @@ export default function Restuarent() {
                           { id: 3, label: "Chinese", icon: Soup },
                           { id: 4, label: "Italian", icon: Pizza },
                           { id: 5, label: "Thai", icon: Soup },
-                          { id: 6, label: "Mexican", icon: Flame }
+                          { id: 6, label: "Mexican", icon: Flame },
+                          { id: 7, label: "Fried Chicken", icon: Drumstick }
                         ].map((cuisine) => {
                           const Icon = cuisine.icon;
                           const isSelected = Array.isArray(info.cuisine_type) && info.cuisine_type.includes(cuisine.id);

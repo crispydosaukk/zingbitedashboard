@@ -102,6 +102,7 @@ export default function Sidebar({ open, onClose }) {
     () => [
       { label: "Category", to: "/category", icon: iconCategory(), perm: "category" },
       { label: "Product", to: "/product", icon: iconProduct(), perm: "product" },
+      { label: "Promotional Offers", to: "/offers", icon: iconTag(), perm: "promotional_offers" },
     ],
     []
   );
@@ -182,7 +183,7 @@ export default function Sidebar({ open, onClose }) {
         {/* Mobile Sidebar Header (Logo + Close) */}
         <div className="flex lg:hidden items-center justify-between px-4 pb-4 pt-14 border-b border-white/15">
           <div className="flex items-center gap-2">
-            <img src="/Crispy-Dosalogo.png" alt="Logo" className="h-16 w-auto object-contain" />
+            <img src="/zingbitelogo.png" alt="Logo" className="h-16 w-auto object-contain" />
           </div>
           <button onClick={onClose} className="p-2 text-white/70 hover:text-white bg-white/10 rounded-lg">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -218,7 +219,7 @@ export default function Sidebar({ open, onClose }) {
             label="Menu Management"
             icon={iconCategory()}
             hidden={filteredMenuManagement.length === 0}
-            openProp={location.pathname.startsWith("/category") || location.pathname.startsWith("/product")}
+            openProp={location.pathname.startsWith("/category") || location.pathname.startsWith("/product") || location.pathname.startsWith("/offers")}
           >
             {filteredMenuManagement.map((m) => (
               <Item key={m.label} to={m.to} label={m.label} icon={m.icon} />
@@ -408,6 +409,15 @@ function iconStorePlus() {
   return (
     <svg viewBox="0 0 24 24" fill="none" className="w-full h-full">
       <path d="M3 9h18v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9zm0-4a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4H3V5zm12 9h-6m3-3v6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function iconTag() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className="w-full h-full">
+      <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M7 7h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }

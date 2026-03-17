@@ -4,36 +4,38 @@ import Sidebar from "../../components/common/sidebar.jsx";
 import Footer from "../../components/common/footer.jsx";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
-  Store, CheckCircle, Info, Users, Search, 
+  Store, CheckCircle, Info, Users, Search,
   MapPin, Phone, Mail, Calendar, Eye, 
   Plus, X, Download, TrendingUp, Briefcase, ChevronRight, Save,
   Clock, AlertCircle, Check, MessageSquare, Globe, Hash, Building2,
-  Edit3, ArrowLeft, Send
+  Edit3, ArrowLeft, Send, Shield
 } from "lucide-react";
 import api from "../../api.js";
 
 const InputGroup = ({ label, icon: Icon, value, onChange, placeholder, type = "text", required = false, name }) => (
-  <div className="space-y-2">
-    <label className="text-sm font-bold text-white/70 flex items-center gap-2">
-      {Icon && <Icon size={14} className="text-emerald-400" />}
+  <div className="space-y-2 group">
+    <label className="text-[10px] font-black uppercase tracking-widest text-white/40 group-focus-within:text-emerald-400 transition-colors flex items-center gap-2">
+      {Icon && <Icon size={12} />}
       {label} {required && <span className="text-rose-500">*</span>}
     </label>
-    <input
-      type={type}
-      name={name}
-      value={value}
-      onChange={onChange}
-      placeholder={placeholder}
-      required={required}
-      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/20 focus:outline-none focus:border-emerald-500/50 transition-all font-outfit"
-    />
+    <div className="relative">
+      <input
+        type={type}
+        name={name}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        required={required}
+        className="w-full px-5 py-4 bg-white/[0.03] border border-white/10 rounded-2xl text-white placeholder-white/20 focus:outline-none focus:border-emerald-500/50 focus:bg-white/[0.07] transition-all font-outfit text-sm"
+      />
+    </div>
   </div>
 );
 
 const SelectGroup = ({ label, icon: Icon, value, onChange, options, required = false, name }) => (
-  <div className="space-y-2">
-    <label className="text-sm font-bold text-white/70 flex items-center gap-2">
-      {Icon && <Icon size={14} className="text-emerald-400" />}
+  <div className="space-y-2 group">
+    <label className="text-[10px] font-black uppercase tracking-widest text-white/40 group-focus-within:text-emerald-400 transition-colors flex items-center gap-2">
+      {Icon && <Icon size={12} />}
       {label} {required && <span className="text-rose-500">*</span>}
     </label>
     <div className="relative">
@@ -42,31 +44,113 @@ const SelectGroup = ({ label, icon: Icon, value, onChange, options, required = f
         value={value}
         onChange={onChange}
         required={required}
-        className="w-full px-4 py-3 bg-[#1A4D3A] border border-white/10 rounded-xl text-white focus:outline-none focus:border-emerald-500/50 transition-all appearance-none cursor-pointer font-outfit"
+        className="w-full px-5 py-4 bg-white/[0.03] border border-white/10 rounded-2xl text-white focus:outline-none focus:border-emerald-500/50 focus:bg-white/[0.07] transition-all appearance-none cursor-pointer font-outfit text-sm"
       >
-        <option value="">Select...</option>
+        <option value="" className="bg-[#1e293b]">Select...</option>
         {options.map(opt => (
-          <option key={opt.value} value={opt.value}>{opt.label}</option>
+          <option key={opt.value} value={opt.value} className="bg-[#1e293b]">{opt.label}</option>
         ))}
       </select>
-      <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none opacity-40">
+      <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none opacity-40">
         <ChevronRight className="rotate-90" size={16} />
       </div>
     </div>
   </div>
 );
 
-const DetailRow = ({ label, value, icon: Icon }) => (
-  <div className="flex items-start gap-4 p-4 bg-white/5 rounded-2xl border border-white/5">
-    <div className="p-2 bg-emerald-500/10 rounded-xl">
-      {Icon && <Icon className="text-emerald-400" size={18} />}
+const CUISINE_MAP = {
+  "0": "Indian",
+  "1": "Afghan",
+  "2": "Pakistani",
+  "3": "Chinese",
+  "4": "Italian",
+  "5": "Thai",
+  "6": "Mexican",
+  "7": "Fried Chicken"
+};
+
+const DetailRow = ({ label, value, icon: Icon, isFile = false, isCuisine = false }) => {
+  const API = import.meta.env.VITE_API_URL || "";
+  const API_BASE = API ? API.replace(/\/api\/?$/i, "") : "";
+  const fileUrl = (value && isFile && typeof value === 'string') ? `${API_BASE}/uploads/${value}` : null;
+  
+  let displayValue = value;
+  if (isCuisine && value) {
+    displayValue = String(value).split(',').map(id => CUISINE_MAP[id.trim()] || id.trim()).join(', ');
+  }
+
+  return (
+    <div className="flex items-center gap-4 p-5 bg-white/[0.03] rounded-2xl border border-white/10 group hover:border-emerald-500/30 transition-all">
+      <div className="p-3 bg-emerald-500/10 rounded-xl group-hover:scale-110 transition-transform">
+        {Icon && <Icon className="text-emerald-400" size={20} />}
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-[9px] font-black uppercase tracking-widest text-white/30 mb-0.5">{label}</p>
+        {fileUrl ? (
+          <a 
+            href={fileUrl} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-xs text-emerald-400 font-black uppercase tracking-tighter hover:text-white transition-colors flex items-center gap-1.5"
+          >
+            View Document <Eye size={12} />
+          </a>
+        ) : (
+          <p className="text-sm text-white font-bold truncate">{displayValue || "—"}</p>
+        )}
+      </div>
     </div>
-    <div>
-      <p className="text-[10px] font-black uppercase tracking-widest text-white/30 mb-1">{label}</p>
-      <p className="text-white font-semibold">{value || "—"}</p>
+  );
+};
+
+const FileUpload = ({ label, name, value, onChange, icon: Icon, required = false }) => {
+  const fileInputRef = React.useRef(null);
+  
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      onChange({ target: { name, value: file } });
+    }
+  };
+
+  return (
+    <div className="space-y-2 group">
+      <label className="text-[10px] font-black uppercase tracking-widest text-white/40 group-focus-within:text-emerald-400 transition-colors flex items-center gap-2">
+        {Icon && <Icon size={12} />}
+        {label} {required && <span className="text-rose-500">*</span>}
+      </label>
+      <div 
+        onClick={() => fileInputRef.current?.click()}
+        className={`relative flex items-center gap-4 p-4 bg-white/[0.03] border-2 border-dashed ${value ? 'border-emerald-500/30 bg-emerald-500/20' : 'border-white/10'} rounded-2xl hover:border-emerald-500/50 transition-all cursor-pointer overflow-hidden group/upload`}
+      >
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={handleFileChange}
+          className="hidden"
+          accept=".jpg,.jpeg,.png,.pdf"
+        />
+        <div className="flex-1 min-w-0">
+          {value ? (
+            <div className="flex items-center gap-3 truncate">
+              <div className="p-2 bg-emerald-500/20 rounded-lg">
+                <Check className="text-emerald-400" size={14} />
+              </div>
+              <span className="text-sm text-white font-bold truncate">
+                {typeof value === 'string' ? value : value.name}
+              </span>
+            </div>
+          ) : (
+            <span className="text-sm text-white/20 font-medium">Click to upload document (PDF/JPG/PNG)</span>
+          )}
+        </div>
+        <div className="p-2 bg-white/5 group-hover/upload:bg-emerald-500/10 rounded-lg transition-colors">
+          <Plus className="text-white/20 group-hover/upload:text-emerald-400" size={16} />
+        </div>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 export default function RestaurantRegistration() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -89,6 +173,7 @@ export default function RestaurantRegistration() {
     email: "",
     country_code: "IN",
     mobile_number: "",
+    landline_number: "",
     store_address: "",
     floor_suite: "",
     store_name: "",
@@ -96,7 +181,23 @@ export default function RestaurantRegistration() {
     business_type: "Restaurant",
     cuisine_type: "",
     number_of_locations: "",
-    social_media_website_link: ""
+    social_media_website_link: "",
+    // Verification fields
+    food_business_license: "",
+    food_hygiene_certificate: "",
+    business_registration_certificate: "",
+    vat_registration_number: "",
+    owner_id_proof_type: "",
+    owner_id_proof_file: "",
+    bank_account_name: "",
+    bank_account_number: "",
+    bank_sort_code: "",
+    bank_statement_file: "",
+    address_proof_type: "",
+    address_proof_file: "",
+    food_hygiene_rating: "",
+    allergen_info_file: "",
+    is_halal: "0"
   });
 
   useEffect(() => {
@@ -148,6 +249,7 @@ export default function RestaurantRegistration() {
           email: res.data.data.email || "",
           country_code: res.data.data.country_code || "IN",
           mobile_number: res.data.data.mobile_number || "",
+          landline_number: res.data.data.landline_number || "",
           store_address: res.data.data.store_address || "",
           floor_suite: res.data.data.floor_suite || "",
           store_name: res.data.data.store_name || "",
@@ -155,7 +257,22 @@ export default function RestaurantRegistration() {
           business_type: res.data.data.business_type || "Restaurant",
           cuisine_type: res.data.data.cuisine_type || "",
           number_of_locations: res.data.data.number_of_locations || "",
-          social_media_website_link: res.data.data.social_media_website_link || ""
+          social_media_website_link: res.data.data.social_media_website_link || "",
+          food_business_license: res.data.data.food_business_license || "",
+          food_hygiene_certificate: res.data.data.food_hygiene_certificate || "",
+          business_registration_certificate: res.data.data.business_registration_certificate || "",
+          vat_registration_number: res.data.data.vat_registration_number || "",
+          owner_id_proof_type: res.data.data.owner_id_proof_type || "",
+          owner_id_proof_file: res.data.data.owner_id_proof_file || "",
+          bank_account_name: res.data.data.bank_account_name || "",
+          bank_account_number: res.data.data.bank_account_number || "",
+          bank_sort_code: res.data.data.bank_sort_code || "",
+          bank_statement_file: res.data.data.bank_statement_file || "",
+          address_proof_type: res.data.data.address_proof_type || "",
+          address_proof_file: res.data.data.address_proof_file || "",
+          food_hygiene_rating: res.data.data.food_hygiene_rating || "",
+          allergen_info_file: res.data.data.allergen_info_file || "",
+          is_halal: String(res.data.data.is_halal || "0")
         });
       } else {
         setMyProfile(null);
@@ -173,14 +290,23 @@ export default function RestaurantRegistration() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
+    const fd = new FormData();
+    Object.keys(formData).forEach(key => {
+        if (formData[key] instanceof File) {
+            fd.append(key, formData[key]);
+        } else if (formData[key] !== "" && formData[key] !== null) {
+            fd.append(key, formData[key]);
+        }
+    });
+
     try {
       let res;
       if (myProfile) {
         // Update
-        res = await api.put("/merchant-profile/my-update", formData);
+        res = await api.put("/merchant-profile/my-update", fd);
       } else {
         // Create
-        res = await api.post("/merchant-profiles", formData);
+        res = await api.post("/merchant-profiles", fd);
       }
 
       if (res.data.success) {
@@ -481,53 +607,200 @@ export default function RestaurantRegistration() {
 
                 <form onSubmit={handleSubmit} className="p-10 md:p-12 space-y-12">
                    {/* Personal Info */}
-                   <div className="space-y-8">
-                    <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-emerald-400">Section 01. Contact Protocol</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                      <InputGroup label="First Name" name="first_name" value={formData.first_name} onChange={handleInputChange} placeholder="Legal name" required />
-                      <InputGroup label="Surname" name="surname" value={formData.surname} onChange={handleInputChange} placeholder="Last name" required />
+                   <div className="space-y-10">
+                    <div className="flex items-center gap-4">
+                      <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-emerald-400 shrink-0">Section 01. Contact Protocol</h3>
+                      <div className="h-px w-full bg-gradient-to-r from-emerald-500/20 to-transparent"></div>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                      <InputGroup label="Email" name="email" type="email" value={formData.email} onChange={handleInputChange} placeholder="Business email" required />
-                      <div className="grid grid-cols-3 gap-3">
-                         <div className="col-span-1">
-                            <SelectGroup label="Code" name="country_code" value={formData.country_code} onChange={handleInputChange} options={[{ value: "IN", label: "IND (+91)" }, { value: "UK", label: "GBR (+44)" }]} required />
-                         </div>
-                         <div className="col-span-2">
-                            <InputGroup label="Number" name="mobile_number" value={formData.mobile_number} onChange={handleInputChange} placeholder="Phone line" required />
-                         </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
+                      <InputGroup label="First Name" name="first_name" value={formData.first_name} onChange={handleInputChange} placeholder="Legal name" icon={Users} required />
+                      <InputGroup label="Last Name" name="surname" value={formData.surname} onChange={handleInputChange} placeholder="Last name" icon={Users} required />
+                      <InputGroup label="Email Address" name="email" type="email" value={formData.email} onChange={handleInputChange} placeholder="Business email" icon={Mail} required />
+                      <InputGroup label="Land Line Number" name="landline_number" value={formData.landline_number} onChange={handleInputChange} placeholder="Landline connection" icon={Phone} />
+                      
+                      <div className="space-y-2 group">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-white/40 group-focus-within:text-emerald-400 transition-colors flex items-center gap-2">
+                          <Phone size={12} /> Mobile Number <span className="text-rose-500">*</span>
+                        </label>
+                        <div className="grid grid-cols-4 gap-3">
+                           <div className="col-span-1">
+                              <select
+                                name="country_code"
+                                value={formData.country_code}
+                                onChange={handleInputChange}
+                                className="w-full px-2 py-4 bg-white/[0.03] border border-white/10 rounded-2xl text-white focus:outline-none focus:border-emerald-500/50 transition-all text-center text-xs font-bold appearance-none cursor-pointer"
+                              >
+                                <option value="IN" className="bg-[#1e293b]">+91 (IN)</option>
+                                <option value="UK" className="bg-[#1e293b]">+44 (UK)</option>
+                              </select>
+                           </div>
+                           <div className="col-span-3">
+                              <input
+                                type="text"
+                                name="mobile_number"
+                                value={formData.mobile_number}
+                                onChange={handleInputChange}
+                                placeholder="Main operator line"
+                                required
+                                className="w-full px-5 py-4 bg-white/[0.03] border border-white/10 rounded-2xl text-white placeholder-white/20 focus:outline-none focus:border-emerald-500/50 transition-all font-outfit text-sm"
+                              />
+                           </div>
+                        </div>
                       </div>
+
+                      <InputGroup label="Digital Signature" name="social_media_website_link" value={formData.social_media_website_link} onChange={handleInputChange} placeholder="Website or Social link" icon={Globe} />
                     </div>
                   </div>
 
                   {/* Store Details */}
-                  <div className="space-y-8 pt-8 border-t border-white/5">
-                    <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-emerald-400">Section 02. Establishment Profile</h3>
-                    <div className="space-y-8">
-                      <InputGroup label="Store Address" name="store_address" value={formData.store_address} onChange={handleInputChange} placeholder="Operational address" required />
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <InputGroup label="Floor/Suite" name="floor_suite" value={formData.floor_suite} onChange={handleInputChange} placeholder="Unit #" />
-                        <InputGroup label="Entity Trading Name" name="store_name" value={formData.store_name} onChange={handleInputChange} placeholder="Licensed name" required />
-                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <InputGroup label="Brand identity" name="brand_name" value={formData.brand_name} onChange={handleInputChange} placeholder="Brand name" required />
-                        <SelectGroup label="Category" name="business_type" value={formData.business_type} onChange={handleInputChange} options={[{ value: "Restaurant", label: "Restaurant" }, { value: "Bakery", label: "Bakery" }, { value: "Cafe", label: "Cafe" }]} required />
-                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <SelectGroup label="Cuisine" name="cuisine_type" value={formData.cuisine_type} onChange={handleInputChange} options={[{ value: "Indian", label: "Classic Indian" }, { value: "Continental", label: "Continental" }, { value: "Bakery", label: "Bakery & Sweets" }]} required />
-                        <SelectGroup label="Scope" name="number_of_locations" value={formData.number_of_locations} onChange={handleInputChange} options={[{ value: "1", label: "Single Unit" }, { value: "2-5", label: "2-5 Units" }, { value: "5+", label: "5+ Units" }]} required />
-                      </div>
-                      <InputGroup label="Digital Link" name="social_media_website_link" value={formData.social_media_website_link} onChange={handleInputChange} placeholder="Website/Instagram" />
+                  <div className="space-y-10 pt-10 border-t border-white/5">
+                    <div className="flex items-center gap-4">
+                      <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-emerald-400 shrink-0">Section 02. Establishment Profile</h3>
+                      <div className="h-px w-full bg-gradient-to-r from-emerald-500/20 to-transparent"></div>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
+                       <InputGroup label="Trading Name" name="store_name" value={formData.store_name} onChange={handleInputChange} placeholder="Licensed name" icon={Store} required />
+                       <InputGroup label="Brand identity" name="brand_name" value={formData.brand_name} onChange={handleInputChange} placeholder="Public brand name" icon={Briefcase} required />
+                       
+                       <SelectGroup label="Business Category" name="business_type" value={formData.business_type} onChange={handleInputChange} options={[{ value: "Restaurant", label: "Restaurant" }, { value: "Bakery", label: "Bakery" }, { value: "Cafe", label: "Cafe" }]} icon={Briefcase} required />
+                        <SelectGroup 
+                          label="Primary Cuisine" 
+                          name="cuisine_type" 
+                          value={formData.cuisine_type} 
+                          onChange={handleInputChange} 
+                          options={[
+                            { value: "0", label: "Indian" }, 
+                            { value: "1", label: "Afghan" }, 
+                            { value: "2", label: "Pakistani" }, 
+                            { value: "3", label: "Chinese" }, 
+                            { value: "4", label: "Italian" }, 
+                            { value: "5", label: "Thai" }, 
+                            { value: "6", label: "Mexican" }, 
+                            { value: "7", label: "Fried Chicken" }
+                          ]} 
+                          icon={Store} 
+                          required 
+                        />
+                       
+                       <SelectGroup label="Network Scope" name="number_of_locations" value={formData.number_of_locations} onChange={handleInputChange} options={[{ value: "1", label: "Single Unit" }, { value: "2-5", label: "2-5 Units" }, { value: "5+", label: "5+ Units" }]} icon={Building2} required />
+                       <InputGroup label="Floor / Unit Number" name="floor_suite" value={formData.floor_suite} onChange={handleInputChange} placeholder="e.g. Ground Floor, Suite 402" icon={Building2} />
+                       
+                       <div className="md:col-span-2">
+                        <InputGroup label="Operational Address" name="store_address" value={formData.store_address} onChange={handleInputChange} placeholder="Full physical location address" icon={MapPin} required />
+                       </div>
                     </div>
                   </div>
 
-                  <div className="pt-6">
+                  {/* Section 03: Verification & Compliance */}
+                  <div className="space-y-10 pt-10 border-t border-white/5">
+                    <div className="flex items-center gap-4">
+                      <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-emerald-400 shrink-0">Section 03. Verification & Compliance</h3>
+                      <div className="h-px w-full bg-gradient-to-r from-emerald-500/20 to-transparent"></div>
+                    </div>
+                    <p className="text-[11px] text-white/40 uppercase tracking-widest font-medium">Please upload clear, valid copies of your official licensing to ensure a smooth audit process.</p>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
+                       <FileUpload label="Food Business License" name="food_business_license" value={formData.food_business_license} onChange={handleInputChange} icon={CheckCircle} required />
+                       <FileUpload label="Food Hygiene Certificate" name="food_hygiene_certificate" value={formData.food_hygiene_certificate} onChange={handleInputChange} icon={Shield} required />
+                       <FileUpload label="Business Registration Cert" name="business_registration_certificate" value={formData.business_registration_certificate} onChange={handleInputChange} icon={Briefcase} required />
+                       <InputGroup label="VAT Registration Number" name="vat_registration_number" value={formData.vat_registration_number} onChange={handleInputChange} placeholder="Tax Identifier" icon={Hash} />
+                    </div>
+                  </div>
+
+                  {/* Section 04: Ownership Verification */}
+                  <div className="space-y-10 pt-10 border-t border-white/5">
+                    <div className="flex items-center gap-4">
+                      <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-emerald-400 shrink-0">Section 04. Ownership Verification</h3>
+                      <div className="h-px w-full bg-gradient-to-r from-emerald-500/20 to-transparent"></div>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
+                       <div className="space-y-8">
+                          <SelectGroup 
+                            label="Owner ID Proof Type" 
+                            name="owner_id_proof_type" 
+                            value={formData.owner_id_proof_type} 
+                            onChange={handleInputChange} 
+                            options={[
+                              { value: "passport", label: "International Passport" }, 
+                              { value: "driving_license", label: "Driving License" }, 
+                              { value: "national_id", label: "National ID Card" }
+                            ]} 
+                            icon={Users} 
+                            required 
+                          />
+                          <FileUpload label="Owner ID Proof File" name="owner_id_proof_file" value={formData.owner_id_proof_file} onChange={handleInputChange} icon={Plus} required />
+                       </div>
+
+                       <div className="space-y-8">
+                          <SelectGroup 
+                            label="Address Proof Type" 
+                            name="address_proof_type" 
+                            value={formData.address_proof_type} 
+                            onChange={handleInputChange} 
+                            options={[
+                              { value: "utility_bill", label: "Utility Bill" }, 
+                              { value: "bank_statement", label: "Bank Statement" }, 
+                              { value: "lease_agreement", label: "Lease Agreement" }
+                            ]} 
+                            icon={MapPin} 
+                            required 
+                          />
+                          <FileUpload label="Address Proof File" name="address_proof_file" value={formData.address_proof_file} onChange={handleInputChange} icon={Plus} required />
+                       </div>
+                    </div>
+                  </div>
+
+                  {/* Section 05: Financial Architecture */}
+                  <div className="space-y-10 pt-10 border-t border-white/5">
+                    <div className="flex items-center gap-4">
+                      <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-emerald-400 shrink-0">Section 05. Financial Architecture</h3>
+                      <div className="h-px w-full bg-gradient-to-r from-emerald-500/20 to-transparent"></div>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
+                       <InputGroup label="Bank Account Name" name="bank_account_name" value={formData.bank_account_name} onChange={handleInputChange} placeholder="Primary beneficiary" icon={Users} required />
+                       <InputGroup label="Bank Account Number" name="bank_account_number" value={formData.bank_account_number} onChange={handleInputChange} placeholder="Account digits" icon={Hash} required />
+                       <InputGroup label="Bank Sort Code" name="bank_sort_code" value={formData.bank_sort_code} onChange={handleInputChange} placeholder="Financial identifier" icon={Building2} required />
+                       <FileUpload label="Bank Statement" name="bank_statement_file" value={formData.bank_statement_file} onChange={handleInputChange} icon={Download} required />
+                    </div>
+                  </div>
+
+                  {/* Section 06: Food Safety Standards */}
+                  <div className="space-y-10 pt-10 border-t border-white/5">
+                    <div className="flex items-center gap-4">
+                      <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-emerald-400 shrink-0">Section 06. Food Safety Standards</h3>
+                      <div className="h-px w-full bg-gradient-to-r from-emerald-500/20 to-transparent"></div>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
+                       <InputGroup label="Food Hygiene Rating" name="food_hygiene_rating" value={formData.food_hygiene_rating} onChange={handleInputChange} placeholder="Latest Audit Score" icon={TrendingUp} />
+                       <SelectGroup 
+                          label="Halal Certified?" 
+                          name="is_halal" 
+                          value={formData.is_halal} 
+                          onChange={handleInputChange} 
+                          options={[
+                            { value: "0", label: "No / Not Applicable" }, 
+                            { value: "1", label: "Yes, 100% Halal" }
+                          ]} 
+                          icon={Shield} 
+                       />
+                       <div className="md:col-span-2">
+                        <FileUpload label="Allergen Information File" name="allergen_info_file" value={formData.allergen_info_file} onChange={handleInputChange} icon={AlertCircle} />
+                       </div>
+                    </div>
+                  </div>
+
+                   <div className="md:col-span-2 space-y-12">
                      <button 
                       type="submit"
                       disabled={submitting}
                       className="w-full py-6 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-black uppercase tracking-widest text-lg rounded-2xl shadow-2xl transition-all flex items-center justify-center gap-4 active:scale-[0.98] disabled:opacity-40"
                      >
-                        {submitting ? <div className="w-6 h-6 border-4 border-white/20 border-t-white rounded-full animate-spin"></div> : (isEditing ? <><Send size={22} /> Resubmit Application</> : <><Save size={22} /> Initiate Registration</>)}
+                        {submitting ? <div className="w-6 h-6 border-4 border-white/20 border-t-white rounded-full animate-spin"></div> : (isEditing ? <><Send size={22} /> Resubmit Application for Audit</> : <><Save size={22} /> Finalize & Submit Application</>)}
                      </button>
                   </div>
                 </form>
@@ -567,7 +840,10 @@ export default function RestaurantRegistration() {
                                <div className="grid grid-cols-1 gap-3">
                                   <DetailRow label="Applicant Name" value={`${viewingProfile.first_name} ${viewingProfile.surname}`} icon={Users} />
                                   <DetailRow label="Direct Email" value={viewingProfile.email} icon={Mail} />
-                                  <DetailRow label="Mobile Line" value={`${viewingProfile.country_code} ${viewingProfile.mobile_number}`} icon={Phone} />
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                    <DetailRow label="Mobile Line" value={`${viewingProfile.country_code} ${viewingProfile.mobile_number}`} icon={Phone} />
+                                    <DetailRow label="Landline" value={viewingProfile.landline_number || "N/A"} icon={Phone} />
+                                  </div>
                                </div>
                             </div>
 
@@ -579,10 +855,64 @@ export default function RestaurantRegistration() {
                                <div className="grid grid-cols-1 gap-3">
                                   <DetailRow label="Brand Identify" value={viewingProfile.brand_name} icon={Briefcase} />
                                   <DetailRow label="Business Category" value={viewingProfile.business_type} icon={Info} />
-                                  <DetailRow label="Cuisine Type" value={viewingProfile.cuisine_type} icon={Store} />
+                                  <DetailRow label="Cuisine Type" value={viewingProfile.cuisine_type} icon={Store} isCuisine={true} />
                                   <DetailRow label="Network reach" value={`${viewingProfile.number_of_locations} Location(s)`} icon={Globe} />
                                </div>
                             </div>
+
+                             {/* Documentation & Compliance */}
+                             <div className="lg:col-span-2 space-y-4">
+                                <h5 className="text-[10px] font-black uppercase tracking-[0.4em] text-emerald-400 mb-2 flex items-center gap-2">
+                                   <Shield size={14} /> Documentation & Compliance
+                                </h5>
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+                                   <DetailRow label="Food License" value={viewingProfile.food_business_license} icon={CheckCircle} isFile={true} />
+                                   <DetailRow label="Hygiene Certificate" value={viewingProfile.food_hygiene_certificate} icon={Shield} isFile={true} />
+                                   <DetailRow label="Business Registration" value={viewingProfile.business_registration_certificate} icon={Briefcase} isFile={true} />
+                                   <DetailRow label="VAT Number" value={viewingProfile.vat_registration_number} icon={Hash} />
+                                </div>
+                             </div>
+
+                             {/* Ownership & Identity */}
+                             <div className="lg:col-span-2 space-y-4">
+                                <h5 className="text-[10px] font-black uppercase tracking-[0.4em] text-emerald-400 mb-2 flex items-center gap-2">
+                                   <Users size={14} /> Identity & Ownership
+                                </h5>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                   <div className="space-y-3">
+                                      <DetailRow label="ID Proof Type" value={viewingProfile.owner_id_proof_type?.toUpperCase()} icon={Users} />
+                                      <DetailRow label="ID Proof File" value={viewingProfile.owner_id_proof_file} icon={Plus} isFile={true} />
+                                   </div>
+                                   <div className="space-y-3">
+                                      <DetailRow label="Address Proof Type" value={viewingProfile.address_proof_type?.toUpperCase()} icon={MapPin} />
+                                      <DetailRow label="Address Proof File" value={viewingProfile.address_proof_file} icon={Plus} isFile={true} />
+                                   </div>
+                                </div>
+                             </div>
+
+                             {/* Financial Architecture */}
+                             <div className="lg:col-span-2 space-y-4">
+                                <h5 className="text-[10px] font-black uppercase tracking-[0.4em] text-emerald-400 mb-2 flex items-center gap-2">
+                                   <Building2 size={14} /> Financial Profile
+                                </h5>
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+                                   <DetailRow label="Account Name" value={viewingProfile.bank_account_name} icon={Users} />
+                                   <DetailRow label="Account Number" value={viewingProfile.bank_account_number} icon={Hash} />
+                                   <DetailRow label="Sort Code" value={viewingProfile.bank_sort_code} icon={Building2} />
+                                   <DetailRow label="Statement" value={viewingProfile.bank_statement_file} icon={Download} isFile={true} />
+                                </div>
+                             </div>
+
+                             {/* Standards */}
+                             <div className="lg:col-span-2 space-y-4">
+                                <h5 className="text-[10px] font-black uppercase tracking-[0.4em] text-emerald-400 mb-2 flex items-center gap-2">
+                                   <TrendingUp size={14} /> Food Safety Standards
+                                </h5>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                   <DetailRow label="Audit Rating" value={viewingProfile.food_hygiene_rating} icon={TrendingUp} />
+                                   <DetailRow label="Allergen Info" value={viewingProfile.allergen_info_file} icon={AlertCircle} isFile={true} />
+                                </div>
+                             </div>
 
                             {/* Address & Social */}
                             <div className="lg:col-span-2 space-y-4">

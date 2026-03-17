@@ -1,7 +1,7 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "description": "CRISPYDOSA backend (Express + MySQL)",
+  "description": "ZINGBITE backend (Express + MySQL)",
   "type": "module",
   "main": "src/server.js",
   "scripts": {

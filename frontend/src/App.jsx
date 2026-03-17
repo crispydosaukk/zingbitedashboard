@@ -13,6 +13,7 @@ import Orders from "./pages/orders/index.jsx";
 import Settings from "./pages/settings/index.jsx";
 import CustomerDetails from "./pages/customerdetails/index.jsx";
 import RestaurantRegistration from "./pages/restaurantregistration/index.jsx";
+import OffersPage from "./pages/offers/index.jsx";
 import { PopupProvider } from "./context/PopupContext";
 
 function PrivateRoute({ children }) {
@@ -149,6 +150,17 @@ export default function App() {
               <PrivateRoute>
                 <RequirePerm perm="restaurant_registration">
                   <RestaurantRegistration />
+                </RequirePerm>
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/offers"
+            element={
+              <PrivateRoute>
+                <RequirePerm perm="promotional_offers">
+                  <OffersPage />
                 </RequirePerm>
               </PrivateRoute>
             }

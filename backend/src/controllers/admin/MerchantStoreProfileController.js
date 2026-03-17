@@ -27,6 +27,13 @@ export async function store(req, res) {
 
     payload.user_id = userId;
 
+    // Handle uploaded files
+    if (req.files) {
+      Object.keys(req.files).forEach(key => {
+        payload[key] = req.files[key][0].filename;
+      });
+    }
+
     const insertId = await createMerchantStoreProfile(payload);
     const refId = `#ZBR-${insertId.toString().padStart(4, '0')}`;
 
@@ -110,6 +117,13 @@ export async function updateMyProfile(req, res) {
 
     if (!payload.first_name || !payload.surname || !payload.email || !payload.store_name) {
       return res.status(400).json({ success: false, message: "Missing required fields" });
+    }
+
+    // Handle uploaded files
+    if (req.files) {
+        Object.keys(req.files).forEach(key => {
+          payload[key] = req.files[key][0].filename;
+        });
     }
 
     await updateMerchantProfile(userId, payload);

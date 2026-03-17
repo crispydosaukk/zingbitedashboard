@@ -500,11 +500,12 @@ export default function ProductPage() {
   };
 
 
-  const calculateDiscountPercent = (price, discountPrice) => {
-    const rawPrice = parseFloat(price || 0);
-    const discountedPrice = parseFloat(discountPrice || 0);
-    if (rawPrice > 0 && discountedPrice > 0) {
-      return Math.round(((rawPrice - discountedPrice) / rawPrice) * 100);
+  const calculateDiscountPercent = (currentPrice, originalPrice) => {
+    const discounted = parseFloat(currentPrice || 0);
+    const original = parseFloat(originalPrice || 0);
+    
+    if (original > 0 && original > discounted) {
+      return Math.round(((original - discounted) / original) * 100);
     }
     return 0;
   };
@@ -583,8 +584,8 @@ export default function ProductPage() {
                     id: p.id,
                     name: p.name,
                     description: p.description,
-                    price: p.price,
-                    discountPrice: calculateDiscountPercent(p.price, p.discountPrice),
+                    price: p.discountPrice && parseFloat(p.discountPrice) > 0 ? p.discountPrice : p.price,
+                    discountPrice: p.discountPrice && parseFloat(p.discountPrice) > 0 ? calculateDiscountPercent(p.price, p.discountPrice) : "",
                     cat_id: p.cat_id,
                     contains: p.contains || [],
                     image: null,
@@ -860,11 +861,10 @@ export default function ProductPage() {
                                                   id: p.id,
                                                   name: p.name,
                                                   description: p.description,
-                                                  price: p.price,
-                                                  discountPrice: calculateDiscountPercent(
-                                                    p.price,
-                                                    p.discountPrice
-                                                  ),
+                                                  price: p.discountPrice && parseFloat(p.discountPrice) > 0 ? p.discountPrice : p.price,
+                                                  discountPrice: p.discountPrice && parseFloat(p.discountPrice) > 0 
+                                                    ? calculateDiscountPercent(p.price, p.discountPrice) 
+                                                    : "",
                                                   cat_id: p.cat_id,
                                                   contains: p.contains || [],
                                                   image: null,

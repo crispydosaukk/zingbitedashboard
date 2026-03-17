@@ -24,6 +24,7 @@ import {
   markNotificationRead
 } from "../controllers/api/notificationListController.js";
 import { getAppSettings } from "../controllers/api/settingsController.js";
+import { getActiveOffers } from "../controllers/api/offerController.js";
 
 
 const router = express.Router();
@@ -71,5 +72,7 @@ router.put("/profile", auth, updateProfile);
 
 router.post("/loyalty/redeem", auth, redeemLoyaltyToWallet);
 
+// PROMOTIONAL OFFERS
+router.get("/offers", getActiveOffers);
 
 export default router;
