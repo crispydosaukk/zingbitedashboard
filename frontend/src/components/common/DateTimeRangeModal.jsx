@@ -201,7 +201,7 @@ const DateTimeRangeModal = ({ isOpen, onClose, onApplyFilters }) => {
         <div className="bg-gradient-to-r from-yellow-900/40 to-amber-900/40 px-8 py-6 border-b border-white/10">
           <div className="flex justify-between items-center mb-6">
             <div>
-              <h3 className="text-2xl font-black text-white flex items-center gap-3 uppercase tracking-wider">
+              <h3 className="text-2xl font-bold text-white flex items-center gap-3 tracking-tight">
                 <Calendar size={28} className="text-yellow-500" /> Date Range
               </h3>
             </div>
@@ -217,13 +217,13 @@ const DateTimeRangeModal = ({ isOpen, onClose, onApplyFilters }) => {
           <div className="flex gap-2">
             <button
               onClick={() => setActiveTab("filter")}
-              className={`px-6 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all ${activeTab === 'filter' ? 'bg-gradient-to-r from-yellow-500 to-amber-500 text-slate-900 shadow-lg shadow-yellow-900/40' : 'bg-white/5 text-white/50 hover:bg-white/10'}`}
+              className={`px-6 py-2.5 rounded-xl font-bold text-xs tracking-wide transition-all ${activeTab === 'filter' ? 'bg-gradient-to-r from-yellow-500 to-amber-500 text-slate-900 shadow-lg shadow-yellow-900/40' : 'bg-white/5 text-white/50 hover:bg-white/10'}`}
             >
               Filter
             </button>
             <button
               onClick={() => setActiveTab("compare")}
-              className={`px-6 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all ${activeTab === 'compare' ? 'bg-gradient-to-r from-yellow-500 to-amber-500 text-slate-900 shadow-lg shadow-yellow-900/40' : 'bg-white/5 text-white/50 hover:bg-white/10'}`}
+              className={`px-6 py-2.5 rounded-xl font-bold text-xs tracking-wide transition-all ${activeTab === 'compare' ? 'bg-gradient-to-r from-yellow-500 to-amber-500 text-slate-900 shadow-lg shadow-yellow-900/40' : 'bg-white/5 text-white/50 hover:bg-white/10'}`}
             >
               Compare
             </button>
@@ -237,43 +237,43 @@ const DateTimeRangeModal = ({ isOpen, onClose, onApplyFilters }) => {
             {activeTab === "filter" ? (
               /* Date Range Section */
               <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}>
-                <label className="block text-[10px] font-black text-white/40 mb-3 uppercase tracking-[0.2em]">Select Period</label>
+                <label className="block text-sm font-bold text-white mb-3">Select Period</label>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-[9px] font-black text-white/20 uppercase tracking-widest mb-2">Start Date</label>
+                    <label className="block text-xs font-bold text-white/40 mb-2">Start Date</label>
                     <input
                       type="date"
                       value={startDate}
                       onChange={(e) => setStartDate(e.target.value)}
-                      className="w-full px-4 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white placeholder-white/40 focus:outline-none focus:border-yellow-500/50 focus:bg-white/5 transition-all font-mono"
+                      className="w-full px-4 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white placeholder-white/40 focus:outline-none focus:border-yellow-500/50 focus:bg-white/5 transition-all font-sans"
                     />
                   </div>
                   <div>
-                    <label className="block text-[9px] font-black text-white/20 uppercase tracking-widest mb-2">End Date</label>
+                    <label className="block text-xs font-bold text-white/40 mb-2">End Date</label>
                     <input
                       type="date"
                       value={endDate}
                       onChange={(e) => setEndDate(e.target.value)}
-                      className="w-full px-4 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white placeholder-white/40 focus:outline-none focus:border-yellow-500/50 focus:bg-white/5 transition-all font-mono"
+                      className="w-full px-4 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white placeholder-white/40 focus:outline-none focus:border-yellow-500/50 focus:bg-white/5 transition-all font-sans"
                     />
                   </div>
                 </div>
               </motion.div>
             ) : (
               /* Compare Tab */
-              <motion.div initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
-                <label className="block text-[10px] font-black text-white/40 mb-3 uppercase tracking-[0.2em]">Select Comparison</label>
+               <motion.div initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
+                <label className="block text-sm font-bold text-white mb-3">Select Comparison</label>
                 <div className="grid grid-cols-1 gap-2">
                   {compareOptions.map((opt) => (
                     <button
                       key={opt}
                       onClick={() => setCompareOption(opt)}
-                      className={`flex items-center gap-3 px-4 py-4 rounded-2xl border transition-all text-left ${compareOption === opt ? 'bg-yellow-500/10 border-yellow-500/50 text-yellow-500' : 'bg-white/5 border-white/[0.08] text-white/60 hover:bg-white/[0.08] hover:border-white/20'}`}
+                      className={`flex items-center gap-4 px-5 py-4 rounded-2xl border transition-all text-left ${compareOption === opt ? 'bg-yellow-500/10 border-yellow-500/50 text-yellow-500' : 'bg-white/5 border-white/[0.08] text-white/60 hover:bg-white/[0.08] hover:border-white/20'}`}
                     >
-                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${compareOption === opt ? 'border-yellow-500' : 'border-white/20'}`}>
-                        {compareOption === opt && <div className="w-2.5 h-2.5 bg-yellow-500 rounded-full" />}
+                      <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${compareOption === opt ? 'border-yellow-500 shadow-[0_0_10px_rgba(234,179,8,0.3)]' : 'border-white/20'}`}>
+                        {compareOption === opt && <div className="w-3 h-3 bg-yellow-500 rounded-full" />}
                       </div>
-                      <span className="font-black text-[11px] uppercase tracking-widest">{opt}</span>
+                      <span className="font-bold text-sm tracking-wide">{opt}</span>
                     </button>
                   ))}
                 </div>
@@ -283,35 +283,35 @@ const DateTimeRangeModal = ({ isOpen, onClose, onApplyFilters }) => {
             <div className="h-px bg-white/5 w-full" />
 
             {/* Time Range Section */}
-            <div>
-              <label className="block text-[10px] font-black text-white/40 mb-3 uppercase tracking-[0.2em] flex items-center gap-2">
+             <div>
+              <label className="block text-sm font-bold text-white mb-3 flex items-center gap-2">
                 <Clock size={16} /> Time Range (Optional)
               </label>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[9px] font-black text-white/20 uppercase tracking-widest mb-2">From Time</label>
+                  <label className="block text-xs font-bold text-white/40 mb-2">From Time</label>
                   <input
                     type="time"
                     value={startTime}
                     onChange={(e) => setStartTime(e.target.value)}
-                    className="w-full px-4 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white placeholder-white/40 focus:outline-none focus:border-yellow-500/50 focus:bg-white/5 transition-all"
+                    className="w-full px-4 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white placeholder-white/40 focus:outline-none focus:border-yellow-500/50 focus:bg-white/5 transition-all font-sans [color-scheme:dark]"
                   />
                 </div>
                 <div>
-                  <label className="block text-[9px] font-black text-white/20 uppercase tracking-widest mb-2">To Time</label>
+                  <label className="block text-xs font-bold text-white/40 mb-2">To Time</label>
                   <input
                     type="time"
                     value={endTime}
                     onChange={(e) => setEndTime(e.target.value)}
-                    className="w-full px-4 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white placeholder-white/40 focus:outline-none focus:border-yellow-500/50 focus:bg-white/5 transition-all"
+                    className="w-full px-4 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white placeholder-white/40 focus:outline-none focus:border-yellow-500/50 focus:bg-white/5 transition-all font-sans [color-scheme:dark]"
                   />
                 </div>
               </div>
             </div>
 
             {/* Customers Section */}
-            <div>
-              <label className="block text-[10px] font-black text-white/40 mb-3 uppercase tracking-[0.2em]">
+             <div>
+              <label className="block text-sm font-bold text-white mb-3">
                 Customers (Optional)
               </label>
               <div className="relative">
@@ -323,7 +323,7 @@ const DateTimeRangeModal = ({ isOpen, onClose, onApplyFilters }) => {
                     value={customerSearch}
                     onChange={(e) => setCustomerSearch(e.target.value)}
                     onFocus={() => setShowCustomerDropdown(true)}
-                    className="flex-1 bg-transparent text-white placeholder-white/20 focus:outline-none text-[11px] font-black uppercase tracking-widest"
+                    className="flex-1 bg-transparent text-white placeholder-white/20 focus:outline-none text-xs font-bold tracking-wide"
                   />
                 </div>
 
@@ -346,10 +346,10 @@ const DateTimeRangeModal = ({ isOpen, onClose, onApplyFilters }) => {
                               className="w-full px-4 py-4 hover:bg-white/[0.05] transition-all text-left border-b border-white/5 last:border-b-0 flex items-center justify-between group"
                             >
                               <div className="flex-1">
-                                <p className="text-white font-black text-xs uppercase tracking-tight group-hover:text-yellow-500 transition-colors">
+                                <p className="text-white font-bold text-sm tracking-tight group-hover:text-yellow-500 transition-colors">
                                   {customer.full_name || customer.customer_name}
                                 </p>
-                                <p className="text-white/40 text-[9px] mt-0.5 font-black uppercase tracking-widest">
+                                <p className="text-white/30 text-xs mt-0.5 font-medium">
                                   {customer.mobile_number || customer.email || 'N/A'}
                                 </p>
                               </div>
@@ -362,7 +362,7 @@ const DateTimeRangeModal = ({ isOpen, onClose, onApplyFilters }) => {
                           ))
                         ) : (
                           <div className="px-4 py-10 text-center">
-                            <p className="text-white/20 text-[10px] font-black uppercase tracking-widest italic">No matching transmission nodes found</p>
+                             <p className="text-white/20 text-xs font-medium italic">No matching transmission nodes found</p>
                           </div>
                         )}
                       </motion.div>
@@ -378,7 +378,7 @@ const DateTimeRangeModal = ({ isOpen, onClose, onApplyFilters }) => {
                         key={customer.id}
                         className="inline-flex items-center gap-2 px-3 py-1.5 bg-yellow-500/10 border border-yellow-500/20 rounded-xl"
                       >
-                        <span className="text-yellow-500 text-[10px] font-black uppercase tracking-widest whitespace-nowrap">
+                         <span className="text-yellow-500 text-xs font-bold tracking-wide whitespace-nowrap">
                           {customer.full_name || customer.customer_name}
                         </span>
                         <button
@@ -398,16 +398,16 @@ const DateTimeRangeModal = ({ isOpen, onClose, onApplyFilters }) => {
         </div>
 
         {/* Footer */}
-        <div className="bg-white/5 p-8 border-t border-white/[0.08] flex justify-between items-center gap-4">
+         <div className="bg-white/5 p-8 border-t border-white/[0.08] flex justify-between items-center gap-4">
           <button
             onClick={onClose}
-            className="px-8 py-3 bg-white/5 hover:bg-white/10 text-white/40 hover:text-white rounded-2xl transition-all font-black text-[10px] uppercase tracking-widest border border-white/[0.08] active:scale-95"
+            className="px-8 py-3 bg-white/5 hover:bg-white/10 text-white font-bold text-sm rounded-2xl transition-all border border-white/[0.08] active:scale-95"
           >
             Cancel
           </button>
           <button
             onClick={handleApplyFilters}
-            className="flex-1 max-w-[200px] py-4 bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-slate-900 rounded-2xl transition-all font-black text-[10px] uppercase tracking-widest shadow-2xl shadow-yellow-900/20 active:scale-95 flex items-center justify-center gap-2 border border-white/10"
+            className="flex-1 py-4 bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-slate-900 rounded-2xl transition-all font-bold text-sm tracking-wide shadow-2xl shadow-yellow-900/20 active:scale-95 flex items-center justify-center gap-2 border border-white/10"
           >
             Apply Filters
           </button>

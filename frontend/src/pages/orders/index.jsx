@@ -40,44 +40,44 @@ const OrderDetailsModal = ({ order, onClose }) => {
       <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} onClick={(e) => e.stopPropagation()} className="bg-[#0b1a3d] border border-white/[0.08] rounded-[2rem] shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col">
         <div className="p-6 sm:p-8 border-b border-white/[0.08] bg-white/5 flex justify-between items-center">
           <div className="min-w-0">
-            <h2 className="text-xl sm:text-2xl font-black text-white flex items-center gap-3 tracking-tight uppercase truncate">
+            <h2 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-3 tracking-tight">
               <ShoppingBag className="text-yellow-500 shrink-0" size={24} /> Order #{order.order_number}
             </h2>
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mt-1 uppercase">Transmission: {new Date(order.created_at).toLocaleString('en-GB')}</p>
+            <p className="text-xs font-medium text-white/50 mt-1">Transmission: {new Date(order.created_at).toLocaleString('en-GB')}</p>
           </div>
           <button onClick={onClose} className="p-2 sm:p-3 bg-white/5 hover:bg-white/10 rounded-2xl text-white transition-all border border-white/[0.08]"><X size={20} /></button>
         </div>
         <div className="flex-1 overflow-y-auto p-6 sm:p-8 space-y-8 custom-scrollbar">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
             <div className="bg-white/5 p-5 sm:p-6 rounded-2xl border border-white/[0.08]">
-              <h3 className="text-[10px] font-black uppercase tracking-[0.3m] text-yellow-500 mb-6 flex items-center gap-2"><User size={14} /> Identity Profile</h3>
+               <h3 className="text-sm font-bold text-yellow-500 mb-6 flex items-center gap-2"><User size={14} /> Identity Profile</h3>
               <div className="space-y-4">
-                <div className="flex justify-between border-b border-white/[0.05] pb-3"><span className="text-[10px] font-black uppercase tracking-widest text-white/30">Node</span><span className="text-xs font-black text-white uppercase">{order.customer_name || "Guest"}</span></div>
-                <div className="flex justify-between border-b border-white/[0.05] pb-3"><span className="text-[10px] font-black uppercase tracking-widest text-white/30">Comm</span><span className="text-xs font-black text-white">{order.mobile_number || "-"}</span></div>
+                <div className="flex justify-between border-b border-white/[0.05] pb-3"><span className="text-xs font-bold text-white/50">Node</span><span className="text-sm font-bold text-white">{order.customer_name || "Guest"}</span></div>
+                <div className="flex justify-between border-b border-white/[0.05] pb-3"><span className="text-xs font-bold text-white/50">Comm</span><span className="text-sm font-bold text-white">{order.mobile_number || "-"}</span></div>
               </div>
             </div>
             <div className="bg-white/5 p-5 sm:p-6 rounded-2xl border border-white/[0.08]">
-              <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-yellow-500 mb-6 flex items-center gap-2"><Truck size={14} /> Logistics Matrix</h3>
+              <h3 className="text-sm font-bold text-yellow-500 mb-6 flex items-center gap-2"><Truck size={14} /> Logistics Matrix</h3>
               <div className="space-y-4">
-                <div className="flex justify-between border-b border-white/[0.05] pb-3"><span className="text-[10px] font-black uppercase tracking-widest text-white/30">Type</span><span className={`px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest ${order.instore === 1 ? "bg-yellow-500/10 text-yellow-500" : "bg-purple-500/10 text-purple-400"}`}>{order.instore === 1 ? "INSTORE" : "KERBSIDE"}</span></div>
-                <div className="flex justify-between items-center"><span className="text-[10px] font-black uppercase tracking-widest text-white/40">Status</span><span className={`text-[10px] font-black uppercase tracking-widest ${statusInfo.color}`}>{statusInfo.text}</span></div>
+                <div className="flex justify-between border-b border-white/[0.05] pb-3"><span className="text-xs font-bold text-white/50">Type</span><span className={`px-2 py-0.5 rounded-full text-[8px] font-bold uppercase tracking-widest ${order.instore === 1 ? "bg-yellow-500/10 text-yellow-500" : "bg-purple-500/10 text-purple-400"}`}>{order.instore === 1 ? "INSTORE" : "KERBSIDE"}</span></div>
+                <div className="flex justify-between items-center"><span className="text-xs font-bold text-white/50">Status</span><span className={`text-[10px] font-bold uppercase tracking-widest ${statusInfo.color}`}>{statusInfo.text}</span></div>
               </div>
             </div>
           </div>
           <div>
-            <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40 mb-6">Payload Manifest</h3>
+            <h3 className="text-sm font-bold text-white/50 mb-6">Payload Manifest</h3>
             <div className="overflow-hidden rounded-2xl border border-white/[0.08] bg-white/5">
               <div className="overflow-x-auto"><table className="w-full text-left min-w-[400px]">
-                <thead className="bg-[#0b1a3d]/60 text-white/40 text-[9px] uppercase font-black tracking-widest"><tr><th className="px-6 py-4">Qty</th><th className="px-6 py-4">Item</th><th className="px-6 py-4 text-right">Aggregate</th></tr></thead>
+                <thead className="bg-[#0b1a3d]/60 text-white/50 text-xs font-bold"><tr><th className="px-6 py-4">Qty</th><th className="px-6 py-4">Item</th><th className="px-6 py-4 text-right">Aggregate</th></tr></thead>
                 <tbody className="divide-y divide-white/[0.08]">
                   {items.map((item, i) => (
                     <tr key={i} className="hover:bg-white/5 transition-colors">
-                      <td className="px-6 py-4"><span className="text-xl font-black text-yellow-500">{safeNumber(item.quantity)}<span className="text-[9px] ml-0.5">X</span></span></td>
+                      <td className="px-6 py-4"><span className="text-xl font-bold text-yellow-500">{safeNumber(item.quantity)}<span className="text-[9px] ml-0.5">X</span></span></td>
                       <td className="px-6 py-4">
-                        <p className="text-sm font-black text-white uppercase leading-tight">{item.product_name}</p>
-                        {item.special_instruction && <div className="mt-1 text-[8px] font-black text-yellow-500 uppercase tracking-widest">Note: {item.special_instruction}</div>}
+                        <p className="text-sm font-bold text-white leading-tight">{item.product_name}</p>
+                        {item.special_instruction && <div className="mt-1 text-[8px] font-bold text-yellow-500 uppercase tracking-widest">Note: {item.special_instruction}</div>}
                       </td>
-                      <td className="px-6 py-4 text-right text-white font-black text-sm">£{(safeNumber(item.price) * safeNumber(item.quantity)).toFixed(2)}</td>
+                      <td className="px-6 py-4 text-right text-white font-bold text-sm">£{(safeNumber(item.price) * safeNumber(item.quantity)).toFixed(2)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -86,8 +86,8 @@ const OrderDetailsModal = ({ order, onClose }) => {
           </div>
         </div>
         <div className="p-6 sm:p-8 bg-white/5 border-t border-white/[0.08] flex items-center justify-between">
-          <div className="text-[10px] font-black uppercase tracking-widest text-white/20">{items.length} Nodes Active</div>
-          <div className="text-3xl font-black text-yellow-500 tracking-tighter shadow-yellow-500/20">£{safeNumber(order.grand_total).toFixed(2)}</div>
+          <div className="text-xs font-bold text-white/50">Nodes Active: {items.length}</div>
+          <div className="text-3xl font-bold text-yellow-500 tracking-tight shadow-yellow-500/20">£{safeNumber(order.grand_total).toFixed(2)}</div>
         </div>
       </motion.div>
     </motion.div>
@@ -185,8 +185,8 @@ export default function Orders() {
                     <ShoppingBag className="text-yellow-400" size={24} />
                   </div>
                   <div>
-                    <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight drop-shadow-lg leading-none">Order Logistics</h1>
-                    <p className="text-white/40 mt-1.5 text-[10px] sm:text-[11px] font-black uppercase tracking-[0.2em] leading-none">Execute real-time order fulfillments and tracking</p>
+                    <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight drop-shadow-lg leading-none">Order Logistics</h1>
+                    <p className="text-white mt-1.5 text-sm font-medium tracking-wide">Execute Real-Time Order Fulfillments and Tracking</p>
                   </div>
                 </div>
 
@@ -197,86 +197,92 @@ export default function Orders() {
                       <div className={`w-10 h-5 rounded-full transition-colors ${autoRefresh ? 'bg-yellow-500' : 'bg-white/10'}`}></div>
                       <div className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-all ${autoRefresh ? 'translate-x-5' : ''}`}></div>
                     </div>
-                    <span className="text-[9px] font-black uppercase tracking-widest text-white/40">Live Sync</span>
+                    <span className="text-xs font-bold text-white/60 tracking-wide">Live Sync</span>
                   </label>
                   <div className="w-px h-6 bg-white/10"></div>
                   <button onClick={loadOrders} className="p-2.5 bg-white/5 hover:bg-white/10 text-yellow-400 rounded-xl transition-all border border-white/10 active:scale-90"><RefreshCw size={16} /></button>
                 </div>
               </div>
 
-              {/* Filters Area */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 mb-10 h-min">
+              {/* Filters Area */}               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 mb-10 h-min">
                 <div className="relative group"><Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-yellow-400" size={14} />
-                  <input placeholder="TRANSMISSION ID..." value={searchOrder} onChange={e => setSearchOrder(e.target.value)} className="w-full bg-white/5 border border-white/[0.08] rounded-xl pl-11 pr-4 py-3.5 text-[10px] font-black uppercase tracking-widest text-white placeholder-white/10 focus:outline-none focus:border-yellow-500/40 transition-all" /></div>
+                  <input placeholder="Transmission ID..." value={searchOrder} onChange={e => setSearchOrder(e.target.value)} className="w-full bg-white/5 border border-white/[0.08] rounded-xl pl-11 pr-4 py-3.5 text-xs font-bold text-white placeholder-white/20 focus:outline-none focus:border-yellow-500/40 transition-all" /></div>
 
-                <select value={filterPayment} onChange={e => setFilterPayment(e.target.value)} className="bg-white/5 border border-white/[0.08] rounded-xl px-4 py-3.5 text-[10px] font-black uppercase tracking-widest text-white appearance-none focus:outline-none">
-                  <option value="all" className="bg-[#0b1a3d]">PAYMENTS: ALL</option>
-                  <option value="online" className="bg-[#0b1a3d]">ONLINE TRANSFERS</option>
+                <select value={filterPayment} onChange={e => setFilterPayment(e.target.value)} className="bg-white/5 border border-white/[0.08] rounded-xl px-4 py-3.5 text-xs font-bold text-white appearance-none focus:outline-none">
+                  <option value="all" className="bg-[#0b1a3d]">Payments: All</option>
+                  <option value="online" className="bg-[#0b1a3d]">Online Transfers</option>
                 </select>
 
-                <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} className="bg-white/5 border border-white/[0.08] rounded-xl px-4 py-3.5 text-[10px] font-black uppercase tracking-widest text-white appearance-none focus:outline-none">
-                  <option value="all" className="bg-[#0b1a3d]">STATUS: ALL</option>
-                  <option value="0" className="bg-[#0b1a3d]">PLACED</option>
-                  <option value="1" className="bg-[#0b1a3d]">ACCEPTED</option>
-                  <option value="3" className="bg-[#0b1a3d]">READY</option>
-                  <option value="4" className="bg-[#0b1a3d]">FINALIZED</option>
+                <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} className="bg-white/5 border border-white/[0.08] rounded-xl px-4 py-3.5 text-xs font-bold text-white appearance-none focus:outline-none">
+                  <option value="all" className="bg-[#0b1a3d]">Status: All</option>
+                  <option value="0" className="bg-[#0b1a3d]">Placed</option>
+                  <option value="1" className="bg-[#0b1a3d]">Accepted</option>
+                  <option value="3" className="bg-[#0b1a3d]">Ready</option>
+                  <option value="4" className="bg-[#0b1a3d]">Finalized</option>
                 </select>
 
-                <input type="date" value={fromDate} onChange={e => setFromDate(e.target.value)} className="bg-white/5 border border-white/[0.08] rounded-xl px-4 py-3.5 text-[10px] font-black uppercase text-white focus:outline-none" />
-                <input type="date" value={toDate} onChange={e => setToDate(e.target.value)} className="bg-white/5 border border-white/[0.08] rounded-xl px-4 py-3.5 text-[10px] font-black uppercase text-white focus:outline-none" />
+                <input type="date" value={fromDate} onChange={e => setFromDate(e.target.value)} className="bg-white/5 border border-white/[0.08] rounded-xl px-4 py-3.5 text-xs font-bold text-white focus:outline-none" />
+                <input type="date" value={toDate} onChange={e => setToDate(e.target.value)} className="bg-white/5 border border-white/[0.08] rounded-xl px-4 py-3.5 text-xs font-bold text-white focus:outline-none" />
               </div>
 
               {/* Orders Matrix */}
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-12">
-                {currentOrders.map((order, i) => {
-                  const status = statusConfig(order.order_status);
-                  const gross = order.items.reduce((s, x) => s + (safeNumber(x.price) * safeNumber(x.quantity)), 0);
-                  return (
-                    <div key={i} className="bg-[#0b1a3d]/60 backdrop-blur-xl border border-white/[0.08] rounded-[2rem] overflow-hidden hover:bg-[#0b1a3d]/80 transition-all shadow-2xl flex flex-col relative group">
-                      {order.order_status === 0 && <div className="absolute top-0 inset-x-0 h-1 bg-amber-500 animate-pulse z-10"></div>}
-                      <div className="p-6 border-b border-white/[0.05] flex justify-between items-start bg-white/[0.02]">
-                        <div className="min-w-0 flex-1">
-                          <h4 className="text-xl font-black text-white tracking-tighter uppercase truncate leading-none">{order.order_number}</h4>
-                          <div className="text-[9px] font-black text-white/20 uppercase tracking-widest mt-2">{new Date(order.created_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })} • {order.items.length} NODES</div>
-                        </div>
-                        <div className="flex flex-col items-end gap-2">
-                          <span className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest border ${status.bg} ${status.color} ${status.border}`}>{status.text}</span>
-                          <button onClick={() => setSelectedOrder(order)} className="p-2 bg-white/5 border border-white/10 rounded-xl text-yellow-400 hover:scale-105 transition-all"><Eye size={16} /></button>
-                        </div>
-                      </div>
-                      <div className="p-6 flex-1 space-y-4 max-h-48 overflow-y-auto custom-scrollbar border-b border-white/[0.05]">
-                        {order.items.map((item, idx) => (
-                          <div key={idx} className="flex justify-between items-start gap-4">
-                            <div className="flex gap-3 items-start min-w-0">
-                              <span className="text-base font-black text-yellow-400 bg-yellow-500/10 px-2.5 py-1 rounded-xl border border-yellow-500/20 shrink-0">{safeNumber(item.quantity)}<span className="text-[8px] ml-0.5">X</span></span>
-                              <span className="text-xs font-black text-white/80 uppercase leading-snug truncate mt-1">{item.product_name}</span>
-                            </div>
-                            <span className="text-[10px] font-black text-white/20 mt-1">£{safeNumber(item.price).toFixed(2)}</span>
+                {currentOrders.length > 0 ? (
+                  currentOrders.map((order, i) => {
+                    const status = statusConfig(order.order_status);
+                    return (
+                      <div key={i} className="bg-[#0b1a3d]/60 backdrop-blur-xl border border-white/[0.08] rounded-[2rem] overflow-hidden hover:bg-[#0b1a3d]/80 transition-all shadow-2xl flex flex-col relative group">
+                        {order.order_status === 0 && <div className="absolute top-0 inset-x-0 h-1 bg-amber-500 animate-pulse z-10"></div>}
+                        <div className="p-6 border-b border-white/[0.05] flex justify-between items-start bg-white/[0.02]">
+                          <div className="min-w-0 flex-1">
+                            <h4 className="text-xl font-bold text-white tracking-tight truncate leading-none">{order.order_number}</h4>
+                            <div className="text-xs font-medium text-white/30 tracking-wide mt-2">{new Date(order.created_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })} • {order.items.length} Items</div>
                           </div>
-                        ))}
-                      </div>
-                      <div className="p-6 bg-white/[0.01]">
-                        <div className="flex justify-between items-center mb-6">
-                          <span className={`px-2.5 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest ${order.instore === 1 ? 'bg-yellow-500/10 text-yellow-400' : 'bg-purple-500/10 text-purple-400'}`}>{order.instore === 1 ? 'INSTORE TRANSMISSION' : 'KERBSIDE CAPTURE'}</span>
-                          <div className="text-right">
-                            <p className="text-[8px] font-black text-white/20 uppercase tracking-widest leading-none mb-1">Total Logic</p>
-                            <p className="text-2xl font-black text-white tracking-tighter leading-none">£{safeNumber(order.grand_total).toFixed(2)}</p>
+                          <div className="flex flex-col items-end gap-2">
+                            <span className={`px-3 py-1 rounded-full text-[10px] font-bold tracking-wide border ${status.bg} ${status.color} ${status.border}`}>{status.text}</span>
+                            <button onClick={() => setSelectedOrder(order)} className="p-2 bg-white/5 border border-white/10 rounded-xl text-yellow-400 hover:scale-105 transition-all"><Eye size={16} /></button>
                           </div>
                         </div>
-                        <div className="space-y-3">
-                          {order.order_status === 0 && (
-                            <div className="grid grid-cols-2 gap-3">
-                              <button onClick={() => { setOrderForReady(order.order_number); setIsReadyModalOpen(true); }} className="py-3.5 bg-gradient-to-r from-yellow-500 to-amber-500 text-slate-900 font-black uppercase tracking-widest text-[9px] rounded-xl shadow-xl transition-all active:scale-95 flex items-center justify-center gap-2 border border-white/10">ACCEPT NODE</button>
-                              <button onClick={() => updateOrderStatus(order.order_number, 2)} className="py-3.5 bg-white/5 border border-white/10 text-white/40 font-black uppercase tracking-widest text-[9px] rounded-xl hover:text-rose-500 transition-all">REJECT</button>
+                        <div className="p-6 flex-1 space-y-4 max-h-48 overflow-y-auto custom-scrollbar border-b border-white/[0.05]">
+                          {order.items.map((item, idx) => (
+                            <div key={idx} className="flex justify-between items-start gap-4">
+                              <div className="flex gap-3 items-start min-w-0">
+                                <span className="text-base font-bold text-yellow-400 bg-yellow-500/10 px-2.5 py-1 rounded-xl border border-yellow-500/20 shrink-0">{safeNumber(item.quantity)}<span className="text-[8px] ml-0.5 font-bold">X</span></span>
+                                <span className="text-sm font-bold text-white mt-1 leading-snug truncate">{item.product_name}</span>
+                              </div>
+                              <span className="text-xs font-bold text-white/20 mt-1">£{safeNumber(item.price).toFixed(2)}</span>
                             </div>
-                          )}
-                          {order.order_status === 1 && <button onClick={() => updateOrderStatus(order.order_number, 3)} className="w-full py-4 bg-gradient-to-r from-yellow-500 to-amber-500 text-slate-900 font-black uppercase tracking-widest text-[10px] rounded-xl shadow-xl transition-all active:scale-95 flex items-center justify-center gap-3">MARK READY FOR PICKUP</button>}
-                          {order.order_status === 3 && <button onClick={() => updateOrderStatus(order.order_number, 4)} className="w-full py-4 bg-gradient-to-r from-yellow-500 to-amber-500 text-slate-900 font-black uppercase tracking-widest text-[10px] rounded-xl shadow-xl transition-all active:scale-95 flex items-center justify-center gap-3">COMPLETE HANDOFF</button>}
+                          ))}
+                        </div>
+                        <div className="p-6 bg-white/[0.01]">
+                          <div className="flex justify-between items-center mb-6">
+                            <span className={`px-2.5 py-1 rounded-lg text-[10px] font-bold tracking-wide ${order.instore === 1 ? 'bg-yellow-500/10 text-yellow-400' : 'bg-purple-500/10 text-purple-400'}`}>{order.instore === 1 ? 'Instore' : 'Kerbside'}</span>
+                            <div className="text-right">
+                              <p className="text-[10px] font-bold text-white/20 tracking-wide leading-none mb-1">Total</p>
+                              <p className="text-2xl font-bold text-white tracking-tight leading-none">£{safeNumber(order.grand_total).toFixed(2)}</p>
+                            </div>
+                          </div>
+                          <div className="space-y-3">
+                            {order.order_status === 0 && (
+                              <div className="grid grid-cols-2 gap-3">
+                                <button onClick={() => { setOrderForReady(order.order_number); setIsReadyModalOpen(true); }} className="py-3.5 bg-gradient-to-r from-yellow-500 to-amber-500 text-slate-900 font-bold text-xs rounded-xl shadow-xl transition-all active:scale-95 flex items-center justify-center gap-2 border border-white/10">Accept</button>
+                                <button onClick={() => updateOrderStatus(order.order_number, 2)} className="py-3.5 bg-white/5 border border-white/10 text-white font-bold text-xs rounded-xl hover:text-rose-500 transition-all">Reject</button>
+                              </div>
+                            )}
+                            {order.order_status === 1 && <button onClick={() => updateOrderStatus(order.order_number, 3)} className="w-full py-4 bg-gradient-to-r from-yellow-500 to-amber-500 text-slate-900 font-bold text-sm rounded-xl shadow-xl transition-all active:scale-95 flex items-center justify-center gap-3">Mark Ready</button>}
+                            {order.order_status === 3 && <button onClick={() => updateOrderStatus(order.order_number, 4)} className="w-full py-4 bg-gradient-to-r from-yellow-500 to-amber-500 text-slate-900 font-bold text-sm rounded-xl shadow-xl transition-all active:scale-95 flex items-center justify-center gap-3">Collected</button>}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })
+                ) : (
+                  <div className="col-span-full py-40 flex flex-col items-center justify-center bg-[#0b1a3d]/40 backdrop-blur-xl rounded-[2.5rem] border border-white/[0.08] shadow-2xl">
+                    <ShoppingBag className="text-white/10 mb-6" size={80} strokeWidth={1} />
+                    <h3 className="text-2xl font-bold text-white tracking-tight">No Active Orders</h3>
+                    <p className="text-white font-medium mt-2">The transmission queue is currently empty.</p>
+                  </div>
+                )}
               </div>
 
               {/* Pagination Component */}

@@ -52,7 +52,7 @@ const WEEKDAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Satur
 
 const InputField = ({ icon: Icon, label, value, onChange, placeholder, type = "text", className = "", required = false, id }) => (
   <div className={`space-y-2 group ${className}`}>
-    <label className="text-[10px] font-black uppercase tracking-widest text-white group-focus-within:text-yellow-400 transition-colors flex items-center gap-2">
+    <label className="text-sm font-medium tracking-wide text-white group-focus-within:text-yellow-400 transition-colors flex items-center gap-2">
       {Icon && <Icon size={12} className="text-yellow-500" />}
       {label} {required && <span className="text-rose-500">*</span>}
     </label>
@@ -63,7 +63,7 @@ const InputField = ({ icon: Icon, label, value, onChange, placeholder, type = "t
         value={value || ""}
         onChange={onChange}
         placeholder={placeholder}
-        className="w-full px-5 py-4 bg-white/[0.03] border border-white/[0.08] rounded-2xl text-white font-bold placeholder-white/20 focus:outline-none focus:ring-4 focus:ring-yellow-500/20 focus:border-yellow-500/40 transition-all text-sm"
+        className="w-full px-5 py-4 bg-white/[0.03] border border-white/[0.08] rounded-2xl text-white font-medium placeholder-white/20 focus:outline-none focus:ring-4 focus:ring-yellow-500/20 focus:border-yellow-500/40 transition-all text-base"
       />
     </div>
   </div>
@@ -360,8 +360,8 @@ export default function Restuarent() {
                   <Store className="text-yellow-500" size={28} />
                 </div>
                 <div className="min-w-0">
-                  <h1 className="text-3xl font-black text-white tracking-tight drop-shadow-lg">Restaurant Profile</h1>
-                  <p className="text-white/60 mt-1 text-[10px] font-black uppercase tracking-[0.2em]">Manage your restaurant information and operating hours</p>
+                  <h1 className="text-2xl font-bold text-white tracking-tight drop-shadow-lg">Restaurant Profile</h1>
+                  <p className="text-white mt-1 text-sm font-medium tracking-wide">Manage your restaurant information and operating hours</p>
                 </div>
               </div>
             </motion.div>
@@ -379,11 +379,11 @@ export default function Restuarent() {
                 >
                   <div className="bg-white/5 px-8 py-6 border-b border-white/10 flex items-center justify-between">
                     <div>
-                      <h2 className="text-xl font-black text-white tracking-tight uppercase flex items-center gap-3">
+                      <h2 className="text-xl font-bold text-white tracking-tight flex items-center gap-3">
                         <Store size={22} className="text-yellow-500" />
                         Basic Information
                       </h2>
-                      <p className="text-white/40 text-[9px] font-black uppercase tracking-widest mt-1">Core details of your establishment</p>
+                      <p className="text-white text-sm font-medium tracking-wide mt-1">Core details of your establishment</p>
                     </div>
                   </div>
 
@@ -398,7 +398,7 @@ export default function Restuarent() {
                     />
                     {/* Food Type Section */}
                     <div className="space-y-3 group">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-white group-focus-within:text-yellow-400 transition-colors flex items-center gap-2">
+                      <label className="text-sm font-medium tracking-wide text-white group-focus-within:text-yellow-400 transition-colors flex items-center gap-2">
                         <Utensils size={12} className="text-yellow-500" />
                         Food Type <span className="text-rose-500">*</span>
                       </label>
@@ -422,7 +422,7 @@ export default function Restuarent() {
                               }}
                               className="w-5 h-5 accent-yellow-500 border-white/[0.08] rounded-lg focus:ring-yellow-500/20 focus:ring-4 bg-white/[0.03]"
                             />
-                            <label htmlFor="veg-checkbox" className="text-sm font-black uppercase tracking-widest text-white/70 cursor-pointer">Veg</label>
+                            <label htmlFor="veg-checkbox" className="text-base font-medium text-white cursor-pointer">Veg</label>
                           </div>
                           <div className="flex items-center gap-3 cursor-pointer">
                             <input
@@ -442,7 +442,7 @@ export default function Restuarent() {
                               }}
                               className="w-5 h-5 accent-yellow-500 border-white/[0.08] rounded-lg focus:ring-yellow-500/20 focus:ring-4 bg-white/[0.03]"
                             />
-                            <label htmlFor="nonveg-checkbox" className="text-sm font-black uppercase tracking-widest text-white/70 cursor-pointer">Non-Veg</label>
+                            <label htmlFor="nonveg-checkbox" className="text-base font-medium text-white cursor-pointer">Non-Veg</label>
                           </div>
                           <div className="flex items-center gap-3 cursor-pointer">
                             <input
@@ -462,7 +462,7 @@ export default function Restuarent() {
                               }}
                               className="w-5 h-5 accent-yellow-500 border-white/[0.08] rounded-lg focus:ring-yellow-500/20 focus:ring-4 bg-white/[0.03]"
                             />
-                            <label htmlFor="jain-food-checkbox" className="text-sm font-black uppercase tracking-widest text-white/70 cursor-pointer">Jain</label>
+                            <label htmlFor="jain-food-checkbox" className="text-base font-medium text-white cursor-pointer">Jain</label>
                           </div>
                           {Array.isArray(info.food_type) && info.food_type.includes(1) && (
                             <div className="flex items-center gap-4 pl-8 border-l border-white/10">
@@ -474,7 +474,7 @@ export default function Restuarent() {
                                   onChange={e => setInfo(p => ({ ...p, is_halal: e.target.checked ? 1 : 0 }))}
                                   className="w-5 h-5 accent-yellow-500 border-white/[0.08] rounded-lg focus:ring-yellow-500/20 focus:ring-4 bg-white/[0.03]"
                                 />
-                                <label htmlFor="halal-checkbox" className="text-sm font-black uppercase tracking-widest text-yellow-400 cursor-pointer">Halal Certified</label>
+                                <label htmlFor="halal-checkbox" className="text-base font-medium text-yellow-500 cursor-pointer">Halal Certified</label>
                               </div>
                             </div>
                           )}
@@ -484,7 +484,7 @@ export default function Restuarent() {
 
                     {/* Cuisine Type Section */}
                     <div className="space-y-3 group">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-white group-focus-within:text-yellow-400 transition-colors flex items-center gap-2">
+                      <label className="text-sm font-medium tracking-wide text-white group-focus-within:text-yellow-400 transition-colors flex items-center gap-2">
                         <ChefHat size={12} className="text-yellow-400" />
                         Cuisine Topology <span className="text-rose-500">*</span>
                       </label>
@@ -524,7 +524,7 @@ export default function Restuarent() {
                                 <div className={`p-2 rounded-xl mb-2 transition-colors duration-300 ${isSelected ? 'bg-yellow-500 text-slate-900 shadow-[0_0_15px_rgba(234,179,8,0.4)]' : 'bg-white/5 text-white/40'}`}>
                                   <Icon size={18} />
                                 </div>
-                                <span className={`text-[9px] font-black uppercase tracking-widest text-center transition-colors duration-300 ${isSelected ? 'text-white' : 'text-white/40'}`}>
+                                <span className={`text-[13px] font-medium text-center transition-colors duration-300 ${isSelected ? 'text-white' : 'text-white/50'}`}>
                                   {cuisine.label}
                                 </span>
                                 {isSelected && (
@@ -564,12 +564,12 @@ export default function Restuarent() {
 
                     <div className="space-y-4 pt-4 border-t border-white/5">
                       <div className="flex items-center gap-4">
-                        <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-yellow-500 shrink-0">Geolocation</h3>
+                        <h3 className="text-sm font-semibold tracking-wide text-yellow-500 shrink-0">Geolocation</h3>
                         <div className="h-px w-full bg-gradient-to-r from-yellow-500/20 to-transparent"></div>
                       </div>
                       <div className="space-y-4">
                         <div className="space-y-2 group">
-                          <label className="text-[10px] font-black uppercase tracking-widest text-white group-focus-within:text-yellow-400 transition-colors flex items-center gap-2">
+                          <label className="text-sm font-medium tracking-wide text-white group-focus-within:text-yellow-400 transition-colors flex items-center gap-2">
                             <MapPin size={12} className="text-yellow-500" /> Physical Address <span className="text-rose-500">*</span>
                           </label>
                           <div className="relative">
@@ -579,13 +579,13 @@ export default function Restuarent() {
                               value={info.address}
                               onChange={onInfoChange("address")}
                               placeholder="Search Google Maps for address..."
-                              className="w-full px-5 py-4 bg-white/[0.03] border border-white/[0.08] rounded-2xl text-white font-bold placeholder-white/20 focus:outline-none focus:ring-4 focus:ring-yellow-500/20 focus:border-yellow-500/40 transition-all text-sm"
+                              className="w-full px-5 py-4 bg-white/[0.03] border border-white/[0.08] rounded-2xl text-white font-medium placeholder-white/20 focus:outline-none focus:ring-4 focus:ring-yellow-500/20 focus:border-yellow-500/40 transition-all text-base"
                             />
                           </div>
                         </div>
                         <div className="grid grid-cols-2 gap-6">
                           <div className="space-y-2">
-                            <label className="text-[9px] font-black uppercase tracking-widest text-white/40 ml-1">Latitude</label>
+                            <label className="text-sm font-medium text-white/50 ml-1">Latitude</label>
                             <input
                               type="text"
                               value={info.latitude}
@@ -595,7 +595,7 @@ export default function Restuarent() {
                             />
                           </div>
                           <div className="space-y-2">
-                            <label className="text-[9px] font-black uppercase tracking-widest text-white/40 ml-1">Longitude</label>
+                            <label className="text-sm font-medium text-white/50 ml-1">Longitude</label>
                             <input
                               type="text"
                               value={info.longitude}
@@ -605,7 +605,7 @@ export default function Restuarent() {
                             />
                           </div>
                         </div>
-                        <p className="text-[9px] font-black uppercase tracking-widest text-white/20 ml-1 italic text-center">
+                        <p className="text-sm font-medium text-white/20 ml-1 italic text-center">
                           * Coordinates are synchronized during address selection
                         </p>
                       </div>
@@ -627,11 +627,11 @@ export default function Restuarent() {
                   className="bg-[#0b1a3d]/60 backdrop-blur-xl rounded-[2.5rem] shadow-2xl border border-white/[0.08] overflow-hidden"
                 >
                   <div className="bg-white/5 px-8 py-6 border-b border-white/10">
-                    <h2 className="text-xl font-black text-white tracking-tight uppercase flex items-center gap-3">
+                    <h2 className="text-xl font-bold text-white tracking-tight flex items-center gap-3">
                       <Twitter size={22} className="text-yellow-400" />
                       Social Presence
                     </h2>
-                    <p className="text-white/40 text-[9px] font-black uppercase tracking-widest mt-1">Digital connectivity channels</p>
+                    <p className="text-white text-sm font-medium mt-1">Digital connectivity channels</p>
                   </div>
 
                   <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -688,8 +688,8 @@ export default function Restuarent() {
                   <div className="bg-white/5 px-8 py-6 border-b border-white/10 flex items-center gap-3">
                     <Truck size={22} className="text-yellow-400" />
                     <div>
-                      <h2 className="text-xl font-black text-white tracking-tight uppercase">Logistics Partners</h2>
-                      <p className="text-white/40 text-[9px] font-black uppercase tracking-widest mt-1">Delivery infrastructure integration</p>
+                      <h2 className="text-xl font-bold text-white tracking-tight">Logistics Partners</h2>
+                      <p className="text-white text-sm font-medium mt-1">Delivery infrastructure integration</p>
                     </div>
                   </div>
 
@@ -698,7 +698,7 @@ export default function Restuarent() {
                       <div className="p-2 bg-yellow-500/10 rounded-xl">
                         <Store size={18} className="text-yellow-400" />
                       </div>
-                      <p className="text-[10px] text-yellow-400 font-black uppercase tracking-widest">
+                      <p className="text-sm text-yellow-500 font-medium tracking-wide">
                         Primary Infrastructure (Restaurant Exclusive)
                       </p>
                     </div>
@@ -713,7 +713,7 @@ export default function Restuarent() {
 
                     <div className="pt-8 border-t border-white/[0.08]">
                       <div className="flex items-center gap-4 mb-6">
-                        <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-white/40 shrink-0">3rd Party Aggregators</h3>
+                        <h3 className="text-sm font-semibold tracking-wide text-white/50 shrink-0">3rd Party Aggregators</h3>
                         <div className="h-px w-full bg-gradient-to-r from-white/10 to-transparent"></div>
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -751,8 +751,8 @@ export default function Restuarent() {
                   <div className="bg-white/5 px-8 py-6 border-b border-white/10 flex items-center gap-3">
                     <Shield size={22} className="text-yellow-400" />
                     <div>
-                      <h2 className="text-xl font-black text-white tracking-tight uppercase">Stripe Infrastructure</h2>
-                      <p className="text-white/40 text-[9px] font-black uppercase tracking-widest mt-1">Direct settlement protocol</p>
+                      <h2 className="text-xl font-bold text-white tracking-tight">Stripe Infrastructure</h2>
+                      <p className="text-white text-sm font-medium mt-1">Direct settlement protocol</p>
                     </div>
                   </div>
 
@@ -782,8 +782,8 @@ export default function Restuarent() {
                   <div className="bg-white/5 px-8 py-6 border-b border-white/10 flex items-center gap-3">
                     <ShoppingCart size={22} className="text-yellow-400" />
                     <div>
-                      <h2 className="text-xl font-black text-white tracking-tight uppercase">Fulfillment Modes</h2>
-                      <p className="text-white/40 text-[9px] font-black uppercase tracking-widest mt-1">Service availability protocols</p>
+                      <h2 className="text-xl font-bold text-white tracking-tight">Fulfillment Modes</h2>
+                      <p className="text-white text-sm font-medium mt-1">Service availability protocols</p>
                     </div>
                   </div>
 
@@ -800,8 +800,8 @@ export default function Restuarent() {
                           className="w-6 h-6 text-yellow-500 border-white/10 rounded-lg focus:ring-yellow-500/20 focus:ring-4 bg-white/[0.03]"
                         />
                         <div className="ml-5 flex-1">
-                          <span className="block text-sm font-black uppercase tracking-widest text-white">In-Store Fulfillment</span>
-                          <span className="text-[10px] font-bold text-white/40 mt-1 block">Patron internal collection protocol</span>
+                          <span className="block text-base font-medium text-white">In-Store Fulfillment</span>
+                          <span className="text-sm font-normal text-white/50 mt-1 block">Patron internal collection protocol</span>
                         </div>
                         {info.instore && <CheckCircle2 className="text-yellow-400" size={24} />}
                       </label>
@@ -817,8 +817,8 @@ export default function Restuarent() {
                           className="w-6 h-6 text-yellow-500 border-white/10 rounded-lg focus:ring-yellow-500/20 focus:ring-4 bg-white/[0.03]"
                         />
                         <div className="ml-5 flex-1">
-                          <span className="block text-sm font-black uppercase tracking-widest text-white">Kerbside Distribution</span>
-                          <span className="text-[10px] font-bold text-white/40 mt-1 block">External vehicle-side handoff</span>
+                          <span className="block text-base font-medium text-white">Kerbside Distribution</span>
+                          <span className="text-sm font-normal text-white/50 mt-1 block">External vehicle-side handoff</span>
                         </div>
                         {info.kerbside && <CheckCircle2 className="text-yellow-400" size={24} />}
                       </label>
@@ -839,8 +839,8 @@ export default function Restuarent() {
                   <div className="bg-white/5 px-8 py-6 border-b border-white/10 flex items-center gap-3">
                     <ImageIcon size={22} className="text-yellow-400" />
                     <div>
-                      <h2 className="text-xl font-black text-white tracking-tight uppercase">Visual Identity</h2>
-                      <p className="text-white/40 text-[9px] font-black uppercase tracking-widest mt-1">Primary establishment imagery</p>
+                      <h2 className="text-xl font-bold text-white tracking-tight">Visual Identity</h2>
+                      <p className="text-white text-sm font-medium mt-1">Primary establishment imagery</p>
                     </div>
                   </div>
 
@@ -882,7 +882,7 @@ export default function Restuarent() {
                         ) : (
                           <div className="w-full h-full flex flex-col items-center justify-center text-white/20">
                             <ImageIcon size={56} strokeWidth={1} className="mb-4" />
-                            <span className="text-[10px] font-black uppercase tracking-widest">No Visual Assets</span>
+                            <span className="text-sm font-medium text-white/40 tracking-wide">No Visual Assets</span>
                           </div>
                         )}
                       </div>
@@ -898,7 +898,7 @@ export default function Restuarent() {
 
                     <button
                       onClick={() => fileInputRef.current.click()}
-                      className="mt-6 w-full py-4 px-6 bg-white/5 hover:bg-white/10 text-white font-black uppercase tracking-widest text-[10px] rounded-2xl border border-white/[0.08] transition-all flex items-center justify-center gap-3 group/btn"
+                      className="mt-6 w-full py-4 px-6 bg-white/5 hover:bg-white/10 text-white font-semibold text-sm rounded-2xl border border-white/[0.08] transition-all flex items-center justify-center gap-3 group/btn"
                     >
                       <Upload size={18} className="text-yellow-400 group-hover/btn:scale-110 transition-transform" />
                       {photoFile || info.photo ? "Modify Imagery" : "Upload Identity"}
@@ -907,7 +907,7 @@ export default function Restuarent() {
                     {photoFile && (
                       <button
                         onClick={() => { setPhotoFile(null); setPhotoPreview(null); }}
-                        className="mt-3 w-full py-3 px-4 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 font-black uppercase tracking-widest text-[9px] rounded-xl border border-rose-500/20 transition-all flex items-center justify-center gap-2"
+                        className="mt-3 w-full py-3 px-4 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 font-bold text-xs rounded-xl border border-rose-500/20 transition-all flex items-center justify-center gap-2"
                       >
                         <X size={14} />
                         Discard Modification
@@ -920,17 +920,17 @@ export default function Restuarent() {
                     <button
                       onClick={saveAll}
                       disabled={saving}
-                      className="w-full py-5 px-8 bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400 disabled:opacity-50 text-slate-900 font-black uppercase tracking-widest text-xs rounded-2xl shadow-2xl transition-all transform hover:-translate-y-1 disabled:scale-100 flex items-center justify-center gap-3"
+                      className="w-full py-5 px-8 bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400 disabled:opacity-50 text-slate-900 font-bold text-sm rounded-2xl shadow-2xl transition-all transform hover:-translate-y-1 disabled:scale-100 flex items-center justify-center gap-3"
                     >
                       {saving ? (
                         <>
                           <Loader2 className="animate-spin" size={20} />
-                          Synchronizing...
+                          Saving Changes...
                         </>
                       ) : (
                         <>
-                          <Save size={20} className="font-black" />
-                          Synchronize Profile
+                          <Save size={20} className="font-bold" />
+                          Save Changes
                         </>
                       )}
                     </button>
@@ -947,16 +947,16 @@ export default function Restuarent() {
             >
               <div className="bg-white/5 px-8 py-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-white/10">
                 <div>
-                  <h2 className="text-xl font-black text-white tracking-tight uppercase flex items-center gap-3">
+                  <h2 className="text-xl font-bold text-white tracking-tight flex items-center gap-3">
                     <Calendar size={22} className="text-yellow-400" />
                     Chronological Availability
                   </h2>
-                  <p className="text-white/40 text-[9px] font-black uppercase tracking-widest mt-1">Weekly operational schedule configuration</p>
+                  <p className="text-white/80 text-sm font-medium mt-1">Weekly operational schedule configuration</p>
                 </div>
                 <button
                   onClick={handleAddManual}
                   disabled={timings.length >= 7}
-                  className="px-6 py-3 bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-[#071428] font-black uppercase tracking-widest text-[10px] rounded-2xl shadow-xl transition-all flex items-center gap-3 justify-center disabled:opacity-30 disabled:cursor-not-allowed group active:scale-95"
+                  className="px-6 py-3 bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-[#071428] font-bold text-xs rounded-2xl shadow-xl transition-all flex items-center gap-3 justify-center disabled:opacity-30 disabled:cursor-not-allowed group active:scale-95"
                 >
                   <Plus size={18} className="group-hover:rotate-90 transition-transform" />
                   Initialize Day
@@ -977,11 +977,11 @@ export default function Restuarent() {
 
                         {/* Day Selector */}
                         <div className="md:col-span-3 space-y-2">
-                          <label className="text-[9px] font-black uppercase tracking-widest text-white/40 ml-1">Operational Day</label>
+                          <label className="text-sm font-medium text-white ml-1">Operational Day</label>
                           <select
                             value={t.day}
                             onChange={(e) => changeDay(t.id, e.target.value)}
-                            className="w-full px-4 py-3 bg-[#0b1a3d] border border-white/10 rounded-xl text-white font-black uppercase text-[10px] tracking-widest focus:outline-none focus:border-yellow-500 transition-all cursor-pointer appearance-none"
+                            className="w-full px-4 py-3 bg-[#0b1a3d] border border-white/10 rounded-xl text-white font-medium text-sm tracking-wide focus:outline-none focus:border-yellow-500 transition-all cursor-pointer appearance-none"
                           >
                             {WEEKDAYS.map((d) => (
                               <option key={d} value={d} disabled={isWeekdayPresent(d) && t.day !== d} className="bg-[#0b1a3d]">
@@ -993,28 +993,28 @@ export default function Restuarent() {
 
                         {/* Start Time */}
                         <div className="md:col-span-3 space-y-2">
-                          <label className="text-[9px] font-black uppercase tracking-widest text-white/40 ml-1">Shift Start</label>
+                          <label className="text-sm font-medium text-white ml-1">Shift Start</label>
                           <div className="relative">
                             <Clock size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-yellow-400/50" />
                             <input
                               type="time"
                               value={t.start}
                               onChange={(e) => updateTiming(t.id, { start: e.target.value })}
-                              className="w-full pl-10 pr-4 py-3 bg-white/[0.03] border border-white/10 rounded-xl text-white font-black text-sm focus:outline-none focus:border-yellow-500 transition-all [color-scheme:dark]"
+                              className="w-full pl-10 pr-4 py-3 bg-white/[0.03] border border-white/10 rounded-xl text-white font-medium text-sm focus:outline-none focus:border-yellow-500 transition-all [color-scheme:dark]"
                             />
                           </div>
                         </div>
 
                         {/* End Time */}
                         <div className="md:col-span-3 space-y-2">
-                          <label className="text-[9px] font-black uppercase tracking-widest text-white/40 ml-1">Shift Termination</label>
+                          <label className="text-sm font-medium text-white ml-1">Shift Termination</label>
                           <div className="relative">
                             <Clock size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-rose-400/50" />
                             <input
                               type="time"
                               value={t.end}
                               onChange={(e) => updateTiming(t.id, { end: e.target.value })}
-                              className="w-full pl-10 pr-4 py-3 bg-white/[0.03] border border-white/10 rounded-xl text-white font-black text-sm focus:outline-none focus:border-yellow-500 transition-all [color-scheme:dark]"
+                              className="w-full pl-10 pr-4 py-3 bg-white/[0.03] border border-white/10 rounded-xl text-white font-medium text-sm focus:outline-none focus:border-yellow-500 transition-all [color-scheme:dark]"
                             />
                           </div>
                         </div>
@@ -1032,7 +1032,7 @@ export default function Restuarent() {
                                <div className={`w-10 h-5 rounded-full transition-colors ${t.is_active ? 'bg-yellow-500' : 'bg-white/10'}`}></div>
                                <div className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-all ${t.is_active ? 'translate-x-5' : ''}`}></div>
                             </div>
-                            <span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${t.is_active ? 'text-yellow-400' : 'text-white/30'}`}>
+                            <span className={`text-sm font-medium transition-colors ${t.is_active ? 'text-yellow-400' : 'text-white/60'}`}>
                               {t.is_active ? 'Online' : 'Offline'}
                             </span>
                           </label>
@@ -1058,8 +1058,8 @@ export default function Restuarent() {
                 {timings.length === 0 && (
                   <div className="text-center py-20 bg-white/[0.02] rounded-[2rem] border border-dashed border-white/10">
                     <Clock size={48} strokeWidth={1} className="mx-auto mb-4 text-white/20" />
-                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/30">Temporal schedule unidentified</p>
-                    <p className="text-[11px] font-bold text-yellow-400/40 mt-2">Initialize a daily sequence to configure availability</p>
+                    <p className="text-sm font-medium text-white/50 tracking-wide">Temporal schedule unidentified</p>
+                    <p className="text-sm font-medium text-yellow-500/60 mt-2">Initialize a daily sequence to configure availability</p>
                   </div>
                 )}
               </div>

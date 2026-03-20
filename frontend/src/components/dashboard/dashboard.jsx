@@ -65,13 +65,13 @@ const StatCard = ({ title, value, subtext, icon: Icon, colorClass, delay, onEyeC
       )}
     </div>
 
-    <div className="relative z-10 mt-auto">
-      <h3 className="text-xl sm:text-3xl font-black text-white drop-shadow-lg tracking-tight truncate">{value}</h3>
-      <div className="mt-1 sm:mt-2 text-left">
-        <p className="text-[8px] sm:text-[10px] font-black text-white/50 uppercase tracking-[0.1em] sm:tracking-[0.15em] leading-none mb-1 sm:mb-1.5 truncate">{title}</p>
-        <p className="text-[9px] sm:text-[11px] font-bold text-white/80 truncate">{subtext}</p>
+      <div className="relative z-10 mt-auto">
+        <h3 className="text-xl sm:text-3xl font-semibold text-white drop-shadow-lg tracking-tight truncate">{value}</h3>
+        <div className="mt-1 sm:mt-2 text-left">
+          <p className="text-[12px] sm:text-sm font-medium text-white tracking-wider leading-tight mb-1 sm:mb-1.5">{title}</p>
+          <p className="text-[10px] sm:text-xs font-normal text-white/90">{subtext}</p>
+        </div>
       </div>
-    </div>
 
     {/* Decorative Glow */}
     <div className="absolute -bottom-12 -right-12 w-32 h-32 bg-yellow-500/5 rounded-full blur-3xl group-hover:bg-yellow-500/10 transition-colors" />
@@ -220,25 +220,25 @@ const MetricDetailsModal = ({ isOpen, onClose, title, items = [], type, onUpdate
                         </td>
                         <td className="px-6 py-4 text-center">
                           <div className="flex justify-center gap-2" onClick={(e) => e.stopPropagation()}>                            {Number(item.order_status) === 0 && (
-                              <>
-                                <button
-                                  onClick={() => onReadyClick(item.order_number)}
-                                  className="px-3 py-1.5 bg-yellow-500/20 hover:bg-yellow-500/40 text-yellow-400 rounded-lg transition-all flex items-center gap-1.5 border border-yellow-500/20 shadow-md active:scale-95"
-                                  title="Accept"
-                                >
-                                  <CheckCircle size={14} />
-                                  <span className="text-[10px] font-black uppercase tracking-wider">Accept</span>
-                                </button>
-                                <button
-                                  onClick={() => onUpdateStatus(item.order_number, 2)}
-                                  className="px-3 py-1.5 bg-rose-500/20 hover:bg-rose-500/40 text-rose-400 rounded-lg transition-all flex items-center gap-1.5 border border-rose-500/20 shadow-md active:scale-95"
-                                  title="Reject"
-                                >
-                                  <XCircle size={14} />
-                                  <span className="text-[10px] font-black uppercase tracking-wider">Reject</span>
-                                </button>
-                              </>
-                            )}
+                            <>
+                              <button
+                                onClick={() => onReadyClick(item.order_number)}
+                                className="px-3 py-1.5 bg-yellow-500/20 hover:bg-yellow-500/40 text-yellow-400 rounded-lg transition-all flex items-center gap-1.5 border border-yellow-500/20 shadow-md active:scale-95"
+                                title="Accept"
+                              >
+                                <CheckCircle size={14} />
+                                <span className="text-[10px] font-black uppercase tracking-wider">Accept</span>
+                              </button>
+                              <button
+                                onClick={() => onUpdateStatus(item.order_number, 2)}
+                                className="px-3 py-1.5 bg-rose-500/20 hover:bg-rose-500/40 text-rose-400 rounded-lg transition-all flex items-center gap-1.5 border border-rose-500/20 shadow-md active:scale-95"
+                                title="Reject"
+                              >
+                                <XCircle size={14} />
+                                <span className="text-[10px] font-black uppercase tracking-wider">Reject</span>
+                              </button>
+                            </>
+                          )}
                             {Number(item.order_status) === 1 && (
                               <button
                                 onClick={() => onUpdateStatus(item.order_number, 3)}
@@ -1025,13 +1025,13 @@ const NewOrderModal = ({ isOpen, onClose, onOrderPlaced, initialUserId, restaura
                           <p className="text-[9px] text-white/40 mt-1">{customer.loyalty_points || 0} points available</p>
                         </div>
                         {Number(customer.loyalty_points) >= (Number(customer.loyalty_redeem_points) || 10) ? (
-                            <button
-                             onClick={toggleLoyalty}
-                             className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${isLoyaltyApplied
-                               ? "bg-rose-500/20 text-rose-400 border border-rose-500/30"
-                               : "bg-gradient-to-r from-yellow-400 to-amber-500 text-[#071428] shadow-lg shadow-yellow-900/40"
-                               }`}
-                           >
+                          <button
+                            onClick={toggleLoyalty}
+                            className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${isLoyaltyApplied
+                              ? "bg-rose-500/20 text-rose-400 border border-rose-500/30"
+                              : "bg-gradient-to-r from-yellow-400 to-amber-500 text-[#071428] shadow-lg shadow-yellow-900/40"
+                              }`}
+                          >
                             {isLoyaltyApplied ? "Remove" : "Claim"}
                           </button>
                         ) : (
@@ -1356,12 +1356,12 @@ export default function Dashboard() {
 
   const getStatusBadge = (status) => {
     const s = Number(status);
-    if (s === 0) return <span className="px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider bg-blue-500/20 text-blue-300 border border-blue-500/30">Placed</span>;
-    if (s === 1) return <span className="px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider bg-yellow-500/20 text-yellow-300 border border-yellow-500/30">Accepted</span>;
-    if (s === 2) return <span className="px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider bg-red-500/20 text-red-300 border border-red-500/40">Rejected</span>;
-    if (s === 3) return <span className="px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider bg-amber-500/20 text-amber-300 border border-amber-400/50">Ready</span>;
-    if (s === 4) return <span className="px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider bg-yellow-500/20 text-yellow-400 border border-yellow-500/40">Collected</span>;
-    return <span className="px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider bg-gray-500/20 text-gray-300 border border-white/10">Cancelled</span>;
+    if (s === 0) return <span className="px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-blue-500/20 text-blue-300 border border-blue-500/30">Placed</span>;
+    if (s === 1) return <span className="px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-yellow-500/20 text-yellow-300 border border-yellow-500/30">Accepted</span>;
+    if (s === 2) return <span className="px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-red-500/20 text-red-300 border border-red-500/40">Rejected</span>;
+    if (s === 3) return <span className="px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-amber-500/20 text-amber-300 border border-amber-400/50">Ready</span>;
+    if (s === 4) return <span className="px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-yellow-500/20 text-yellow-400 border border-yellow-500/40">Collected</span>;
+    return <span className="px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-gray-500/20 text-gray-300 border border-white/10">Cancelled</span>;
   };
 
   const OrderActions = ({ order }) => {
@@ -1444,461 +1444,461 @@ export default function Dashboard() {
         <main className="flex-1 pt-24 lg:pt-20 pb-12 px-4 sm:px-6 lg:px-10 transition-all duration-300 ease-in-out">
           <div className="max-w-7xl mx-auto">
 
-          {/* Header Section */}
-          <div className="flex flex-col items-center text-center mt-2 mb-6 sm:mb-10 lg:mb-12 gap-6 sm:gap-8">
-            <div>
-              <h1 className="text-3xl sm:text-4xl font-black text-white drop-shadow-lg tracking-tight whitespace-nowrap">
-                {stats.restaurant_name ? `Welcome to ${stats.restaurant_name}` : "Dashboard"}
-              </h1>
-              <p className="text-white/60 mt-2 text-sm uppercase tracking-[0.2em] font-medium">Real-time overview of your restaurant's performance</p>
-            </div>
+            {/* Header Section */}
+            <div className="flex flex-col items-center text-center mt-2 mb-6 sm:mb-10 lg:mb-12 gap-6 sm:gap-8">
+              <div>
+                <h1 className="text-3xl sm:text-4xl font-bold text-white drop-shadow-lg tracking-tight whitespace-nowrap">
+                  {stats.restaurant_name ? `Welcome to ${stats.restaurant_name}` : "Dashboard"}
+                </h1>
+                <p className="text-white/60 mt-2 text-sm tracking-wider font-medium">Real-time overview of your restaurant's performance</p>
+              </div>
 
-            <div className="flex flex-wrap justify-center items-center gap-4">
-              {/* Restaurant Filter (Super Admin) */}
-              {stats.is_super_admin && (
-                <div className="relative">
-                  <button
-                    onClick={() => setShowRestaurantMenu(!showRestaurantMenu)}
-                    className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-yellow-400/20 to-amber-500/20 backdrop-blur-md rounded-xl border border-yellow-500/30 text-yellow-400 font-black hover:scale-[1.02] transition-all text-[11px] font-black uppercase tracking-wider h-full whitespace-nowrap shadow-lg shadow-yellow-900/10"
-                  >
-                    <LayoutDashboard size={18} strokeWidth={2.5} />
-                    {selectedRestaurant ? (restaurants.find(r => String(r.user_id) === String(selectedRestaurant))?.restaurant_name || "Restaurant") : "All Restaurants"}
-                    <ChevronDown size={14} className={`transition-transform ${showRestaurantMenu ? 'rotate-180' : ''}`} />
-                  </button>
+              <div className="flex flex-wrap justify-center items-center gap-4">
+                {/* Restaurant Filter (Super Admin) */}
+                {stats.is_super_admin && (
+                  <div className="relative">
+                    <button
+                      onClick={() => setShowRestaurantMenu(!showRestaurantMenu)}
+                      className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-yellow-400/20 to-amber-500/20 backdrop-blur-md rounded-xl border border-yellow-500/30 text-yellow-400 font-medium hover:scale-[1.02] transition-all text-sm tracking-wider h-full whitespace-nowrap shadow-lg shadow-yellow-900/10"
+                    >
+                      <LayoutDashboard size={18} strokeWidth={2.5} />
+                      {selectedRestaurant ? (restaurants.find(r => String(r.user_id) === String(selectedRestaurant))?.restaurant_name || "Restaurant") : "All Restaurants"}
+                      <ChevronDown size={14} className={`transition-transform ${showRestaurantMenu ? 'rotate-180' : ''}`} />
+                    </button>
 
-                  {showRestaurantMenu && (
-                    <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-64 bg-[#0b1a3d]/95 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl z-[100] py-2 overflow-hidden text-left">
-                      <div className="max-h-60 overflow-y-auto custom-scrollbar">
-                        <button
-                          onClick={() => {
-                            setSelectedRestaurant("");
-                            setShowRestaurantMenu(false);
-                          }}
-                          className={`w-full px-4 py-2 text-left hover:bg-white/10 transition-colors text-sm ${selectedRestaurant === "" ? 'text-yellow-400 bg-white/5' : 'text-white/80'}`}
-                        >
-                          All Restaurants
-                        </button>
-                        {restaurants.map((r) => (
+                    {showRestaurantMenu && (
+                      <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-64 bg-[#0b1a3d]/95 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl z-[100] py-2 overflow-hidden text-left">
+                        <div className="max-h-60 overflow-y-auto custom-scrollbar">
                           <button
-                            key={r.user_id}
                             onClick={() => {
-                              setSelectedRestaurant(String(r.user_id));
+                              setSelectedRestaurant("");
                               setShowRestaurantMenu(false);
                             }}
-                            className={`w-full px-4 py-2 text-left hover:bg-white/10 transition-colors text-sm ${String(selectedRestaurant) === String(r.user_id) ? 'text-yellow-400 bg-white/5' : 'text-white/80'}`}
+                            className={`w-full px-4 py-2 text-left hover:bg-white/10 transition-colors text-sm ${selectedRestaurant === "" ? 'text-yellow-400 bg-white/5' : 'text-white/80'}`}
                           >
-                            {r.restaurant_name}
+                            All Restaurants
                           </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Super Admin Buttons (Matches reference image style) */}
-              <button
-                onClick={() => setIsDateTimeFilterModalOpen(true)}
-                className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-yellow-400/20 to-amber-500/20 backdrop-blur-md rounded-xl border border-yellow-500/30 text-yellow-400 font-black hover:scale-[1.02] transition-all text-[11px] font-black uppercase tracking-wider whitespace-nowrap shadow-lg shadow-yellow-900/10"
-              >
-                <Calendar size={18} strokeWidth={2.5} /> {dateRange.label} <ChevronDown size={14} />
-              </button>
-              <button className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-yellow-400/20 to-amber-500/20 backdrop-blur-md rounded-xl border border-yellow-500/30 text-yellow-400 font-bold hover:from-yellow-400/30 hover:to-amber-500/30 transition-all text-sm uppercase tracking-wider whitespace-nowrap">
-                <ArrowRight className="rotate-90" size={18} /> Export
-              </button>
-              <button
-                onClick={() => setIsNewOrderModalOpen(true)}
-                className="flex items-center gap-2 px-8 py-2.5 bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 rounded-xl text-slate-900 font-black hover:scale-[1.02] active:scale-95 transition-all text-sm uppercase tracking-widest shadow-lg shadow-yellow-900/20 whitespace-nowrap"
-              >
-                <Plus size={18} strokeWidth={3} /> New Order
-              </button>
-            </div>
-          </div>
-
-          {/* Stats Grid - Row 1 */}
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-6 mb-6 sm:mb-8">
-            <StatCard
-              title="Pending Orders"
-              value={stats.pending_orders}
-              subtext="To Be Confirmed"
-              icon={Clock}
-              colorClass="bg-amber-500/20 border border-amber-400/30"
-              delay={0}
-              onEyeClick={() => openDetailModal('pending', 'Pending Orders')}
-            />
-            <StatCard
-              title="Total Bookings"
-              value={stats.total_bookings}
-              subtext="Lifetime Orders"
-              icon={ShoppingBag}
-              colorClass="bg-yellow-500/20 border border-yellow-400/30"
-              delay={0.1}
-              onEyeClick={() => openDetailModal('total_bookings', 'Total Bookings')}
-            />
-            <StatCard
-              title="Rejected Orders"
-              value={stats.rejected_orders || stats.complaint_requests}
-              subtext="To Be Reviewed"
-              icon={RotateCcw}
-              colorClass="bg-red-500/20 border border-red-400/40"
-              delay={0.2}
-              onEyeClick={() => openDetailModal('rejected', 'Rejected Orders')}
-            />
-            <StatCard
-              title="Yet to Receive Payments"
-              value={stats.yet_to_receive_payments}
-              subtext="To Be Received"
-              icon={CreditCard}
-              colorClass="bg-yellow-500/20 border border-yellow-400/30"
-              delay={0.3}
-              onEyeClick={() => openDetailModal('payments', 'Payment Requests')}
-            />
-            <div className="col-span-2 lg:col-span-1">
-              <StatCard
-                title="Inactive Products"
-                value={stats.deactive_products}
-                subtext="In-active items"
-                icon={Package}
-                colorClass="bg-yellow-500/20 border border-yellow-400/30"
-                delay={0.4}
-                onEyeClick={() => openDetailModal('deactive', 'Inactive Products')}
-              />
-            </div>
-          </div>
-
-          {/* Stats Grid - Row 2 */}
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-6 mb-6 sm:mb-8">
-            <StatCard
-              title="Total Products"
-              value={stats.total_products}
-              subtext="Total Inventory"
-              icon={Box}
-              colorClass="bg-yellow-500/20 border border-yellow-400/30"
-              delay={0.5}
-              trend="0%"
-              onEyeClick={() => openDetailModal('products', 'Total Products')}
-            />
-            <StatCard
-              title="Orders"
-              value={todayOrdersCount}
-              subtext={dateRange.label}
-              icon={ShoppingBag}
-              colorClass="bg-red-500/20 border border-red-400/40"
-              delay={0.6}
-              trend={calculateTrend(stats.today_users, stats.prev_today_users)}
-              onEyeClick={() => openDetailModal('orders', 'Orders Overview')}
-            />
-            <StatCard
-              title="Revenue"
-              value={formatCurrency(todayRevenueTotal)}
-              subtext={dateRange.label}
-              icon={PoundSterling}
-              colorClass="bg-amber-500/20 border border-amber-400/30"
-              delay={0.7}
-              trend={calculateTrend(stats.daily_revenue, stats.prev_daily_revenue)}
-              onEyeClick={() => openDetailModal('orders', 'Revenue Details')}
-            />
-            <StatCard
-              title="Customers"
-              value={stats.followers}
-              subtext="Total Reach"
-              icon={Users}
-              colorClass="bg-purple-500/20 border border-purple-400/30"
-              delay={0.8}
-              trend="0%"
-              onEyeClick={() => openDetailModal('customers', 'Customers List')}
-            />
-            <div className="col-span-2 lg:col-span-1">
-              <StatCard
-                title="Completed Orders"
-                value={stats.completed_orders}
-                subtext="Successfully Delivered"
-                icon={CheckCircle}
-                colorClass="bg-yellow-500/20 border border-yellow-400/30"
-                delay={0.9}
-                onEyeClick={() => openDetailModal('completed', 'Completed Orders')}
-              />
-            </div>
-          </div>
-
-          {/* Charts Section 1: Comparisons & Trends */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-
-            <ChartCard title="Sales Comparison" subtitle="Current vs Previous Period" delay={0.4} className="h-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={stats.sales_comparison || []}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.1)" />
-                  <XAxis
-                    dataKey="label"
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fill: '#fff', fontSize: 11 }}
-                    interval="preserveStartEnd"
-                    angle={-45}
-                    textAnchor="end"
-                    height={60}
-                  />
-                  <YAxis
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fill: '#fff', fontSize: 11 }}
-                    tickFormatter={(v) => `£${v}`}
-                  />
-                  <Tooltip
-                    cursor={{ fill: 'rgba(255,255,255,0.05)' }}
-                    contentStyle={{ borderRadius: '12px', background: '#1f2937', border: '1px solid rgba(255,255,255,0.1)', color: '#fff' }}
-                    formatter={(value) => [`£${value}`, "Revenue"]}
-                  />
-                  <Bar dataKey="previous" name="Previous Period" fill="#9ca3af" radius={[4, 4, 0, 0]} barSize={12} fillOpacity={0.3} />
-                  <Bar dataKey="current" name="Selected Period" fill="#22d3ee" radius={[4, 4, 0, 0]} barSize={12} />
-                  <Legend wrapperStyle={{ paddingTop: '10px' }} />
-                </BarChart>
-              </ResponsiveContainer>
-            </ChartCard>
-
-            <ChartCard title="Average Order Value" subtitle="Trend over time" delay={0.5} className="h-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={stats.avg_order_cost || []}>
-                  <defs>
-                    <linearGradient id="colorAvg" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.3} />
-                      <stop offset="95%" stopColor="#f59e0b" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.1)" />
-                  <XAxis
-                    dataKey="label"
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fill: '#fff', fontSize: 11 }}
-                    interval="preserveStartEnd"
-                    angle={-45}
-                    textAnchor="end"
-                    height={60}
-                  />
-                  <YAxis
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fill: '#fff', fontSize: 11 }}
-                    tickFormatter={(v) => `£${Math.round(v)}`}
-                  />
-                  <Tooltip
-                    contentStyle={{ borderRadius: '12px', background: '#1f2937', border: '1px solid rgba(255,255,255,0.1)', color: '#fff' }}
-                    formatter={(value) => [`£${Number(value).toFixed(2)}`, "Avg Value"]}
-                  />
-                  <Area type="monotone" dataKey="value" stroke="#facc15" strokeWidth={3} fillOpacity={1} fill="url(#colorAvg)" />
-                </AreaChart>
-              </ResponsiveContainer>
-            </ChartCard>
-
-            <ChartCard title="Orders Trend" subtitle="Selected Range Distribution" delay={0.6} className="h-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={stats.weekly_orders || []}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.1)" />
-                  <XAxis
-                    dataKey="date"
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fill: '#fff', fontSize: 11 }}
-                    tickFormatter={(str) => new Date(str).toLocaleDateString([], { month: 'short', day: 'numeric' })}
-                    interval="preserveStartEnd"
-                    angle={-45}
-                    textAnchor="end"
-                    height={60}
-                  />
-                  <YAxis
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fill: '#fff', fontSize: 11 }}
-                  />
-                  <Tooltip contentStyle={{ borderRadius: '12px', background: '#1f2937', border: '1px solid rgba(255,255,255,0.1)', color: '#fff' }} />
-                  <Line type="monotone" dataKey="count" stroke="#22d3ee" strokeWidth={3} dot={{ r: 4, fill: '#22d3ee', strokeWidth: 2, stroke: '#071428' }} activeDot={{ r: 6, fill: '#facc15' }} />
-                </LineChart>
-              </ResponsiveContainer>
-            </ChartCard>
-
-          </div>
-
-          {/* Charts Section 2: Top Products & Table */}
-          <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-
-            {/* Top Selling Products (Replaced Pie Chart) */}
-            <div className="xl:col-span-1">
-              <ChartCard title="Top Selling Items" subtitle="Most popular products" delay={0.7} className="h-fit">
-                <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
-                  {stats.top_selling_products && stats.top_selling_products.length > 0 ? (
-                    stats.top_selling_products.map((product, idx) => (
-                      <div key={idx} className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors group">
-
-                        {/* Rank & Image */}
-                        <div className="relative w-12 h-12 shrink-0">
-                          <div className="absolute -top-1 -left-1 w-5 h-5 rounded-full bg-yellow-500 text-white text-[10px] font-bold flex items-center justify-center z-10 border border-[#0b1a3d] shadow-md">
-                            {idx + 1}
-                          </div>
-                          <div className="w-12 h-12 rounded-lg bg-white/10 overflow-hidden ring-1 ring-white/10">
-                            {product.image ? (
-                              <img
-                                src={`${(import.meta.env.VITE_API_URL || 'http://localhost:4000').replace(/\/api\/?$/, '')}/uploads/${product.image.replace(/^uploads\//, '')}`}
-                                alt=""
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              <ShoppingBag size={20} className="m-auto text-white/30 h-full" />
-                            )}
-                          </div>
+                          {restaurants.map((r) => (
+                            <button
+                              key={r.user_id}
+                              onClick={() => {
+                                setSelectedRestaurant(String(r.user_id));
+                                setShowRestaurantMenu(false);
+                              }}
+                              className={`w-full px-4 py-2 text-left hover:bg-white/10 transition-colors text-sm ${String(selectedRestaurant) === String(r.user_id) ? 'text-yellow-400 bg-white/5' : 'text-white/80'}`}
+                            >
+                              {r.restaurant_name}
+                            </button>
+                          ))}
                         </div>
-
-                        {/* Info */}
-                        <div className="flex-1 min-w-0">
-                          <h5 className="font-medium text-white text-sm truncate">{product.name}</h5>
-                          <div className="flex items-center gap-2 mt-1">
-                            <span className="text-yellow-400 text-xs font-bold">£{Number(product.price || 0).toFixed(2)}</span>
-                            <span className="text-white/30 text-[10px]">•</span>
-                            <span className="text-white/50 text-xs">{product.count} sales</span>
-                          </div>
-                        </div>
-
-                        {/* Action */}
-                        <button
-                          onClick={() => setSelectedProduct(product)}
-                          className="p-2 rounded-lg bg-white/5 hover:bg-yellow-500/20 text-white/40 hover:text-yellow-400 transition-colors border border-transparent hover:border-yellow-500/30"
-                        >
-                          <Eye size={18} />
-                        </button>
                       </div>
-                    ))
-                  ) : (
-                    <div className="text-center text-white/40 py-10">No sales data available</div>
-                  )}
-                </div>
-              </ChartCard>
-            </div>
+                    )}
+                  </div>
+                )}
 
-            {/* Recent Orders Table */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.8, duration: 0.4 }}
-              className="xl:col-span-2 bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 shadow-xl overflow-hidden flex flex-col"
-            >
-              <div className="px-6 py-5 border-b border-white/10 flex justify-between items-center bg-white/5">
-                <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                  <ShoppingBag size={20} className="text-yellow-400" /> Recent Orders
-                </h2>
+                {/* Super Admin Buttons (Matches reference image style) */}
+                <button
+                  onClick={() => setIsDateTimeFilterModalOpen(true)}
+                  className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-yellow-400/20 to-amber-500/20 backdrop-blur-md rounded-xl border border-yellow-500/30 text-yellow-400 font-medium hover:scale-[1.02] transition-all text-sm tracking-wider whitespace-nowrap shadow-lg shadow-yellow-900/10"
+                >
+                  <Calendar size={18} strokeWidth={2.5} /> {dateRange.label} <ChevronDown size={14} />
+                </button>
+                <button className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-yellow-400/20 to-amber-500/20 backdrop-blur-md rounded-xl border border-yellow-500/30 text-yellow-400 font-medium hover:from-yellow-400/30 hover:to-amber-500/30 transition-all text-sm tracking-wider whitespace-nowrap">
+                  <ArrowRight className="rotate-90" size={18} /> Export
+                </button>
+                <button
+                  onClick={() => setIsNewOrderModalOpen(true)}
+                  className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-yellow-400/20 to-amber-500/20 backdrop-blur-md rounded-xl border border-yellow-500/30 text-yellow-400 font-medium hover:scale-[1.02] active:scale-95 transition-all text-sm tracking-wider shadow-lg shadow-yellow-900/10 whitespace-nowrap"
+                >
+                  <Plus size={18} strokeWidth={2.5} /> New Order
+                </button>
               </div>
+            </div>
 
-              <div className="overflow-x-auto flex-1">
-                <table className="w-full text-left">
-                  <thead className="bg-white/5 text-white/60 text-xs uppercase tracking-wider font-semibold">
-                    <tr>
-                      <th className="px-6 py-4">Order No</th>
-                      <th className="px-6 py-4">Customer</th>
-                      <th className="px-6 py-4">Amount</th>
-                      <th className="px-6 py-4">Status</th>
-                      <th className="px-6 py-4">Date</th>
-                      <th className="px-6 py-4 text-center">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-white/10 text-sm">
-                    {loading ? (
-                      <tr><td colSpan="6" className="px-6 py-12 text-center text-white/40">Loading orders...</td></tr>
-                    ) : currentOrders.length > 0 ? (
-                      currentOrders.map((order, i) => (
-                        <tr key={i} className="hover:bg-white/5 transition-colors group">
-                          <td className="px-6 py-4 font-medium">
-                            <div className="flex items-center gap-2">
-                              #{order.order_number}
-                              {order.order_source === 'Dashboard' && (
-                                <div className="flex items-center justify-center w-5 h-5 rounded-full bg-yellow-500 text-white text-[9px] font-black border border-white/10 shadow-sm" title="Dashboard Order">
-                                  D
-                                </div>
+            {/* Stats Grid - Row 1 */}
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-6 mb-6 sm:mb-8">
+              <StatCard
+                title="Pending Orders"
+                value={stats.pending_orders}
+                subtext="To Be Confirmed"
+                icon={Clock}
+                colorClass="bg-amber-500/20 border border-amber-400/30"
+                delay={0}
+                onEyeClick={() => openDetailModal('pending', 'Pending Orders')}
+              />
+              <StatCard
+                title="Total Bookings"
+                value={stats.total_bookings}
+                subtext="Lifetime Orders"
+                icon={ShoppingBag}
+                colorClass="bg-yellow-500/20 border border-yellow-400/30"
+                delay={0.1}
+                onEyeClick={() => openDetailModal('total_bookings', 'Total Bookings')}
+              />
+              <StatCard
+                title="Rejected Orders"
+                value={stats.rejected_orders || stats.complaint_requests}
+                subtext="To Be Reviewed"
+                icon={RotateCcw}
+                colorClass="bg-red-500/20 border border-red-400/40"
+                delay={0.2}
+                onEyeClick={() => openDetailModal('rejected', 'Rejected Orders')}
+              />
+              <StatCard
+                title="Yet to Receive Payments"
+                value={stats.yet_to_receive_payments}
+                subtext="To Be Received"
+                icon={CreditCard}
+                colorClass="bg-yellow-500/20 border border-yellow-400/30"
+                delay={0.3}
+                onEyeClick={() => openDetailModal('payments', 'Payment Requests')}
+              />
+              <div className="col-span-2 lg:col-span-1">
+                <StatCard
+                  title="Inactive Products"
+                  value={stats.deactive_products}
+                  subtext="In-active items"
+                  icon={Package}
+                  colorClass="bg-yellow-500/20 border border-yellow-400/30"
+                  delay={0.4}
+                  onEyeClick={() => openDetailModal('deactive', 'Inactive Products')}
+                />
+              </div>
+            </div>
+
+            {/* Stats Grid - Row 2 */}
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-6 mb-6 sm:mb-8">
+              <StatCard
+                title="Total Products"
+                value={stats.total_products}
+                subtext="Total Inventory"
+                icon={Box}
+                colorClass="bg-yellow-500/20 border border-yellow-400/30"
+                delay={0.5}
+                trend="0%"
+                onEyeClick={() => openDetailModal('products', 'Total Products')}
+              />
+              <StatCard
+                title="Orders"
+                value={todayOrdersCount}
+                subtext={dateRange.label}
+                icon={ShoppingBag}
+                colorClass="bg-red-500/20 border border-red-400/40"
+                delay={0.6}
+                trend={calculateTrend(stats.today_users, stats.prev_today_users)}
+                onEyeClick={() => openDetailModal('orders', 'Orders Overview')}
+              />
+              <StatCard
+                title="Revenue"
+                value={formatCurrency(todayRevenueTotal)}
+                subtext={dateRange.label}
+                icon={PoundSterling}
+                colorClass="bg-amber-500/20 border border-amber-400/30"
+                delay={0.7}
+                trend={calculateTrend(stats.daily_revenue, stats.prev_daily_revenue)}
+                onEyeClick={() => openDetailModal('orders', 'Revenue Details')}
+              />
+              <StatCard
+                title="Customers"
+                value={stats.followers}
+                subtext="Total Reach"
+                icon={Users}
+                colorClass="bg-purple-500/20 border border-purple-400/30"
+                delay={0.8}
+                trend="0%"
+                onEyeClick={() => openDetailModal('customers', 'Customers List')}
+              />
+              <div className="col-span-2 lg:col-span-1">
+                <StatCard
+                  title="Completed Orders"
+                  value={stats.completed_orders}
+                  subtext="Successfully Delivered"
+                  icon={CheckCircle}
+                  colorClass="bg-yellow-500/20 border border-yellow-400/30"
+                  delay={0.9}
+                  onEyeClick={() => openDetailModal('completed', 'Completed Orders')}
+                />
+              </div>
+            </div>
+
+            {/* Charts Section 1: Comparisons & Trends */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+
+              <ChartCard title="Sales Comparison" subtitle="Current vs Previous Period" delay={0.4} className="h-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={stats.sales_comparison || []}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.1)" />
+                    <XAxis
+                      dataKey="label"
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fill: '#fff', fontSize: 11 }}
+                      interval="preserveStartEnd"
+                      angle={-45}
+                      textAnchor="end"
+                      height={60}
+                    />
+                    <YAxis
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fill: '#fff', fontSize: 11 }}
+                      tickFormatter={(v) => `£${v}`}
+                    />
+                    <Tooltip
+                      cursor={{ fill: 'rgba(255,255,255,0.05)' }}
+                      contentStyle={{ borderRadius: '12px', background: '#1f2937', border: '1px solid rgba(255,255,255,0.1)', color: '#fff' }}
+                      formatter={(value) => [`£${value}`, "Revenue"]}
+                    />
+                    <Bar dataKey="previous" name="Previous Period" fill="#9ca3af" radius={[4, 4, 0, 0]} barSize={12} fillOpacity={0.3} />
+                    <Bar dataKey="current" name="Selected Period" fill="#22d3ee" radius={[4, 4, 0, 0]} barSize={12} />
+                    <Legend wrapperStyle={{ paddingTop: '10px' }} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </ChartCard>
+
+              <ChartCard title="Average Order Value" subtitle="Trend over time" delay={0.5} className="h-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={stats.avg_order_cost || []}>
+                    <defs>
+                      <linearGradient id="colorAvg" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.3} />
+                        <stop offset="95%" stopColor="#f59e0b" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.1)" />
+                    <XAxis
+                      dataKey="label"
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fill: '#fff', fontSize: 11 }}
+                      interval="preserveStartEnd"
+                      angle={-45}
+                      textAnchor="end"
+                      height={60}
+                    />
+                    <YAxis
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fill: '#fff', fontSize: 11 }}
+                      tickFormatter={(v) => `£${Math.round(v)}`}
+                    />
+                    <Tooltip
+                      contentStyle={{ borderRadius: '12px', background: '#1f2937', border: '1px solid rgba(255,255,255,0.1)', color: '#fff' }}
+                      formatter={(value) => [`£${Number(value).toFixed(2)}`, "Avg Value"]}
+                    />
+                    <Area type="monotone" dataKey="value" stroke="#facc15" strokeWidth={3} fillOpacity={1} fill="url(#colorAvg)" />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </ChartCard>
+
+              <ChartCard title="Orders Trend" subtitle="Selected Range Distribution" delay={0.6} className="h-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={stats.weekly_orders || []}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.1)" />
+                    <XAxis
+                      dataKey="date"
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fill: '#fff', fontSize: 11 }}
+                      tickFormatter={(str) => new Date(str).toLocaleDateString([], { month: 'short', day: 'numeric' })}
+                      interval="preserveStartEnd"
+                      angle={-45}
+                      textAnchor="end"
+                      height={60}
+                    />
+                    <YAxis
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fill: '#fff', fontSize: 11 }}
+                    />
+                    <Tooltip contentStyle={{ borderRadius: '12px', background: '#1f2937', border: '1px solid rgba(255,255,255,0.1)', color: '#fff' }} />
+                    <Line type="monotone" dataKey="count" stroke="#22d3ee" strokeWidth={3} dot={{ r: 4, fill: '#22d3ee', strokeWidth: 2, stroke: '#071428' }} activeDot={{ r: 6, fill: '#facc15' }} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </ChartCard>
+
+            </div>
+
+            {/* Charts Section 2: Top Products & Table */}
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+
+              {/* Top Selling Products (Replaced Pie Chart) */}
+              <div className="xl:col-span-1">
+                <ChartCard title="Top Selling Items" subtitle="Most popular products" delay={0.7} className="h-fit">
+                  <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                    {stats.top_selling_products && stats.top_selling_products.length > 0 ? (
+                      stats.top_selling_products.map((product, idx) => (
+                        <div key={idx} className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors group">
+
+                          {/* Rank & Image */}
+                          <div className="relative w-12 h-12 shrink-0">
+                            <div className="absolute -top-1 -left-1 w-5 h-5 rounded-full bg-yellow-500 text-white text-[10px] font-bold flex items-center justify-center z-10 border border-[#0b1a3d] shadow-md">
+                              {idx + 1}
+                            </div>
+                            <div className="w-12 h-12 rounded-lg bg-white/10 overflow-hidden ring-1 ring-white/10">
+                              {product.image ? (
+                                <img
+                                  src={`${(import.meta.env.VITE_API_URL || 'http://localhost:4000').replace(/\/api\/?$/, '')}/uploads/${product.image.replace(/^uploads\//, '')}`}
+                                  alt=""
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <ShoppingBag size={20} className="m-auto text-white/30 h-full" />
                               )}
                             </div>
-                          </td>
-                          <td className="px-6 py-4 text-white/80">{order.customer_name || "Guest"}</td>
-                          <td className="px-6 py-4 font-semibold text-yellow-300">{formatCurrency(order.grand_total)}</td>
-                          <td className="px-6 py-4">{getStatusBadge(order.order_status)}</td>
-                          <td className="px-6 py-4 text-white/60">
-                            {new Date(order.created_at).toLocaleDateString()}
-                            <br />
-                            <span className="text-xs text-white/40">{new Date(order.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                          </td>
-                          <td className="px-6 py-4 text-center">
-                            <OrderActions order={order} />
-                          </td>
-                        </tr>
+                          </div>
+
+                          {/* Info */}
+                          <div className="flex-1 min-w-0">
+                            <h5 className="font-medium text-white text-sm truncate">{product.name}</h5>
+                            <div className="flex items-center gap-2 mt-1">
+                              <span className="text-yellow-400 text-xs font-bold">£{Number(product.price || 0).toFixed(2)}</span>
+                              <span className="text-white/30 text-[10px]">•</span>
+                              <span className="text-white/50 text-xs">{product.count} sales</span>
+                            </div>
+                          </div>
+
+                          {/* Action */}
+                          <button
+                            onClick={() => setSelectedProduct(product)}
+                            className="p-2 rounded-lg bg-white/5 hover:bg-yellow-500/20 text-white/40 hover:text-yellow-400 transition-colors border border-transparent hover:border-yellow-500/30"
+                          >
+                            <Eye size={18} />
+                          </button>
+                        </div>
                       ))
                     ) : (
-                      <tr>
-                        <td colSpan="6" className="px-6 py-12 text-center text-white/40">No orders found for this date</td>
-                      </tr>
+                      <div className="text-center text-white/40 py-10">No sales data available</div>
                     )}
-                  </tbody>
-                </table>
+                  </div>
+                </ChartCard>
               </div>
 
-              {/* Pagination */}
-              {stats.recent_orders?.length > ordersPerPage && (
-                <div className="px-6 py-4 border-t border-white/10 flex items-center justify-between bg-white/5">
-                  <div className="text-sm text-white/60">
-                    Page {currentPage} of {totalPages}
-                  </div>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                      disabled={currentPage === 1}
-                      className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed transition-colors text-sm"
-                    >
-                      Previous
-                    </button>
-                    <button
-                      onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                      disabled={currentPage === totalPages}
-                      className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed transition-colors text-sm"
-                    >
-                      Next
-                    </button>
-                  </div>
+              {/* Recent Orders Table */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.8, duration: 0.4 }}
+                className="xl:col-span-2 bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 shadow-xl overflow-hidden flex flex-col"
+              >
+                <div className="px-6 py-5 border-b border-white/10 flex justify-between items-center bg-white/5">
+                  <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                    <ShoppingBag size={20} className="text-yellow-400" /> Recent Orders
+                  </h2>
                 </div>
-              )}
-            </motion.div>
-          </div>
 
-          {/* Restaurant Wise Data (Super Admin) */}
-          {stats.is_super_admin && stats.restaurant_performance?.length > 0 && (
-            <div className="mt-8 bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 shadow-xl overflow-hidden">
-              <div className="px-6 py-5 border-b border-white/10 flex justify-between items-center bg-white/5">
-                <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                  <Store size={20} className="text-yellow-400" /> Restaurant Performance
-                </h2>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-sm">
-                  <thead className="bg-white/5 text-white/60 uppercase text-xs font-semibold">
-                    <tr>
-                      <th className="px-6 py-4">Restaurant</th>
-                      <th className="px-6 py-4 text-center">Orders</th>
-                      <th className="px-6 py-4 text-right">Revenue</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-white/10">
-                    {stats.restaurant_performance.map((perf, idx) => (
-                      <tr key={idx} className="hover:bg-white/5">
-                        <td className="px-6 py-4 font-medium text-white">{perf.restaurant_name}</td>
-                        <td className="px-6 py-4 text-center text-white/70">{perf.order_count}</td>
-                        <td className="px-6 py-4 text-right text-yellow-300 font-bold">{formatCurrency(perf.revenue)}</td>
+                <div className="overflow-x-auto flex-1">
+                  <table className="w-full text-left">
+                    <thead className="bg-white/5 text-white/60 text-xs uppercase tracking-wider font-semibold">
+                      <tr>
+                        <th className="px-6 py-4">Order No</th>
+                        <th className="px-6 py-4">Customer</th>
+                        <th className="px-6 py-4">Amount</th>
+                        <th className="px-6 py-4">Status</th>
+                        <th className="px-6 py-4">Date</th>
+                        <th className="px-6 py-4 text-center">Action</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody className="divide-y divide-white/10 text-sm">
+                      {loading ? (
+                        <tr><td colSpan="6" className="px-6 py-12 text-center text-white/40">Loading orders...</td></tr>
+                      ) : currentOrders.length > 0 ? (
+                        currentOrders.map((order, i) => (
+                          <tr key={i} className="hover:bg-white/5 transition-colors group">
+                            <td className="px-6 py-4 font-medium">
+                              <div className="flex items-center gap-2">
+                                #{order.order_number}
+                                {order.order_source === 'Dashboard' && (
+                                  <div className="flex items-center justify-center w-5 h-5 rounded-full bg-yellow-500 text-white text-[9px] font-black border border-white/10 shadow-sm" title="Dashboard Order">
+                                    D
+                                  </div>
+                                )}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 text-white/80">{order.customer_name || "Guest"}</td>
+                            <td className="px-6 py-4 font-semibold text-yellow-300">{formatCurrency(order.grand_total)}</td>
+                            <td className="px-6 py-4">{getStatusBadge(order.order_status)}</td>
+                            <td className="px-6 py-4 text-white/60">
+                              {new Date(order.created_at).toLocaleDateString()}
+                              <br />
+                              <span className="text-xs text-white/40">{new Date(order.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                            </td>
+                            <td className="px-6 py-4 text-center">
+                              <OrderActions order={order} />
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan="6" className="px-6 py-12 text-center text-white/40">No orders found for this date</td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Pagination */}
+                {stats.recent_orders?.length > ordersPerPage && (
+                  <div className="px-6 py-4 border-t border-white/10 flex items-center justify-between bg-white/5">
+                    <div className="text-sm text-white/60">
+                      Page {currentPage} of {totalPages}
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                        disabled={currentPage === 1}
+                        className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed transition-colors text-sm"
+                      >
+                        Previous
+                      </button>
+                      <button
+                        onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                        disabled={currentPage === totalPages}
+                        className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed transition-colors text-sm"
+                      >
+                        Next
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </motion.div>
             </div>
-          )}
 
-        </div>
-      </main>
+            {/* Restaurant Wise Data (Super Admin) */}
+            {stats.is_super_admin && stats.restaurant_performance?.length > 0 && (
+              <div className="mt-8 bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 shadow-xl overflow-hidden">
+                <div className="px-6 py-5 border-b border-white/10 flex justify-between items-center bg-white/5">
+                  <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                    <Store size={20} className="text-yellow-400" /> Restaurant Performance
+                  </h2>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-sm">
+                    <thead className="bg-white/5 text-white/60 uppercase text-xs font-semibold">
+                      <tr>
+                        <th className="px-6 py-4">Restaurant</th>
+                        <th className="px-6 py-4 text-center">Orders</th>
+                        <th className="px-6 py-4 text-right">Revenue</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-white/10">
+                      {stats.restaurant_performance.map((perf, idx) => (
+                        <tr key={idx} className="hover:bg-white/5">
+                          <td className="px-6 py-4 font-medium text-white">{perf.restaurant_name}</td>
+                          <td className="px-6 py-4 text-center text-white/70">{perf.order_count}</td>
+                          <td className="px-6 py-4 text-right text-yellow-300 font-bold">{formatCurrency(perf.revenue)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
 
-      <Footer />
+          </div>
+        </main>
+
+        <Footer />
       </div>
 
       <AnimatePresence>

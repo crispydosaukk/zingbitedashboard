@@ -85,8 +85,8 @@ const CustomerDetails = () => {
                                         <UserCheck className="text-yellow-400" size={24} />
                                     </div>
                                     <div className="min-w-0">
-                                        <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight drop-shadow-lg truncate whitespace-nowrap">Customer Details</h1>
-                                        <p className="text-white/60 mt-1 text-[10px] sm:text-[11px] font-black uppercase tracking-[0.2em] whitespace-nowrap overflow-hidden text-ellipsis">View customers who have ordered from you</p>
+                                        <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight drop-shadow-lg truncate whitespace-nowrap">Customer Details</h1>
+                                        <p className="text-white/60 mt-2 text-sm font-medium tracking-wide whitespace-nowrap">View customers who have ordered from you</p>
                                     </div>
                                 </div>
                                 <button
@@ -100,12 +100,12 @@ const CustomerDetails = () => {
                             </div>
 
                             {/* Stats Cards - Glassmorphism */}
-                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-                                <div className="bg-[#0b1a3d]/60 backdrop-blur-xl rounded-2xl p-5 border border-white/[0.08] shadow-2xl transition-all duration-300">
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
+                                <div className="bg-[#0b1a3d]/60 backdrop-blur-xl rounded-2xl p-6 border border-white/[0.08] shadow-2xl transition-all duration-300">
                                     <div className="flex items-center justify-between">
                                         <div>
-                                            <p className="text-[11px] font-black uppercase tracking-wider text-white">Total Customers</p>
-                                            <p className="text-3xl font-black text-white mt-1 drop-shadow-lg tracking-tight">{stats.total}</p>
+                                            <p className="text-sm font-medium tracking-wide text-white mb-1">Total Customers</p>
+                                            <p className="text-3xl font-bold text-white mt-1 drop-shadow-lg tracking-tight">{stats.total}</p>
                                         </div>
                                         <div className="p-3 bg-yellow-500/10 backdrop-blur-md rounded-xl border border-yellow-500/20">
                                             <Users className="text-yellow-400" size={24} />
@@ -113,11 +113,11 @@ const CustomerDetails = () => {
                                     </div>
                                 </div>
 
-                                <div className="bg-[#0b1a3d]/60 backdrop-blur-xl rounded-2xl p-5 border border-white/[0.08] shadow-2xl transition-all duration-300">
+                                <div className="bg-[#0b1a3d]/60 backdrop-blur-xl rounded-2xl p-6 border border-white/[0.08] shadow-2xl transition-all duration-300">
                                     <div className="flex items-center justify-between">
                                         <div>
-                                            <p className="text-[11px] font-black uppercase tracking-wider text-white">Active Orders</p>
-                                            <p className="text-3xl font-black text-white mt-1 drop-shadow-lg tracking-tight">{stats.active}</p>
+                                            <p className="text-sm font-medium tracking-wide text-white mb-1">Active Orders</p>
+                                            <p className="text-3xl font-bold text-white mt-1 drop-shadow-lg tracking-tight">{stats.active}</p>
                                         </div>
                                         <div className="p-3 bg-yellow-500/10 backdrop-blur-md rounded-xl border border-yellow-500/20">
                                             <TrendingUp className="text-yellow-400" size={24} />
@@ -125,11 +125,11 @@ const CustomerDetails = () => {
                                     </div>
                                 </div>
 
-                                <div className="bg-[#0b1a3d]/60 backdrop-blur-xl rounded-2xl p-5 border border-white/[0.08] shadow-2xl transition-all duration-300">
+                                <div className="bg-[#0b1a3d]/60 backdrop-blur-xl rounded-2xl p-6 border border-white/[0.08] shadow-2xl transition-all duration-300">
                                     <div className="flex items-center justify-between">
                                         <div>
-                                            <p className="text-[11px] font-black uppercase tracking-wider text-white">Total Orders</p>
-                                            <p className="text-3xl font-black text-white mt-1 drop-shadow-lg tracking-tight">{stats.totalOrders}</p>
+                                            <p className="text-sm font-medium tracking-wide text-white mb-1">Total Orders</p>
+                                            <p className="text-3xl font-bold text-white mt-1 drop-shadow-lg tracking-tight">{stats.totalOrders}</p>
                                         </div>
                                         <div className="p-3 bg-yellow-500/10 backdrop-blur-md rounded-xl border border-yellow-500/20">
                                             <ShoppingBag className="text-yellow-400" size={24} />
@@ -150,9 +150,9 @@ const CustomerDetails = () => {
                         <div className="bg-[#0b1a3d]/60 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/[0.08] overflow-hidden">
 
                             {/* Table Header */}
-                            <div className="px-6 py-5 flex items-center justify-between border-b border-white/[0.08] bg-white/5">
-                                <h2 className="text-lg font-black text-white tracking-tight flex items-center gap-2 uppercase">
-                                    <Users size={20} className="text-yellow-400" />
+                            <div className="px-8 py-6 flex items-center justify-between border-b border-white/[0.08] bg-white/5">
+                                <h2 className="text-sm font-bold text-white tracking-wide flex items-center gap-3">
+                                    <Users size={18} className="text-yellow-400" />
                                     Customer List ({customers.length})
                                 </h2>
                             </div>
@@ -160,14 +160,14 @@ const CustomerDetails = () => {
                             {/* Desktop Table View */}
                             <div className="overflow-x-auto">
                                 <table className="min-w-full divide-y divide-white/10">
-                                    <thead className="bg-[#0b1a3d]/40">
+                                     <thead className="bg-[#0b1a3d]/40 text-white text-sm font-black tracking-wide">
                                         <tr>
-                                            <th className="px-6 py-4 text-left text-[11px] font-black text-white/80 uppercase tracking-[0.2em] border-b border-white/[0.08]">#</th>
-                                            <th className="px-6 py-4 text-left text-[11px] font-black text-white/80 uppercase tracking-[0.2em] border-b border-white/[0.08]">Customer</th>
-                                            <th className="px-6 py-4 text-left text-[11px] font-black text-white/80 uppercase tracking-[0.2em] border-b border-white/[0.08]">Contact</th>
-                                            <th className="px-6 py-4 text-center text-[11px] font-black text-white/80 uppercase tracking-[0.2em] border-b border-white/[0.08]">Live Orders</th>
-                                            <th className="px-6 py-4 text-center text-[11px] font-black text-white/80 uppercase tracking-[0.2em] border-b border-white/[0.08]">Total Orders</th>
-                                            <th className="px-6 py-4 text-center text-[11px] font-black text-white/80 uppercase tracking-[0.2em] border-b border-white/[0.08]">Actions</th>
+                                            <th className="px-8 py-5 text-left border-b border-white/[0.08]">#</th>
+                                            <th className="px-8 py-5 text-left border-b border-white/[0.08]">Customer</th>
+                                            <th className="px-8 py-5 text-left border-b border-white/[0.08]">Contact</th>
+                                            <th className="px-8 py-5 text-center border-b border-white/[0.08]">Live Orders</th>
+                                            <th className="px-8 py-5 text-center border-b border-white/[0.08]">Total Orders</th>
+                                            <th className="px-8 py-5 text-center border-b border-white/[0.08]">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-white/5">
@@ -176,7 +176,7 @@ const CustomerDetails = () => {
                                                 <td colSpan="6" className="px-6 py-20 text-center">
                                                     <div className="flex flex-col items-center justify-center text-white">
                                                         <Loader2 className="animate-spin text-yellow-400 mb-4" size={40} />
-                                                        <span className="text-white font-black uppercase tracking-widest text-xs">Loading customers...</span>
+                                                        <span className="text-white font-bold tracking-wide text-sm">Loading Customers...</span>
                                                     </div>
                                                 </td>
                                             </tr>
@@ -184,8 +184,8 @@ const CustomerDetails = () => {
                                             <tr>
                                                 <td colSpan="6" className="px-6 py-20 text-center">
                                                     <Users size={64} className="mx-auto text-white/10 mb-4" />
-                                                    <p className="text-white font-black uppercase tracking-widest text-xs">No customers found</p>
-                                                    <p className="text-[10px] text-white/40 mt-1 uppercase font-black tracking-widest">Customers will appear here once they place orders</p>
+                                                    <p className="text-white font-bold tracking-wide text-sm">No Customers Found</p>
+                                                    <p className="text-xs text-white/60 mt-2 font-medium tracking-wide">Customers will appear here once they place orders</p>
                                                 </td>
                                             </tr>
                                         ) : (
@@ -197,66 +197,66 @@ const CustomerDetails = () => {
                                                     transition={{ delay: idx * 0.02 }}
                                                     className="hover:bg-white/5 transition-colors duration-200"
                                                 >
-                                                    <td className="px-6 py-4 text-sm font-black text-white/40">
+                                                    <td className="px-8 py-6 text-xs font-medium text-white/30">
                                                         #{customer.id}
                                                     </td>
 
-                                                    <td className="px-6 py-4">
-                                                        <div className="flex items-center gap-3">
-                                                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-yellow-400 to-blue-500 flex items-center justify-center text-white font-black text-base shadow-lg">
+                                                    <td className="px-8 py-6">
+                                                        <div className="flex items-center gap-4">
+                                                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-yellow-400 to-blue-500 flex items-center justify-center text-white font-bold text-sm shadow-xl">
                                                                 {getInitials(customer.full_name)}
                                                             </div>
                                                             <div>
-                                                                <p className="text-base font-black text-white tracking-tight">{customer.full_name || "-"}</p>
+                                                                <p className="text-sm font-bold text-white tracking-tight leading-none">{customer.full_name || "-"}</p>
                                                             </div>
                                                         </div>
                                                     </td>
 
-                                                    <td className="px-6 py-4">
+                                                     <td className="px-8 py-6">
                                                         <div className="flex flex-col gap-1.5">
                                                             {customer.email && (
-                                                                <div className="flex items-center gap-2 text-sm text-white/80 font-bold tracking-tight">
+                                                                <div className="flex items-center gap-2 text-sm text-white/80 font-medium tracking-tight">
                                                                     <Mail size={14} className="text-yellow-400" />
                                                                     <span>{customer.email}</span>
                                                                 </div>
                                                             )}
                                                             {customer.mobile_number && (
-                                                                <div className="flex items-center gap-2 text-sm text-white/80 font-bold tracking-tight">
+                                                                <div className="flex items-center gap-2 text-sm text-white/80 font-medium tracking-tight">
                                                                     <Phone size={14} className="text-yellow-400" />
                                                                     <span>{customer.mobile_number}</span>
                                                                 </div>
                                                             )}
                                                             {!customer.email && !customer.mobile_number && (
-                                                                <span className="text-white/20 text-sm font-black tracking-widest">-</span>
+                                                                <span className="text-white/20 text-sm font-medium tracking-wide">-</span>
                                                             )}
                                                         </div>
                                                     </td>
 
-                                                    <td className="px-6 py-4 text-center">
+                                                     <td className="px-8 py-6 text-center">
                                                         {Number(customer.live_orders) > 0 ? (
-                                                            <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 animate-pulse backdrop-blur-md">
+                                                            <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-[10px] font-bold tracking-wider bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 animate-pulse backdrop-blur-md">
                                                                 <TrendingUp size={12} />
                                                                 {customer.live_orders} Active
                                                             </span>
                                                         ) : (
-                                                            <span className="text-white/20 text-sm font-black tracking-widest">-</span>
+                                                            <span className="text-white/20 text-sm font-medium">-</span>
                                                         )}
                                                     </td>
 
-                                                    <td className="px-6 py-4 text-center">
-                                                        <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest bg-blue-500/10 text-blue-400 border border-blue-500/20 backdrop-blur-md">
+                                                    <td className="px-8 py-6 text-center">
+                                                        <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-[10px] font-bold tracking-wider bg-blue-500/10 text-blue-400 border border-blue-500/20 backdrop-blur-md">
                                                             <ShoppingBag size={14} />
                                                             {customer.total_orders || 0}
                                                         </span>
                                                     </td>
 
-                                                    <td className="px-6 py-4 text-center">
+                                                    <td className="px-8 py-6 text-center">
                                                         <button
                                                             onClick={() => openCustomerDetails(customer)}
-                                                            className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-slate-900 font-black uppercase tracking-widest text-[11px] rounded-xl shadow-lg transition-all duration-200"
+                                                            className="px-5 py-2.5 bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-slate-900 font-bold text-xs rounded-xl shadow-xl transition-all active:scale-95 flex items-center justify-center gap-2 mx-auto"
                                                         >
                                                             <Eye size={14} />
-                                                            View
+                                                            View Details
                                                         </button>
                                                     </td>
                                                 </motion.tr>
@@ -331,7 +331,7 @@ const CustomerDetails = () => {
                         >
                             {/* Modal Header */}
                             <div className="bg-white/5 backdrop-blur-md px-6 py-5 flex items-center justify-between sticky top-0 z-10 border-b border-white/[0.08]">
-                                <h3 className="text-lg font-black text-white uppercase tracking-tight">Customer Details</h3>
+                                <h3 className="text-xl font-bold text-white tracking-tight">Customer Details</h3>
                                 <button
                                     onClick={() => setShowModal(false)}
                                     className="p-2 hover:bg-white/10 rounded-xl transition-colors border border-white/[0.08]"
@@ -343,78 +343,59 @@ const CustomerDetails = () => {
                             {/* Modal Content */}
                             <div className="p-8">
                                 {/* Customer Header */}
-                                <div className="flex items-center gap-5 mb-8 pb-8 border-b border-white/[0.08]">
+                                <div className="flex flex-col sm:flex-row items-center gap-6 pb-8 border-b border-white/[0.08]">
                                     <div className="w-20 h-20 rounded-full bg-gradient-to-br from-yellow-400 to-blue-500 flex items-center justify-center text-white font-black text-3xl shadow-xl">
                                         {getInitials(selectedCustomer.full_name)}
                                     </div>
                                     <div>
-                                        <h4 className="text-2xl font-black text-white tracking-tight">{selectedCustomer.full_name}</h4>
-                                        <p className="text-[11px] font-black uppercase tracking-[0.2em] text-white/30 mt-1">Customer ID: #{selectedCustomer.id}</p>
+                                        <h4 className="text-2xl font-bold text-white tracking-tight">{selectedCustomer.full_name}</h4>
+                                        <p className="text-xs font-medium text-white tracking-wide mt-1">Classification Code: #{selectedCustomer.id}</p>
                                     </div>
                                 </div>
 
                                 {/* Contact Information */}
-                                <div className="mb-8">
-                                    <h5 className="text-[11px] font-black uppercase tracking-[0.2em] text-white/50 mb-5">Contact Information</h5>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                 <div className="mb-10">
+                                    <h5 className="text-xs font-bold tracking-wide text-white mb-6 uppercase flex items-center gap-2"><Phone size={12} className="text-yellow-500" /> Communication Hub</h5>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                         {selectedCustomer.mobile_number && (
-                                            <div className="flex items-center gap-4 p-4 bg-white/5 rounded-2xl border border-white/[0.08]">
-                                                <div className="p-3 bg-yellow-500/10 rounded-xl">
-                                                    <Phone size={20} className="text-yellow-400" />
-                                                </div>
-                                                <div>
-                                                    <p className="text-[10px] font-black uppercase tracking-wider text-white/20">Phone</p>
-                                                    <p className="text-base font-bold text-white tracking-tight">{selectedCustomer.mobile_number}</p>
-                                                </div>
+                                            <div className="p-6 bg-white/[0.03] border border-white/[0.08] rounded-2xl">
+                                                <p className="text-xs font-medium text-white tracking-wide">Mobile String</p>
+                                                <p className="text-base font-bold text-white mt-1">{selectedCustomer.mobile_number}</p>
                                             </div>
                                         )}
                                         {selectedCustomer.email && (
-                                            <div className="flex items-center gap-4 p-4 bg-white/5 rounded-2xl border border-white/[0.08]">
-                                                <div className="p-3 bg-yellow-500/10 rounded-xl">
-                                                    <Mail size={20} className="text-yellow-400" />
-                                                </div>
-                                                <div>
-                                                    <p className="text-[10px] font-black uppercase tracking-wider text-white/20">Email</p>
-                                                    <p className="text-base font-bold text-white tracking-tight">{selectedCustomer.email}</p>
-                                                </div>
+                                            <div className="p-6 bg-white/[0.03] border border-white/[0.08] rounded-2xl">
+                                                <p className="text-xs font-medium text-white tracking-wide">Virtual Endpoint</p>
+                                                <p className="text-base font-bold text-white mt-1 truncate">{selectedCustomer.email}</p>
                                             </div>
                                         )}
                                     </div>
                                 </div>
 
                                 {/* Order Statistics */}
-                                <div className="mb-8">
-                                    <h5 className="text-[11px] font-black uppercase tracking-[0.2em] text-white/50 mb-5">Order Statistics</h5>
-                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                                        <div className="p-5 bg-yellow-500/10 rounded-2xl border border-yellow-500/20">
-                                            <div className="flex items-center gap-2 mb-3">
-                                                <TrendingUp size={18} className="text-yellow-400" />
-                                                <p className="text-[10px] font-black uppercase tracking-widest text-yellow-400/70">Live</p>
-                                            </div>
-                                            <p className="text-2xl font-black text-white tracking-tight">{Number(selectedCustomer.live_orders || 0)}</p>
+                                 <div className="mb-10">
+                                    <h5 className="text-xs font-bold tracking-wide text-white mb-6 uppercase flex items-center gap-2"><ShoppingBag size={12} className="text-yellow-500" /> Assets & Activity</h5>
+                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                                        <div className="p-6 bg-yellow-500/5 border border-yellow-500/10 rounded-2xl">
+                                            <p className="text-xs font-medium text-white tracking-wide mb-1">Live Ops</p>
+                                            <p className="text-2xl font-bold text-yellow-500 leading-none">{Number(selectedCustomer.live_orders || 0)}</p>
                                         </div>
-                                        <div className="p-5 bg-blue-500/10 rounded-2xl border border-blue-500/20">
-                                            <div className="flex items-center gap-2 mb-3">
-                                                <CheckCircle size={18} className="text-blue-400" />
-                                                <p className="text-[10px] font-black uppercase tracking-widest text-blue-400/70">Completed</p>
-                                            </div>
-                                            <p className="text-2xl font-black text-white tracking-tight">{Number(selectedCustomer.completed_orders || 0)}</p>
+                                        <div className="p-6 bg-blue-500/5 border border-blue-500/10 rounded-2xl">
+                                            <p className="text-xs font-medium text-white tracking-wide mb-1">Completed</p>
+                                            <p className="text-2xl font-bold text-blue-400 leading-none">{Number(selectedCustomer.completed_orders || 0)}</p>
                                         </div>
-                                        <div className="p-5 bg-yellow-500/10 rounded-2xl border border-yellow-500/20">
-                                            <div className="flex items-center gap-2 mb-3">
-                                                <ShoppingBag size={18} className="text-yellow-500" />
-                                                <p className="text-[10px] font-black uppercase tracking-widest text-yellow-500/70">Total</p>
-                                            </div>
-                                            <p className="text-2xl font-black text-white tracking-tight">{Number(selectedCustomer.total_orders || 0)}</p>
+                                        <div className="p-6 bg-yellow-500/5 border border-yellow-500/10 rounded-2xl">
+                                            <p className="text-xs font-medium text-white tracking-wide mb-1">Total Payload</p>
+                                            <p className="text-2xl font-bold text-yellow-600 leading-none">{Number(selectedCustomer.total_orders || 0)}</p>
                                         </div>
                                     </div>
                                 </div>
 
                                 {/* Account Info */}
                                 <div className="pt-6 border-t border-white/[0.08]">
-                                    <div className="flex items-center justify-between text-[11px] font-black uppercase tracking-[0.2em] text-white/20">
+                                    <div className="flex items-center justify-between text-xs font-medium tracking-wide text-white">
                                         <span>Last Seen</span>
-                                        <span className="text-white/40">
+                                        <span className="text-white/60">
                                             {selectedCustomer.last_seen ? new Date(selectedCustomer.last_seen).toLocaleDateString('en-GB') : "N/A"}
                                         </span>
                                     </div>

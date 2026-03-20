@@ -104,7 +104,7 @@ export default function AccessManagement() {
             className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8"
           >
             <div>
-              <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight flex items-center gap-3">
+              <h2 className="text-3xl sm:text-4xl font-bold text-white tracking-tight flex items-center gap-3">
                 <Shield className="text-[#00f2ff]" size={36} />
                 Permissions
               </h2>
@@ -114,7 +114,7 @@ export default function AccessManagement() {
             <div className="flex items-center gap-3 w-full md:w-auto">
               <button
                 onClick={() => setOpenModal(true)}
-                className="flex-1 md:flex-none inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-[#071428] rounded-2xl font-black shadow-[0_0_20px_rgba(251,191,36,0.2)] transition-all hover:-translate-y-1 active:scale-95 uppercase tracking-wider text-sm"
+                className="flex-1 md:flex-none inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-[#071428] rounded-2xl font-bold shadow-[0_0_20px_rgba(251,191,36,0.2)] transition-all hover:-translate-y-1 active:scale-95 text-sm"
               >
                 <Plus size={20} strokeWidth={3} />
                 Create Permission
@@ -137,7 +137,7 @@ export default function AccessManagement() {
                   />
                 </div>
               </div>
-              <div className="text-white/40 text-sm font-black uppercase tracking-widest">
+              <div className="text-white text-sm font-bold tracking-wide">
                 {filtered.length} Permissions Found
               </div>
             </div>
@@ -145,8 +145,8 @@ export default function AccessManagement() {
             {/* Table */}
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="bg-white/[0.02] border-b border-white/[0.08] text-white/40 text-xs uppercase font-black tracking-[0.2em]">
+                 <thead>
+                  <tr className="bg-white/[0.02] border-b border-white/[0.08] text-white text-sm font-bold tracking-tight">
                     <th className="px-8 py-6 w-20">#</th>
                     <th className="px-8 py-6">Permission Title</th>
                     <th className="px-8 py-6">Created At</th>
@@ -167,9 +167,9 @@ export default function AccessManagement() {
                         key={p.id}
                         className="hover:bg-white/[0.02] transition-colors group"
                       >
-                        <td className="px-8 py-6 text-white/30 font-black">{idx + 1}</td>
-                        <td className="px-8 py-6 font-bold text-white group-hover:text-[#00f2ff] transition-colors uppercase tracking-wide">{p.title}</td>
-                        <td className="px-8 py-6 text-white/40 font-medium tracking-wide">
+                         <td className="px-8 py-6 text-white font-bold">{idx + 1}</td>
+                        <td className="px-8 py-6 font-bold text-[#00f2ff] group-hover:text-white transition-colors tracking-wide">{p.title}</td>
+                        <td className="px-8 py-6 text-white/60 font-medium tracking-wide">
                           {p.created_at ? new Date(p.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : "-"}
                         </td>
                         <td className="px-8 py-6 text-right">
@@ -199,7 +199,7 @@ export default function AccessManagement() {
 
             {/* Footer */}
             <div className="p-6 border-t border-white/[0.08] bg-white/[0.02] flex justify-between items-center">
-              <span className="text-white/40 text-sm font-black uppercase tracking-widest">Showing {filtered.length} entries</span>
+               <span className="text-white text-sm font-bold tracking-wide">Showing {filtered.length} entries</span>
               {/* Pagination Placeholders */}
               <div className="flex gap-2">
                 <button className="w-10 h-10 flex items-center justify-center rounded-xl bg-white/[0.05] text-white/20 border border-white/[0.1] disabled:opacity-30 cursor-not-allowed" disabled>&laquo;</button>
@@ -257,11 +257,11 @@ export default function AccessManagement() {
                 </div>
 
                 <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-white/[0.08]">
-                  <button onClick={() => setOpenModal(false)} className="px-6 py-3 rounded-xl text-white/40 hover:text-white font-black uppercase tracking-widest text-[10px] transition-all">Cancel</button>
+                  <button onClick={() => setOpenModal(false)} className="px-6 py-3 rounded-xl text-white/60 hover:text-white font-bold text-sm transition-all">Cancel</button>
                   <button
                     onClick={handleCreate}
                     disabled={submitting}
-                    className="px-8 py-3 bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-[#071428] rounded-xl font-black uppercase tracking-widest text-[10px] shadow-2xl transition-all transform hover:-translate-y-1 active:scale-95 disabled:opacity-50"
+                    className="px-8 py-3 bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-[#071428] rounded-xl font-bold text-sm shadow-2xl transition-all transform hover:-translate-y-1 active:scale-95 disabled:opacity-50"
                   >
                     {submitting ? "Creating..." : "Create Permission"}
                   </button>
@@ -303,12 +303,12 @@ export default function AccessManagement() {
                   />
                 </div>
 
-                <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-white/[0.08]">
-                  <button onClick={() => setEditOpen(false)} className="px-6 py-3 rounded-xl text-white/40 hover:text-white font-black uppercase tracking-widest text-[10px] transition-all">Cancel</button>
+                 <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-white/[0.08]">
+                  <button onClick={() => setEditOpen(false)} className="px-6 py-3 rounded-xl text-white/60 hover:text-white font-bold text-sm transition-all">Cancel</button>
                   <button
                     onClick={handleEditSave}
                     disabled={submitting}
-                    className="px-8 py-3 bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-[#071428] rounded-xl font-black uppercase tracking-widest text-[10px] shadow-2xl transition-all transform hover:-translate-y-1 active:scale-95 disabled:opacity-50"
+                    className="px-8 py-3 bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-[#071428] rounded-xl font-bold text-sm shadow-2xl transition-all transform hover:-translate-y-1 active:scale-95 disabled:opacity-50"
                   >
                     {submitting ? "Saving..." : "Save Changes"}
                   </button>

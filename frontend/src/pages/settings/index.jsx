@@ -140,8 +140,8 @@ export default function Settings() {
                   <SettingsIcon className="text-yellow-400" size={24} />
                 </div>
                 <div className="min-w-0">
-                  <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight drop-shadow-lg truncate whitespace-nowrap">Global Settings</h1>
-                  <p className="text-white/60 mt-1 text-[10px] sm:text-[11px] font-black uppercase tracking-[0.2em] whitespace-nowrap overflow-hidden text-ellipsis">Configure bonuses, order rules, and loyalty rewards</p>
+                  <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight drop-shadow-lg truncate whitespace-nowrap">Global Settings</h1>
+                  <p className="text-white/60 mt-2 text-sm font-medium tracking-wide whitespace-nowrap">Configure bonuses, order rules, and loyalty rewards</p>
                 </div>
               </div>
 
@@ -150,7 +150,7 @@ export default function Settings() {
                 {loading ? (
                    <div className="text-center py-20 text-white flex flex-col items-center gap-4">
                     <Loader2 className="animate-spin text-yellow-400" size={40} />
-                    <span className="text-xs font-black uppercase tracking-widest animate-pulse">Loading Configuration...</span>
+                    <span className="text-sm font-bold tracking-wide animate-pulse">Loading Configuration...</span>
                   </div>
                 ) : (
                   <form onSubmit={handleSubmit} className="space-y-12">
@@ -160,15 +160,15 @@ export default function Settings() {
                       <div className="flex items-center gap-3 border-b border-white/[0.08] pb-4">
                         <Gift className="text-yellow-500" size={24} />
                         <div>
-                          <h3 className="text-lg font-black text-white uppercase tracking-tight">Customer Rewards & Bonuses</h3>
-                          <p className="text-white/40 text-[10px] sm:text-[11px] font-black uppercase tracking-widest mt-1">Credits and earnings for customer acquisition and retention</p>
+                          <h3 className="text-lg font-bold text-white tracking-tight">Customer Rewards & Bonuses</h3>
+                          <p className="text-white mt-1 text-sm font-medium tracking-wide">Credits and earnings for customer acquisition and retention</p>
                         </div>
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         {/* Signup Bonus Amount */}
                         <div className="space-y-2">
-                          <label className="block text-[11px] font-black uppercase tracking-wider text-white ml-1">Signup Bonus (£)</label>
+                          <label className="block text-sm font-medium tracking-wide text-white ml-1">Signup Bonus (£)</label>
                           <div className="relative group">
                             <Gift className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-yellow-400 transition-colors" size={18} />
                             <input
@@ -185,7 +185,7 @@ export default function Settings() {
 
                         {/* Referral Bonus Amount */}
                         <div className="space-y-2">
-                          <label className="block text-[11px] font-black uppercase tracking-wider text-white ml-1">Referral Bonus (£)</label>
+                          <label className="block text-sm font-medium tracking-wide text-white ml-1">Referral Bonus (£)</label>
                           <div className="relative group">
                             <Users className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-yellow-400 transition-colors" size={18} />
                             <input
@@ -202,7 +202,7 @@ export default function Settings() {
 
                         {/* Earn Per Order Amount */}
                         <div className="space-y-2">
-                          <label className="block text-[11px] font-black uppercase tracking-wider text-white ml-1">Earn Per Order (£)</label>
+                          <label className="block text-sm font-medium tracking-wide text-white ml-1">Earn Per Order (£)</label>
                           <div className="relative group">
                             <Coins className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-yellow-400 transition-colors" size={18} />
                             <input
@@ -224,15 +224,15 @@ export default function Settings() {
                       <div className="flex items-center gap-3 border-b border-white/[0.08] pb-4">
                         <ShieldCheck className="text-yellow-400" size={24} />
                         <div>
-                          <h3 className="text-lg font-black text-white uppercase tracking-tight">Order Constraints</h3>
-                          <p className="text-white/40 text-[10px] sm:text-[11px] font-black uppercase tracking-widest mt-1">Rules for order eligibility and checkout validation</p>
+                          <h3 className="text-lg font-bold text-white tracking-tight">Order Constraints</h3>
+                          <p className="text-white mt-1 text-sm font-medium tracking-wide">Rules for order eligibility and checkout validation</p>
                         </div>
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {/* Minimum Order */}
                         <div className="space-y-2">
-                          <label className="block text-[11px] font-black uppercase tracking-wider text-white ml-1">Minimum Order for Rewards (£)</label>
+                          <label className="block text-sm font-medium tracking-wide text-white ml-1">Minimum Order for Rewards (£)</label>
                           <div className="relative group">
                             <ShoppingCart className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-yellow-400 transition-colors" size={18} />
                             <input
@@ -249,7 +249,7 @@ export default function Settings() {
 
                         {/* Minimum Cart Total */}
                         <div className="space-y-2">
-                          <label className="block text-[11px] font-black uppercase tracking-wider text-white ml-1">Minimum Final Checkout Total (£)</label>
+                          <label className="block text-sm font-medium tracking-wide text-white ml-1">Minimum Final Checkout Total (£)</label>
                           <div className="relative group">
                             <CreditCard className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-yellow-400 transition-colors" size={18} />
                             <input
@@ -271,15 +271,15 @@ export default function Settings() {
                       <div className="flex items-center gap-3 border-b border-white/[0.08] pb-4">
                         <Award className="text-yellow-500" size={24} />
                         <div>
-                          <h3 className="text-lg font-black text-white uppercase tracking-tight">Loyalty Program Dynamics</h3>
-                          <p className="text-white/40 text-[10px] sm:text-[11px] font-black uppercase tracking-widest mt-1">Points calculation and redemption rules for repeat customers</p>
+                          <h3 className="text-lg font-bold text-white tracking-tight">Loyalty Program Dynamics</h3>
+                          <p className="text-white mt-1 text-sm font-medium tracking-wide">Points calculation and redemption rules for repeat customers</p>
                         </div>
                       </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                         {/* Loyalty Points Per GBP */}
                         <div className="space-y-2">
-                          <label className="block text-[11px] font-black uppercase tracking-wider text-white ml-1">Points Earned Per £1</label>
+                          <label className="block text-sm font-medium tracking-wide text-white ml-1">Points Earned Per £1</label>
                           <div className="relative group">
                             <Percent className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-yellow-400 transition-colors" size={18} />
                             <input
@@ -296,7 +296,7 @@ export default function Settings() {
 
                         {/* Loyalty Redeem Points */}
                         <div className="space-y-2">
-                          <label className="block text-[11px] font-black uppercase tracking-wider text-white ml-1">Points Needed to Redeem</label>
+                          <label className="block text-sm font-medium tracking-wide text-white ml-1">Points Needed to Redeem</label>
                           <div className="relative group">
                             <Award className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-yellow-400 transition-colors" size={18} />
                             <input
@@ -313,7 +313,7 @@ export default function Settings() {
 
                         {/* Loyalty Redeem Value */}
                         <div className="space-y-2">
-                          <label className="block text-[11px] font-black uppercase tracking-wider text-white ml-1">Value Per Redemption (£)</label>
+                          <label className="block text-sm font-medium tracking-wide text-white ml-1">Value Per Redemption (£)</label>
                           <div className="relative group">
                             <Wallet className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-yellow-400 transition-colors" size={18} />
                             <input
@@ -330,7 +330,7 @@ export default function Settings() {
 
                         {/* Loyalty Available After (Hours) */}
                         <div className="space-y-2">
-                          <label className="block text-[11px] font-black uppercase tracking-wider text-white ml-1 flex items-center gap-2">
+                          <label className="block text-sm font-medium tracking-wide text-white ml-1 flex items-center gap-2">
                              Available After (Hours)
                           </label>
                           <div className="relative group">
@@ -349,7 +349,7 @@ export default function Settings() {
 
                         {/* Loyalty Expiry Days */}
                         <div className="space-y-2">
-                          <label className="block text-[11px] font-black uppercase tracking-wider text-white ml-1 flex items-center gap-2">
+                          <label className="block text-sm font-medium tracking-wide text-white ml-1 flex items-center gap-2">
                              Points Expiry (Days)
                           </label>
                           <div className="relative group">
@@ -370,7 +370,7 @@ export default function Settings() {
 
                     {/* ACTION BUTTONS */}
                     <div className="flex flex-col sm:flex-row justify-between items-center gap-8 pt-10 border-t border-white/[0.08]">
-                      <div className="flex items-start gap-4 max-w-xl text-[11px] font-black uppercase tracking-[0.2em] text-white/30 italic">
+                      <div className="flex items-start gap-4 max-w-xl text-sm font-medium tracking-wide text-white italic">
                         <AlertCircle className="shrink-0 text-yellow-500" size={18} />
                         <p>Changes apply immediately to all transactions. Please verify values before saving.</p>
                       </div>
@@ -382,12 +382,12 @@ export default function Settings() {
                         {saving ? (
                           <>
                             <Loader2 className="animate-spin" size={20} />
-                            Processing...
+                            Saving...
                           </>
                         ) : (
                           <>
-                            <Save size={20} className="font-bold" />
-                            Commit Changes
+                            <Save size={20} />
+                            Save Changes
                           </>
                         )}
                       </button>

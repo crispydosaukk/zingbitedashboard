@@ -351,16 +351,7 @@ export default function RestaurantRegistration() {
     );
   });
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-[#071428] via-[#0d1f45] to-[#071428] flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <Loader2 className="animate-spin text-yellow-400" size={48} />
-          <span className="text-white font-black uppercase tracking-[0.3em] text-[10px]">Loading Enterprise Data</span>
-        </div>
-      </div>
-    );
-  }
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#071428] via-[#0d1f45] to-[#071428] selection:bg-yellow-500/30">
@@ -371,6 +362,13 @@ export default function RestaurantRegistration() {
         <main className="flex-1 px-4 sm:px-6 lg:px-10 py-8 text-white">
           <div className="max-w-7xl mx-auto flex flex-col">
 
+            {loading ? (
+              <div className="flex flex-col items-center justify-center py-40 gap-4">
+                <Loader2 className="animate-spin text-yellow-400" size={48} />
+                <span className="text-white font-bold text-sm tracking-wide">Loading Enterprise Data...</span>
+              </div>
+            ) : (
+              <>
             {/* Page Header */}
             {!isEditing && !(myProfile && !isSuperAdmin) && (
               <motion.div
@@ -384,8 +382,8 @@ export default function RestaurantRegistration() {
                     <Store className="text-yellow-400" size={24} />
                   </div>
                   <div className="min-w-0">
-                    <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight drop-shadow-lg truncate whitespace-nowrap">Restaurant Registration</h1>
-                    <p className="text-white/60 mt-1 text-[10px] sm:text-[11px] font-black uppercase tracking-[0.2em]">{isSuperAdmin ? "Approval queue for merchant store profiles" : "Register your business and track application"}</p>
+                    <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight drop-shadow-lg truncate whitespace-nowrap">Restaurant Registration</h1>
+                    <p className="text-white mt-1 text-sm font-medium tracking-wide">{isSuperAdmin ? "Approval queue for merchant store profiles" : "Register your business and track application"}</p>
                   </div>
                 </div>
               </motion.div>
@@ -395,32 +393,31 @@ export default function RestaurantRegistration() {
               /* SUPER ADMIN VIEW: LIST OF SUBMISSIONS */
               <div className="space-y-6">
                 {/* Stats */}
-                <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-                  <div className="bg-[#0b1a3d]/60 backdrop-blur-xl rounded-2xl p-5 border border-white/[0.08] shadow-2xl flex items-center justify-between">
+                <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">                   <div className="bg-[#0b1a3d]/60 backdrop-blur-xl rounded-2xl p-5 border border-white/[0.08] shadow-2xl flex items-center justify-between">
                     <div>
-                      <p className="text-white/40 text-[9px] font-black uppercase tracking-[0.2em]">Total</p>
-                      <h3 className="text-2xl font-black mt-1 text-white tracking-tight">{merchantProfiles.length}</h3>
+                      <p className="text-white text-sm font-bold tracking-wide">Total</p>
+                      <h3 className="text-2xl font-bold mt-1 text-white tracking-tight">{merchantProfiles.length}</h3>
                     </div>
                     <Users className="text-yellow-400/20" size={28} />
                   </div>
                   <div className="bg-[#0b1a3d]/60 backdrop-blur-xl rounded-2xl p-5 border border-white/[0.08] shadow-2xl flex items-center justify-between">
                     <div>
-                      <p className="text-amber-400 text-[9px] font-black uppercase tracking-[0.2em]">Pending</p>
-                      <h3 className="text-2xl font-black mt-1 text-white tracking-tight">{merchantProfiles.filter(p => p.status === 0).length}</h3>
+                      <p className="text-amber-400 text-sm font-bold tracking-wide">Pending</p>
+                      <h3 className="text-2xl font-bold mt-1 text-white tracking-tight">{merchantProfiles.filter(p => p.status === 0).length}</h3>
                     </div>
                     <Clock className="text-amber-400/20" size={28} />
                   </div>
                   <div className="bg-[#0b1a3d]/60 backdrop-blur-xl rounded-2xl p-5 border border-white/[0.08] shadow-2xl flex items-center justify-between">
                     <div>
-                      <p className="text-emerald-400 text-[9px] font-black uppercase tracking-[0.2em]">Approved</p>
-                      <h3 className="text-2xl font-black mt-1 text-white tracking-tight">{merchantProfiles.filter(p => p.status === 1).length}</h3>
+                      <p className="text-emerald-400 text-sm font-bold tracking-wide">Approved</p>
+                      <h3 className="text-2xl font-bold mt-1 text-white tracking-tight">{merchantProfiles.filter(p => p.status === 1).length}</h3>
                     </div>
                     <CheckCircle className="text-emerald-400/20" size={28} />
                   </div>
                   <div className="bg-[#0b1a3d]/60 backdrop-blur-xl rounded-2xl p-5 border border-white/[0.08] shadow-2xl flex items-center justify-between">
                     <div>
-                      <p className="text-rose-400 text-[9px] font-black uppercase tracking-[0.2em]">Declined</p>
-                      <h3 className="text-2xl font-black mt-1 text-white tracking-tight">{merchantProfiles.filter(p => p.status === 2).length}</h3>
+                      <p className="text-rose-400 text-sm font-bold tracking-wide">Declined</p>
+                      <h3 className="text-2xl font-bold mt-1 text-white tracking-tight">{merchantProfiles.filter(p => p.status === 2).length}</h3>
                     </div>
                     <AlertCircle className="text-rose-400/20" size={28} />
                   </div>
@@ -443,16 +440,16 @@ export default function RestaurantRegistration() {
                     <table className="w-full border-collapse">
                       <thead>
                         <tr className="bg-white/5 text-left border-b border-white/[0.08]">
-                          <th className="px-8 py-4 text-[10px] font-black uppercase text-white tracking-[0.2em]">Business</th>
-                          <th className="px-8 py-4 text-[10px] font-black uppercase text-white tracking-[0.2em]">Applicant</th>
-                          <th className="px-8 py-4 text-[10px] font-black uppercase text-white tracking-[0.2em]">Status</th>
-                          <th className="px-8 py-4 text-[10px] font-black uppercase text-white tracking-[0.2em] text-center">Actions</th>
+                          <th className="px-8 py-4 text-xs font-bold text-white tracking-wide">Business</th>
+                          <th className="px-8 py-4 text-xs font-bold text-white tracking-wide">Applicant</th>
+                          <th className="px-8 py-4 text-xs font-bold text-white tracking-wide">Status</th>
+                          <th className="px-8 py-4 text-xs font-bold text-white tracking-wide text-center">Actions</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-white/5">
                         {filteredProfiles.length === 0 ? (
                           <tr>
-                            <td colSpan="4" className="px-10 py-20 text-center opacity-30 text-[10px] font-black uppercase tracking-[0.3em]">No Records Found</td>
+                            <td colSpan="4" className="px-10 py-20 text-center opacity-30 text-xs font-bold tracking-wide">No Records Found</td>
                           </tr>
                         ) : (
                           filteredProfiles.map((p) => (
@@ -516,24 +513,24 @@ export default function RestaurantRegistration() {
                     </div>
 
                     <div className="space-y-4">
-                      <h2 className={`text-3xl md:text-4xl font-black uppercase tracking-tight leading-tight ${myProfile.status === 1 ? 'text-emerald-400' : myProfile.status === 2 ? 'text-rose-400' : 'text-white'}`}>
-                        {myProfile.status === 0 ? "APPLICATION UNDER REVIEW" : myProfile.status === 1 ? "PARTNER VERIFIED" : "APPLICATION DECLINED"}
+                      <h2 className={`text-3xl md:text-4xl font-bold tracking-tight leading-tight ${myProfile.status === 1 ? 'text-emerald-400' : myProfile.status === 2 ? 'text-rose-400' : 'text-white'}`}>
+                        {myProfile.status === 0 ? "Application Under Review" : myProfile.status === 1 ? "Partner Verified" : "Application Declined"}
                       </h2>
-                      <p className="text-white/60 text-base md:text-lg font-bold max-w-2xl mx-auto leading-relaxed">
-                        {myProfile.status === 0 && <>Your request is being processed. Our compliance team is auditing your details. Acceptance expected within <span className="text-yellow-400 font-black">24 hours</span>.</>}
-                        {myProfile.status === 1 && <>Congratulations! <span className="font-black text-white">{myProfile.store_name}</span> is now a verified partner. Launch your dashboard to begin operations.</>}
-                        {myProfile.status === 2 && <>Unfortunately, your application for <span className="font-black text-white">{myProfile.store_name}</span> was not successful. Review our feedback below.</>}
+                      <p className="text-white text-base md:text-lg font-medium max-w-2xl mx-auto leading-relaxed">
+                        {myProfile.status === 0 && <>Your request is being processed. Our compliance team is auditing your details. Acceptance expected within <span className="text-yellow-400 font-bold">24 Hours</span>.</>}
+                        {myProfile.status === 1 && <>Congratulations! <span className="font-bold text-white">{myProfile.store_name}</span> is now a verified partner. Launch your dashboard to begin operations.</>}
+                        {myProfile.status === 2 && <>Unfortunately, your application for <span className="font-bold text-white">{myProfile.store_name}</span> was not successful. Review our feedback below.</>}
                       </p>
                     </div>
 
                     <div className="flex flex-wrap items-center justify-center gap-4">
                       <div className="px-6 py-4 bg-white/5 rounded-2xl border border-white/[0.08] flex flex-col items-start min-w-[160px]">
-                        <span className="text-[9px] font-black uppercase tracking-widest text-white/40">Reference</span>
-                        <span className="font-black text-sm text-yellow-400 tracking-tight">#ZBR-{myProfile.id.toString().padStart(4, '0')}</span>
+                        <span className="text-xs font-bold text-white tracking-wide">Reference</span>
+                        <span className="font-bold text-sm text-yellow-400 tracking-tight">#ZBR-{myProfile.id.toString().padStart(4, '0')}</span>
                       </div>
                       <div className="px-6 py-4 bg-white/5 rounded-2xl border border-white/[0.08] flex flex-col items-start min-w-[160px]">
-                        <span className="text-[9px] font-black uppercase tracking-widest text-white/40">Business</span>
-                        <span className="font-black text-sm uppercase tracking-tight text-white">{myProfile.store_name}</span>
+                        <span className="text-xs font-bold text-white tracking-wide">Business</span>
+                        <span className="font-bold text-sm tracking-tight text-white">{myProfile.store_name}</span>
                       </div>
                     </div>
 
@@ -584,8 +581,8 @@ export default function RestaurantRegistration() {
                       <div className="w-14 h-14 bg-yellow-500/10 rounded-2xl flex items-center justify-center border border-yellow-400/20 shrink-0"><Plus className="text-yellow-400" size={28} /></div>
                     )}
                     <div className="min-w-0">
-                      <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-white whitespace-nowrap truncate">{isEditing ? "Modify Application" : "Merchant Onboarding"}</h2>
-                      <p className="text-white/40 font-black text-[10px] uppercase tracking-[0.2em] mt-1 truncate">{isEditing ? "Refine profile and trigger re-audit" : "Initiate enterprise partnership"}</p>
+                      <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">{isEditing ? "Modify Application" : "Merchant Onboarding"}</h2>
+                      <p className="text-white mt-1 text-sm font-medium tracking-wide">{isEditing ? "Refine profile and trigger re-audit" : "Initiate enterprise partnership"}</p>
                     </div>
                   </div>
                   {isEditing && (
@@ -712,16 +709,15 @@ export default function RestaurantRegistration() {
                       <FileUpload label="Bank Verification" name="bank_statement_file" value={formData.bank_statement_file} onChange={handleInputChange} icon={Download} required />
                     </div>
                   </div>
-
-                  <div className="pt-10 flex flex-col sm:flex-row justify-between items-center gap-8 border-t border-white/[0.08]">
-                    <div className="flex items-start gap-4 max-w-xl text-[10px] font-black uppercase tracking-[0.2em] text-white/30 italic">
+                   <div className="pt-10 flex flex-col sm:flex-row justify-between items-center gap-8 border-t border-white/[0.08]">
+                    <div className="flex items-start gap-4 max-w-xl text-xs font-medium text-white/50 italic">
                       <AlertCircle className="shrink-0 text-yellow-500" size={18} />
                       <p>By submitting, you certify that all enterprise data provided is legally accurate for audit.</p>
                     </div>
                     <button
                       type="submit"
                       disabled={submitting}
-                      className="w-full sm:w-auto px-16 py-5 bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-slate-900 font-black uppercase tracking-widest text-xs rounded-2xl shadow-2xl transition-all transform hover:-translate-y-1 disabled:opacity-50"
+                      className="w-full sm:w-auto px-16 py-5 bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-slate-900 font-bold text-sm rounded-2xl shadow-2xl transition-all transform hover:-translate-y-1 disabled:opacity-50"
                     >
                       {submitting ? (
                         <div className="flex items-center gap-3">
@@ -730,7 +726,7 @@ export default function RestaurantRegistration() {
                         </div>
                       ) : (
                         <div className="flex items-center gap-3">
-                          <Send size={18} className="font-black" />
+                          <Send size={18} className="font-bold" />
                           {isEditing ? "Re-submit Portal" : "Submit Global Application"}
                         </div>
                       )}
@@ -738,6 +734,8 @@ export default function RestaurantRegistration() {
                   </div>
                 </form>
               </motion.div>
+            )}
+            </>
             )}
           </div>
         </main>

@@ -444,8 +444,8 @@ export default function Category() {
                     <Zap className="text-yellow-400" size={24} />
                   </div>
                   <div>
-                    <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight drop-shadow-lg leading-none">Categories</h1>
-                    <p className="text-white/40 mt-1.5 text-[10px] sm:text-[11px] font-black uppercase tracking-[0.2em] leading-none">Manage menu categories and sorting</p>
+                    <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight drop-shadow-lg leading-none">Categories</h1>
+                    <p className="text-white mt-1.5 text-sm font-medium tracking-wide leading-none">Manage menu categories and sorting</p>
                   </div>
                 </div>
 
@@ -453,29 +453,29 @@ export default function Category() {
                   <div className="relative group flex-1 min-w-[200px]">
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-yellow-400 transition-colors" size={16} />
                     <input
-                      placeholder="SEARCH CATEGORIES..."
+                      placeholder="Search categories..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full bg-white/[0.03] border border-white/[0.08] rounded-2xl pl-12 pr-4 py-3 text-[10px] font-black uppercase tracking-widest text-white placeholder-white/10 focus:outline-none focus:border-yellow-500/40 transition-all"
+                      className="w-full bg-white/[0.03] border border-white/[0.08] rounded-2xl pl-12 pr-4 py-3 text-sm font-medium text-white placeholder-white/10 focus:outline-none focus:border-yellow-500/40 transition-all"
                     />
                   </div>
 
                   <div className="flex items-center gap-3 overflow-x-auto pb-2 scrollbar-hide -mx-2 px-2">
                     {isSuperAdmin && (
-                      <button onClick={() => setShowIntegrateModal(true)} className="px-5 py-3 bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-[#071428] font-black uppercase tracking-widest text-[11px] rounded-xl shadow-xl transition-all flex items-center justify-center gap-2 whitespace-nowrap active:scale-95">
-                        <Zap size={16} /> Integrate
+                      <button onClick={() => setShowIntegrateModal(true)} className="px-6 py-3.5 bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-[#071428] font-bold text-sm rounded-xl shadow-xl transition-all flex items-center justify-center gap-2 whitespace-nowrap active:scale-95">
+                        <Zap size={18} /> Integrate
                       </button>
                     )}
 
-                    <button onClick={() => setShowSearchModal(true)} className="px-5 py-3 bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-[#071428] font-black uppercase tracking-widest text-[11px] rounded-xl shadow-xl transition-all flex items-center justify-center gap-2 whitespace-nowrap active:scale-95">
-                      <Globe size={16} /> Global Search
+                    <button onClick={() => setShowSearchModal(true)} className="px-6 py-3.5 bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-[#071428] font-bold text-sm rounded-xl shadow-xl transition-all flex items-center justify-center gap-2 whitespace-nowrap active:scale-95">
+                      <Globe size={18} /> Global Search
                     </button>
 
                     <button
                       onClick={() => { setIsEdit(false); setForm({ id: null, name: "", image: null, oldImage: "" }); setShowModal(true); }}
-                      className="px-8 py-3 bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-slate-900 font-black uppercase tracking-widest text-[11px] rounded-xl shadow-2xl transition-all transform active:scale-95 flex items-center justify-center gap-2 whitespace-nowrap border border-white/10"
+                      className="px-8 py-3.5 bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-slate-900 font-bold text-sm rounded-xl shadow-2xl transition-all transform active:scale-95 flex items-center justify-center gap-2 whitespace-nowrap border border-white/10"
                     >
-                      <Plus size={16} /> New Category
+                      <Plus size={18} /> New Category
                     </button>
                   </div>
                 </div>
@@ -483,24 +483,24 @@ export default function Category() {
 
               {/* Content Area */}
               <div className="bg-[#0b1a3d]/60 backdrop-blur-xl rounded-[1.5rem] sm:rounded-[2.5rem] shadow-2xl border border-white/[0.08] overflow-hidden mb-12">
-                <div className="px-8 py-6 border-b border-white/[0.08] bg-white/5 flex justify-between items-center sm:px-10">
-                  <h3 className="text-[11px] font-black text-white tracking-[0.3em] uppercase flex items-center gap-3">
-                    <GripVertical size={16} className="text-yellow-400" /> Category List
+                 <div className="px-8 py-6 border-b border-white/[0.08] bg-white/5 flex justify-between items-center sm:px-10">
+                  <h3 className="text-base font-bold text-white tracking-tight flex items-center gap-3">
+                    <GripVertical size={20} className="text-yellow-400" /> Category List
                   </h3>
-                  <div className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">
+                  <div className="text-sm font-bold text-white tracking-wide">
                     {filteredCategories.length} Categories Active
                   </div>
                 </div>
 
                 <div className="hidden md:block overflow-x-auto">
                   <table className="w-full text-left">
-                    <thead className="bg-[#0b1a3d]/60 text-white/40 text-[10px] uppercase font-black tracking-widest">
+                     <thead className="bg-[#0b1a3d]/60 text-white text-sm font-bold tracking-tight">
                       <tr>
-                        <th className="px-8 py-5 w-16"></th>
-                        <th className="px-8 py-5">Image</th>
-                        <th className="px-8 py-5">Category Name</th>
-                        <th className="px-8 py-5 text-center">Status</th>
-                        <th className="px-8 py-5 text-right">Actions</th>
+                        <th className="px-8 py-6 w-16"></th>
+                        <th className="px-8 py-6">Image</th>
+                        <th className="px-8 py-6">Category Name</th>
+                        <th className="px-8 py-6 text-center">Status</th>
+                        <th className="px-8 py-6 text-right">Actions</th>
                       </tr>
                     </thead>
                     <DragDropContext onDragEnd={onDragEnd}>
@@ -528,20 +528,20 @@ export default function Category() {
                                         )}
                                       </div>
                                     </td>
-                                    <td className="px-8 py-5">
+                                     <td className="px-8 py-5">
                                       <div className="min-w-0">
-                                        <div className="text-sm font-black text-white tracking-tight uppercase leading-tight truncate max-w-xs">{item.name}</div>
-                                        <div className="text-[9px] font-black text-white/30 tracking-[0.2em] mt-1 leading-none uppercase">ID: {item.id}</div>
+                                        <div className="text-base font-bold text-white tracking-tight truncate max-w-xs">{item.name}</div>
+                                        <div className="text-xs font-bold text-white/30 tracking-widest mt-1 leading-none">ID: {item.id}</div>
                                       </div>
                                     </td>
-                                    <td className="px-8 py-5">
+                                     <td className="px-8 py-5">
                                       <div className="flex flex-col items-center gap-2">
                                         <div className="relative group/toggle cursor-pointer" onClick={() => handleToggleStatus(item)}>
                                           <input type="checkbox" className="sr-only" checked={item.status === 1} readOnly />
-                                          <div className={`w-10 h-5 rounded-full transition-colors ${item.status === 1 ? 'bg-yellow-500' : 'bg-white/10'}`}></div>
-                                          <div className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-all ${item.status === 1 ? 'translate-x-5' : ''}`}></div>
+                                          <div className={`w-12 h-6 rounded-full transition-colors ${item.status === 1 ? 'bg-yellow-500' : 'bg-white/10'}`}></div>
+                                          <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-all ${item.status === 1 ? 'translate-x-6' : ''}`}></div>
                                         </div>
-                                        <span className={`text-[8px] font-black uppercase tracking-widest transition-colors ${item.status === 1 ? 'text-yellow-400' : 'text-white/30'}`}>
+                                        <span className={`text-[10px] font-bold tracking-wide transition-colors ${item.status === 1 ? 'text-yellow-400' : 'text-white/30'}`}>
                                           {item.status === 1 ? 'Active' : 'Inactive'}
                                         </span>
                                       </div>
@@ -621,8 +621,8 @@ export default function Category() {
                   </div>
                 </div>
                 <div className="pt-4">
-                  <button type="submit" className="w-full py-5 bg-gradient-to-r from-yellow-500 to-amber-500 text-slate-900 font-black uppercase tracking-widest text-xs rounded-2xl shadow-2xl transition-all transform active:scale-95 border border-white/10">
-                    {isEdit ? "UPDATE CATEGORY" : "SAVE CATEGORY"}
+                  <button type="submit" className="w-full py-5 bg-gradient-to-r from-yellow-500 to-amber-500 text-slate-900 font-bold text-sm rounded-2xl shadow-2xl transition-all transform active:scale-95 border border-white/10">
+                    {isEdit ? "Update Category" : "Save Category"}
                   </button>
                 </div>
               </form>
