@@ -201,7 +201,7 @@ export default function Orders() {
                     <span className="text-xs font-bold text-white/60 tracking-wide">Live Sync</span>
                   </label>
                   <div className="w-px h-6 bg-white/10"></div>
-                  <button onClick={loadOrders} className="p-2.5 bg-white/5 hover:bg-white/10 text-yellow-400 rounded-xl transition-all border border-white/10 active:scale-90"><RefreshCw size={16} /></button>
+                  <button onClick={loadOrders} className="p-2.5 bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-500 rounded-2xl transition-all border border-yellow-500/30 active:scale-90"><RefreshCw size={16} /></button>
                 </div>
               </div>
 
@@ -222,8 +222,15 @@ export default function Orders() {
                   <option value="4" className="bg-[#0b1a3d]">Finalized</option>
                 </select>
 
-                <input type="date" value={fromDate} onChange={e => setFromDate(e.target.value)} className="bg-white/5 border border-white/[0.08] rounded-xl px-4 py-3.5 text-xs font-bold text-white focus:outline-none" />
-                <input type="date" value={toDate} onChange={e => setToDate(e.target.value)} className="bg-white/5 border border-white/[0.08] rounded-xl px-4 py-3.5 text-xs font-bold text-white focus:outline-none" />
+                <div className="relative group/date">
+                   <Calendar className="absolute right-4 top-1/2 -translate-y-1/2 text-yellow-500/50 group-focus-within/date:text-yellow-400 transition-all pointer-events-none" size={14} />
+                   <input type="date" value={fromDate} onChange={e => setFromDate(e.target.value)} className="w-full bg-white/5 border border-white/[0.08] rounded-xl px-4 py-3.5 pr-10 text-xs font-bold text-white focus:outline-none focus:border-yellow-500/40 transition-all [color-scheme:dark] [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer" />
+                </div>
+                
+                <div className="relative group/date">
+                   <Calendar className="absolute right-4 top-1/2 -translate-y-1/2 text-yellow-500/50 group-focus-within/date:text-yellow-400 transition-all pointer-events-none" size={14} />
+                   <input type="date" value={toDate} onChange={e => setToDate(e.target.value)} className="w-full bg-white/5 border border-white/[0.08] rounded-xl px-4 py-3.5 pr-10 text-xs font-bold text-white focus:outline-none focus:border-yellow-500/40 transition-all [color-scheme:dark] [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer" />
+                </div>
               </div>
 
               {/* Orders Matrix */}

@@ -328,7 +328,7 @@ export default function ProductPage() {
   const onDragEnd = async (result) => {
     if (!result.destination) return;
     const items = Array.from(products);
-    
+
     const startIndex = (currentPage - 1) * itemsPerPage;
     const actualSourceIdx = startIndex + result.source.index;
     const actualDestIdx = startIndex + result.destination.index;
@@ -347,16 +347,16 @@ export default function ProductPage() {
   const handleEdit = (p) => {
     const isDiscounted = p.discountPrice && Number(p.discountPrice) > Number(p.price);
     const originalPriceInput = isDiscounted ? p.discountPrice : p.price;
-    const discountInput = isDiscounted 
-      ? Math.round(((p.discountPrice - p.price) / p.discountPrice) * 100) + "%" 
+    const discountInput = isDiscounted
+      ? Math.round(((p.discountPrice - p.price) / p.discountPrice) * 100) + "%"
       : "";
 
-    setForm({ 
-      ...p, 
+    setForm({
+      ...p,
       price: originalPriceInput,
       discountPrice: discountInput,
-      oldImage: p.image, 
-      image: null 
+      oldImage: p.image,
+      image: null
     });
     setShowModal(true);
   };
@@ -378,22 +378,22 @@ export default function ProductPage() {
           <div className="flex-1 min-w-0">
             <h4 className="text-base font-bold text-white tracking-tight truncate">{p.name}</h4>
             <div className="text-xs font-bold text-white/30 truncate mt-1">({categories.find(c => c.id == p.cat_id)?.name || "Void"})</div>
-            
+
             {p.description && (
               <p className="text-[10px] text-white/40 mt-2 line-clamp-2 leading-relaxed italic">{p.description}</p>
             )}
 
             <div className="mt-3 flex flex-col gap-1">
               {hasDiscount ? (
-                 <div className="space-y-1.5">
-                    <div className="flex items-center gap-2">
-                       <span className="px-3 py-1.5 bg-rose-500/10 border border-rose-500/20 text-rose-500 text-xs font-black rounded uppercase tracking-wider shadow-sm">Save {formatGBP(discAmt)}</span>
-                    </div>
-                    <div className="flex items-baseline gap-3">
-                       <span className="text-xl font-black text-yellow-500">{formatGBP(p.price)}</span>
-                       <span className="text-sm font-bold text-white/50 line-through decoration-rose-500/60 decoration-2">{formatGBP(p.discountPrice)}</span>
-                    </div>
-                 </div>
+                <div className="space-y-1.5">
+                  <div className="flex items-center gap-2">
+                    <span className="px-2 py-0.5 bg-rose-500/10 border border-rose-500/20 text-rose-500 text-[10px] font-black rounded tracking-wider shadow-sm">Save {formatGBP(discAmt)}</span>
+                  </div>
+                  <div className="flex items-baseline gap-3">
+                    <span className="text-xl font-black text-yellow-500">{formatGBP(p.price)}</span>
+                    <span className="text-sm font-bold text-white/50 line-through decoration-rose-500/60 decoration-2">{formatGBP(p.discountPrice)}</span>
+                  </div>
+                </div>
               ) : (
                 <div className="flex items-center justify-between">
                   <span className="text-lg font-bold text-yellow-500">{formatGBP(p.price)}</span>
@@ -421,7 +421,7 @@ export default function ProductPage() {
     if (total <= 1) return null;
     return (
       <div className="flex items-center justify-center gap-2 mt-8 mb-4">
-        <button 
+        <button
           disabled={current === 1}
           onClick={() => onPageChange(current - 1)}
           className="p-2.5 rounded-xl bg-white/5 border border-white/10 text-white disabled:opacity-20 hover:bg-yellow-500/10 hover:text-yellow-500 transition-all active:scale-90"
@@ -439,7 +439,7 @@ export default function ProductPage() {
             </button>
           ))}
         </div>
-        <button 
+        <button
           disabled={current === total}
           onClick={() => onPageChange(current + 1)}
           className="p-2.5 rounded-xl bg-white/5 border border-white/10 text-white disabled:opacity-20 hover:bg-yellow-500/10 hover:text-yellow-500 transition-all active:scale-90"
@@ -494,7 +494,7 @@ export default function ProductPage() {
                   </div>
 
                   <div className="flex items-center gap-3 overflow-x-auto pb-2 -mx-2 px-2 scrollbar-hide">
-                     <div className="relative group">
+                    <div className="relative group">
                       <Filter className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" size={12} />
                       <select
                         value={filterCategory}
@@ -522,7 +522,7 @@ export default function ProductPage() {
 
               {/* Registry Container */}
               <div className="bg-[#0b1a3d]/60 backdrop-blur-xl rounded-[1.5rem] sm:rounded-[2.5rem] shadow-2xl border border-white/[0.08] overflow-hidden mb-12">
-                 <div className="px-8 py-6 border-b border-white/[0.08] bg-white/5 flex justify-between items-center sm:px-10">
+                <div className="px-8 py-6 border-b border-white/[0.08] bg-white/5 flex justify-between items-center sm:px-10">
                   <h3 className="text-base font-bold text-white tracking-tight flex items-center gap-3">
                     <GripVertical size={20} className="text-yellow-400" /> Product List
                   </h3>
@@ -533,14 +533,14 @@ export default function ProductPage() {
 
                 <div className="hidden md:block overflow-x-auto">
                   <div className="w-full text-left min-w-[1000px]">
-                     <div className="bg-[#0b1a3d]/60 text-white text-sm font-bold tracking-tight grid grid-cols-[80px_100px_1.5fr_2fr_200px_120px_160px] border-b border-white/[0.08]">
-                        <div className="px-6 py-5 flex items-center justify-center"></div>
-                        <div className="px-6 py-5 flex items-center">Image</div>
-                        <div className="px-6 py-5 flex items-center">Product Name</div>
-                        <div className="px-6 py-5 flex items-center">Description</div>
-                        <div className="px-6 py-5 flex items-center">Price Details</div>
-                        <div className="px-6 py-5 flex items-center justify-center">Status</div>
-                        <div className="px-6 py-5 flex items-center justify-end">Actions</div>
+                    <div className="bg-[#0b1a3d]/60 text-white text-sm font-bold tracking-tight grid grid-cols-[80px_100px_1.5fr_2fr_200px_120px_160px] border-b border-white/[0.08]">
+                      <div className="px-6 py-3 flex items-center justify-center"></div>
+                      <div className="px-6 py-3 flex items-center">Image</div>
+                      <div className="px-6 py-3 flex items-center">Product Name</div>
+                      <div className="px-6 py-3 flex items-center">Description</div>
+                      <div className="px-6 py-3 flex items-center">Price Details</div>
+                      <div className="px-6 py-3 flex items-center justify-center">Status</div>
+                      <div className="px-6 py-3 flex items-center justify-end">Actions</div>
                     </div>
                     <DragDropContext onDragEnd={onDragEnd}>
                       <Droppable droppableId="productsTable">
@@ -556,11 +556,11 @@ export default function ProductPage() {
                                       className={`grid grid-cols-[80px_100px_1.5fr_2fr_200px_120px_160px] items-center ${p.status === 0 ? "opacity-40" : ""} hover:bg-white/[0.02] transition-colors ${snapshot.isDragging ? "bg-[#0d1f45] shadow-2xl rounded-xl ring-2 ring-yellow-500/50 z-[9999]" : ""}`}
                                       style={{ ...dragProvided.draggableProps.style }}
                                     >
-                                      <div {...dragProvided.dragHandleProps} className="px-6 py-5 cursor-grab text-white/10 hover:text-yellow-400 transition-colors flex items-center justify-center">
+                                      <div {...dragProvided.dragHandleProps} className="px-6 py-2.5 cursor-grab text-white/10 hover:text-yellow-400 transition-colors flex items-center justify-center">
                                         <GripVertical size={20} />
                                       </div>
-                                      <div className="px-6 py-5 flex items-center">
-                                        <div className="w-14 h-14 rounded-xl overflow-hidden bg-black/20 border border-white/10 shadow-inner group flex-shrink-0">
+                                      <div className="px-6 py-2.5 flex items-center">
+                                        <div className="w-11 h-11 rounded-xl overflow-hidden bg-black/20 border border-white/10 shadow-inner group flex-shrink-0">
                                           {p.image ? (
                                             <img src={`${API_BASE}/uploads/${p.image}`} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt="" />
                                           ) : (
@@ -568,7 +568,7 @@ export default function ProductPage() {
                                           )}
                                         </div>
                                       </div>
-                                       <div className="px-6 py-5 flex items-center min-w-0">
+                                      <div className="px-6 py-2.5 flex items-center min-w-0">
                                         <div className="min-w-0">
                                           <div className="text-sm font-bold text-white tracking-tight truncate">{p.name}</div>
                                           <div className="text-[10px] font-bold text-white/30 tracking-widest mt-0.5 leading-none">
@@ -576,16 +576,16 @@ export default function ProductPage() {
                                           </div>
                                         </div>
                                       </div>
-                                      <div className="px-6 py-5 flex items-center">
+                                      <div className="px-6 py-2.5 flex items-center">
                                         <div className="text-[10px] font-medium text-white/50 leading-relaxed line-clamp-2 italic pr-4">
                                           {p.description || "-"}
                                         </div>
                                       </div>
-                                      <div className="px-6 py-5 flex flex-col justify-center gap-1">
+                                      <div className="px-6 py-2.5 flex flex-col justify-center gap-1">
                                         {p.discountPrice && Number(p.discountPrice) > Number(p.price) ? (
-                                          <div className="space-y-2">
+                                          <div className="space-y-1">
                                             <div className="flex items-center gap-2">
-                                              <span className="px-3 py-1.5 bg-rose-500/10 border border-rose-500/20 text-rose-500 text-xs font-black rounded uppercase tracking-wider shadow-sm">Save {formatGBP(Number(p.discountPrice) - Number(p.price))}</span>
+                                              <span className="px-2 py-0.5 bg-rose-500/10 border border-rose-500/20 text-rose-500 text-[10px] font-black rounded uppercase tracking-wider shadow-sm">Save {formatGBP(Number(p.discountPrice) - Number(p.price))}</span>
                                             </div>
                                             <div className="flex items-baseline gap-3">
                                               <span className="text-lg font-black text-yellow-500 tracking-tight">{formatGBP(p.price)}</span>
@@ -596,19 +596,19 @@ export default function ProductPage() {
                                           <div className="text-base font-black text-yellow-500 tracking-tight">{formatGBP(p.price)}</div>
                                         )}
                                       </div>
-                                      <div className="px-6 py-5 flex items-center justify-center">
-                                        <div className="flex flex-col items-center gap-2">
+                                      <div className="px-6 py-2.5 flex items-center justify-center">
+                                        <div className="flex flex-col items-center gap-1">
                                           <div className="relative group/toggle cursor-pointer" onClick={() => handleToggleStatus(p)}>
                                             <input type="checkbox" className="sr-only" checked={p.status === 1} readOnly />
-                                            <div className={`w-12 h-6 rounded-full transition-colors ${p.status === 1 ? 'bg-yellow-500' : 'bg-white/10'}`}></div>
-                                            <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-all ${p.status === 1 ? 'translate-x-6' : ''}`}></div>
+                                            <div className={`w-10 h-5 rounded-full transition-colors ${p.status === 1 ? 'bg-yellow-500' : 'bg-white/10'}`}></div>
+                                            <div className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-all ${p.status === 1 ? 'translate-x-5' : ''}`}></div>
                                           </div>
-                                          <span className={`text-[10px] font-bold tracking-wide transition-colors ${p.status === 1 ? 'text-yellow-400' : 'text-white/30'}`}>
+                                          <span className={`text-[9px] font-bold tracking-wide transition-colors ${p.status === 1 ? 'text-yellow-400' : 'text-white/30'}`}>
                                             {p.status === 1 ? 'Active' : 'Inactive'}
                                           </span>
                                         </div>
                                       </div>
-                                      <div className="px-6 py-5 flex items-center justify-end gap-3">
+                                      <div className="px-6 py-2.5 flex items-center justify-end gap-3">
                                         <button onClick={() => handleEdit(p)} className="p-2.5 bg-white/5 border border-white/[0.08] rounded-xl text-yellow-400 hover:bg-yellow-500/10 transition-all active:scale-90"><Edit size={16} /></button>
                                         <button onClick={() => handleDelete(p.id)} className="p-2.5 bg-white/5 border border-white/[0.08] rounded-xl text-rose-500 hover:bg-rose-500/10 transition-all active:scale-90"><Trash2 size={16} /></button>
                                       </div>
@@ -666,7 +666,7 @@ export default function ProductPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="space-y-6">
                     <div>
-                      <label className="block text-xs font-bold text-white/40 mb-3">Product Name</label>
+                      <label className="block text-xs font-bold text-white/40 mb-3">Product Name <span className="text-rose-500">*</span></label>
                       <input type="text" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} className="w-full bg-white/[0.03] border border-white/[0.08] rounded-xl px-5 py-4 text-sm font-semibold text-white placeholder-white/10 focus:outline-none focus:border-yellow-500/40 transition-all" />
                     </div>
                     <div>
@@ -675,7 +675,7 @@ export default function ProductPage() {
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-xs font-bold text-white/40 mb-3">Price (GBP)</label>
+                        <label className="block text-xs font-bold text-white/40 mb-3">Price (GBP) <span className="text-rose-500">*</span></label>
                         <input type="number" step="0.01" value={form.price} onChange={e => setForm({ ...form, price: e.target.value })} className="w-full bg-white/[0.03] border border-white/[0.08] rounded-xl px-5 py-4 text-sm font-semibold text-white focus:outline-none focus:border-yellow-500/40 transition-all" />
                       </div>
                       <div>
@@ -684,7 +684,7 @@ export default function ProductPage() {
                       </div>
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-white/40 mb-3">Category</label>
+                      <label className="block text-xs font-bold text-white/40 mb-3">Category <span className="text-rose-500">*</span></label>
                       <select value={form.cat_id} onChange={e => setForm({ ...form, cat_id: e.target.value })} className="w-full bg-[#0b1a3d] border border-white/[0.08] rounded-xl px-5 py-4 text-sm font-semibold text-white appearance-none focus:outline-none">
                         <option value="">Select category...</option>
                         {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
@@ -693,7 +693,10 @@ export default function ProductPage() {
                   </div>
                   <div className="space-y-6">
                     <div>
-                      <label className="block text-xs font-bold text-white/40 mb-3">Product Image</label>
+                      <div className="flex items-center justify-between mb-3 text-white/40">
+                        <label className="text-xs font-bold">Product Image <span className="text-rose-500">*</span></label>
+                        <span className="text-[9px] font-black uppercase tracking-[0.1em]">800 x 800px (1MB)</span>
+                      </div>
                       <div
                         onClick={() => document.getElementById('imageProd').click()}
                         className="aspect-square bg-white/[0.03] border-2 border-dashed border-white/10 rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:border-yellow-500/50 transition-all overflow-hidden relative group"

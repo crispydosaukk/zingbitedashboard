@@ -92,7 +92,7 @@ const CustomerDetails = () => {
                                 <button
                                     onClick={fetchCustomers}
                                     disabled={loading}
-                                    className="w-full sm:w-auto px-5 py-2.5 bg-white/5 hover:bg-white/10 backdrop-blur-xl text-white font-black tracking-widest text-[16px] rounded-xl border border-white/[0.08] shadow-lg transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50"
+                                    className="w-full sm:w-auto px-5 py-2.5 bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-500 font-bold rounded-2xl border border-yellow-500/30 transition-all flex items-center justify-center gap-2 disabled:opacity-50 active:scale-95"
                                 >
                                     <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
                                     Refresh

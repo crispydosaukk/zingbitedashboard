@@ -240,7 +240,12 @@ export default function OffersPage() {
 
               <div className="p-8 space-y-10">
                 <div className="space-y-4">
-                  <label className="text-sm font-bold text-white flex items-center gap-2"><ImageIcon size={14} /> Campaign Offer Banner</label>
+                  <div className="flex items-center justify-between">
+                    <label className="text-sm font-bold text-white flex items-center gap-2">
+                       <ImageIcon size={14} /> Campaign Offer Banner <span className="text-rose-500">*</span>
+                    </label>
+                    <span className="text-[10px] font-bold text-white/20 uppercase tracking-widest">Recommended: 1280 x 720px (Max 2MB)</span>
+                  </div>
                   <div className="relative group">
                     <input type="file" id="offerBanner" className="hidden" accept="image/*" onChange={handleBannerChange} />
                     <label htmlFor="offerBanner" className={`cursor-pointer min-h-[220px] rounded-[1.5rem] border-2 border-dashed flex flex-col items-center justify-center transition-all overflow-hidden relative ${form.bannerPreview ? 'border-yellow-500/40' : 'border-white/10 bg-white/5 hover:bg-white/10'}`}>
@@ -249,14 +254,17 @@ export default function OffersPage() {
                       ) : (
                         <div className="text-center p-6"><Upload size={32} className="mx-auto text-white/10 mb-4" /><p className="text-xs font-bold text-white/40">Drag or upload offer image</p></div>
                       )}
-                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all"><span className="text-xs font-bold text-white">Change Image</span></div>
+                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center transition-all">
+                        <Upload size={24} className="text-white mb-2" />
+                        <span className="text-xs font-bold text-white">Change Image</span>
+                      </div>
                     </label>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div>
-                    <label className="block text-sm font-bold text-white mb-3">Offer Title</label>
+                    <label className="block text-sm font-bold text-white mb-3">Offer Title <span className="text-rose-500">*</span></label>
                     <input type="text" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} className="w-full bg-white/[0.03] border border-white/[0.08] rounded-xl px-5 py-4 text-sm font-medium text-white focus:outline-none focus:border-yellow-400/40 transition-all shadow-inner" />
                   </div>
                   <div>

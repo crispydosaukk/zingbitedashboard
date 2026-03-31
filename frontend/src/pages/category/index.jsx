@@ -555,11 +555,11 @@ export default function Category() {
                 <div className="hidden md:block overflow-x-auto">
                   <div className="w-full text-left min-w-[800px]">
                     <div className="bg-[#0b1a3d]/60 text-white text-sm font-bold tracking-tight grid grid-cols-[80px_140px_1fr_150px_200px] border-b border-white/[0.08]">
-                      <div className="px-6 py-6 flex items-center justify-center"></div>
-                      <div className="px-6 py-6 flex items-center">Image</div>
-                      <div className="px-6 py-6 flex items-center">Category Name</div>
-                      <div className="px-6 py-6 flex items-center justify-center">Status</div>
-                      <div className="px-6 py-6 flex items-center justify-end">Actions</div>
+                      <div className="px-6 py-3 flex items-center justify-center"></div>
+                      <div className="px-6 py-3 flex items-center">Image</div>
+                      <div className="px-6 py-3 flex items-center">Category Name</div>
+                      <div className="px-6 py-3 flex items-center justify-center">Status</div>
+                      <div className="px-6 py-3 flex items-center justify-end">Actions</div>
                     </div>
                     <DragDropContext onDragEnd={onDragEnd}>
                       <Droppable droppableId="categoryTable">
@@ -575,11 +575,11 @@ export default function Category() {
                                       className={`grid grid-cols-[80px_140px_1fr_150px_200px] items-center ${item.status === 0 ? "opacity-40" : ""} hover:bg-white/[0.02] transition-colors ${snapshot.isDragging ? "bg-[#0d1f45] shadow-2xl rounded-xl ring-2 ring-yellow-500/50 z-[9999]" : ""}`}
                                       style={{ ...dragProvided.draggableProps.style }}
                                     >
-                                      <div {...dragProvided.dragHandleProps} className="px-6 py-5 cursor-grab text-white/10 hover:text-yellow-400 transition-colors flex items-center justify-center">
+                                      <div {...dragProvided.dragHandleProps} className="px-6 py-2.5 cursor-grab text-white/10 hover:text-yellow-400 transition-colors flex items-center justify-center">
                                         <GripVertical size={20} />
                                       </div>
-                                      <div className="px-6 py-5 flex items-center">
-                                        <div className="w-14 h-14 rounded-xl overflow-hidden bg-black/20 border border-white/10 shadow-inner group flex-shrink-0">
+                                      <div className="px-6 py-2.5 flex items-center">
+                                        <div className="w-11 h-11 rounded-xl overflow-hidden bg-black/20 border border-white/10 shadow-inner group flex-shrink-0">
                                           {item.image ? (
                                             <img src={`${API_BASE}/uploads/${item.image}`} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt="" />
                                           ) : (
@@ -587,24 +587,24 @@ export default function Category() {
                                           )}
                                         </div>
                                       </div>
-                                      <div className="px-6 py-5 flex items-center">
+                                      <div className="px-6 py-2.5 flex items-center">
                                         <div className="min-w-0">
-                                          <div className="text-base font-semibold text-white tracking-tight truncate max-w-xs">{item.name}</div>
+                                          <div className="text-sm font-semibold text-white tracking-tight truncate max-w-xs">{item.name}</div>
                                         </div>
                                       </div>
-                                      <div className="px-6 py-5 flex items-center justify-center">
-                                        <div className="flex flex-col items-center gap-2">
+                                      <div className="px-6 py-2.5 flex items-center justify-center">
+                                        <div className="flex flex-col items-center gap-1">
                                           <div className="relative group/toggle cursor-pointer" onClick={() => handleToggleStatus(item)}>
                                             <input type="checkbox" className="sr-only" checked={item.status === 1} readOnly />
-                                            <div className={`w-12 h-6 rounded-full transition-colors ${item.status === 1 ? 'bg-yellow-500' : 'bg-white/10'}`}></div>
-                                            <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-all ${item.status === 1 ? 'translate-x-6' : ''}`}></div>
+                                            <div className={`w-10 h-5 rounded-full transition-colors ${item.status === 1 ? 'bg-yellow-500' : 'bg-white/10'}`}></div>
+                                            <div className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-all ${item.status === 1 ? 'translate-x-5' : ''}`}></div>
                                           </div>
-                                          <span className={`text-[10px] font-bold tracking-wide transition-colors ${item.status === 1 ? 'text-yellow-400' : 'text-white/30'}`}>
+                                          <span className={`text-[9px] font-bold tracking-wide transition-colors ${item.status === 1 ? 'text-yellow-400' : 'text-white/30'}`}>
                                             {item.status === 1 ? 'Active' : 'Inactive'}
                                           </span>
                                         </div>
                                       </div>
-                                      <div className="px-6 py-5 flex items-center justify-end gap-3">
+                                      <div className="px-6 py-2.5 flex items-center justify-end gap-3">
                                         <button onClick={() => handleImportProducts(item.name, item.id)} className="p-2.5 bg-white/5 border border-white/[0.08] rounded-xl text-yellow-500 hover:bg-yellow-500/10 transition-all active:scale-90" title="Import Logic"><Upload size={16} /></button>
                                         <button onClick={() => handleEdit(item)} className="p-2.5 bg-white/5 border border-white/[0.08] rounded-xl text-yellow-400 hover:bg-yellow-500/10 transition-all active:scale-90"><Pencil size={16} /></button>
                                         <button onClick={() => handleDelete(item.id)} className="p-2.5 bg-white/5 border border-white/[0.08] rounded-xl text-rose-500 hover:bg-rose-500/10 transition-all active:scale-90"><Trash2 size={16} /></button>
