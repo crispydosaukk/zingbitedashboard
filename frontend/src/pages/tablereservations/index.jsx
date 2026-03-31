@@ -181,11 +181,11 @@ export default function TableReservations() {
                 <table className="w-full text-left">
                   <thead className="bg-white/5 border-b border-white/[0.08]">
                     <tr>
-                      <th className="px-6 py-4 text-[11px] font-semibold text-white/40">Guest Info</th>
-                      <th className="px-6 py-4 text-[11px] font-semibold text-white/40">Table</th>
-                      <th className="px-6 py-4 text-[11px] font-semibold text-white/40">Schedule</th>
-                      <th className="px-6 py-4 text-[11px] font-semibold text-white/40">Status</th>
-                      <th className="px-6 py-4 text-[11px] font-semibold text-white/40 text-right">Actions</th>
+                      <th className="px-6 py-4 text-sm font-bold text-white uppercase tracking-wider">Guest Info</th>
+                      <th className="px-6 py-4 text-sm font-bold text-white uppercase tracking-wider">Table</th>
+                      <th className="px-6 py-4 text-sm font-bold text-white uppercase tracking-wider">Schedule</th>
+                      <th className="px-6 py-4 text-sm font-bold text-white uppercase tracking-wider">Status</th>
+                      <th className="px-6 py-4 text-sm font-bold text-white uppercase tracking-wider text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-white/[0.05]">

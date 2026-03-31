@@ -274,6 +274,14 @@ export default function OffersPage() {
                 </div>
 
                 <div className="space-y-6">
+                  <div className="bg-white/5 py-3 border-b border-white/[0.08] text-sm font-bold uppercase tracking-wider text-white grid grid-cols-[80px_1fr_1.5fr_1fr_120px_140px] items-center">
+                    <div className="px-6 flex items-center justify-center"></div>
+                    <div className="px-6 flex items-center">Banner</div>
+                    <div className="px-6 flex items-center">Title & Logic</div>
+                    <div className="px-6 flex items-center">Validation</div>
+                    <div className="px-6 flex items-center justify-center">Status</div>
+                    <div className="px-6 flex items-center justify-end">Actions</div>
+                  </div>
                   <div className="flex items-center justify-between">
                     <label className="text-sm font-bold text-white">Target Items</label>
                     <div className="flex bg-white/5 p-1 rounded-xl border border-white/10">

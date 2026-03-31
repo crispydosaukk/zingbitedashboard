@@ -68,7 +68,7 @@ const OrderDetailsModal = ({ order, onClose }) => {
             <h3 className="text-sm font-bold text-white/50 mb-6">Payload Manifest</h3>
             <div className="overflow-hidden rounded-2xl border border-white/[0.08] bg-white/5">
               <div className="overflow-x-auto"><table className="w-full text-left min-w-[400px]">
-                <thead className="bg-[#0b1a3d]/60 text-white/50 text-xs font-bold"><tr><th className="px-6 py-4">Qty</th><th className="px-6 py-4">Item</th><th className="px-6 py-4 text-right">Aggregate</th></tr></thead>
+                <thead className="bg-[#0b1a3d]/60 text-white text-sm font-bold"><tr><th className="px-6 py-4">Qty</th><th className="px-6 py-4">Item</th><th className="px-6 py-4 text-right">Aggregate</th></tr></thead>
                 <tbody className="divide-y divide-white/[0.08]">
                   {items.map((item, i) => (
                     <tr key={i} className="hover:bg-white/5 transition-colors">
