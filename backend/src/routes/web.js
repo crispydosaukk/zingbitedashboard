@@ -88,6 +88,8 @@ import {
   getTableReservations,
   updateReservationStatus,
   deleteReservation,
+  getReservationSettings,
+  updateReservationSettings,
 } from "../controllers/admin/TableReservationController.js";
 
 
@@ -188,5 +190,8 @@ router.delete("/offers/:id", auth, deleteOffer);
 router.get("/table-reservations", auth, getTableReservations);
 router.put("/table-reservations/:id/status", auth, updateReservationStatus);
 router.delete("/table-reservations/:id", auth, deleteReservation);
+
+router.get("/table-reservation-settings", auth, getReservationSettings);
+router.post("/table-reservation-settings", auth, updateReservationSettings);
 
 export default router;

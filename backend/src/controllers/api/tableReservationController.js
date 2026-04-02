@@ -63,7 +63,26 @@ export const reserveTable = async (req, res) => {
       reservation_id: result.insertId
     });
   } catch (error) {
-    console.error("Error in reserveTable:", error);
+    res.status(500).json({ status: 0, message: "Internal server error." });
+  }
+};
+
+export const getReservationSettings = async (req, res) => {
+  const { user_id } = req.params;
+  try {
+    const [rows] = await pool.query(
+      "SELECT * FROM table_reservation_settings WHERE user_id = ?",
+      [user_id]
+    );
+
+    if (rows.length === 0) {
+      // Default to disabled if not configured
+      return res.json({ status: 1, data: { is_enabled: 0, monday: 0, tuesday: 0, wednesday: 0, thursday: 0, friday: 0, saturday: 0, sunday: 0 } });
+    }
+
+    res.json({ status: 1, data: rows[0] });
+  } catch (error) {
+    console.error("Error in getReservationSettings (API):", error);
     res.status(500).json({ status: 0, message: "Internal server error." });
   }
 };

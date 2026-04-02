@@ -25,7 +25,7 @@ import {
 } from "../controllers/api/notificationListController.js";
 import { getAppSettings } from "../controllers/api/settingsController.js";
 import { getActiveOffers } from "../controllers/api/offerController.js";
-import { reserveTable } from "../controllers/api/tableReservationController.js";
+import { reserveTable, getReservationSettings } from "../controllers/api/tableReservationController.js";
 
 
 const router = express.Router();
@@ -78,5 +78,6 @@ router.get("/offers", getActiveOffers);
 
 // TABLE RESERVATIONS
 router.post("/table-reservation", auth, reserveTable);
+router.get("/table-reservation-settings/:user_id", getReservationSettings);
 
 export default router;

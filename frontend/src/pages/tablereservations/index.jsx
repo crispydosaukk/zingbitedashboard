@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Calendar, Users, CircleCheck, Clock, Search, Filter, Eye,
   MoreHorizontal, Trash2, RefreshCw, Loader2, X, Phone, Mail, MessageSquare,
-  AlertCircle, CheckCircle2, UserCheck, Utensils
+  AlertCircle, CheckCircle2, UserCheck, Utensils, Settings, ToggleLeft, ToggleRight, Save, Bell
 } from "lucide-react";
 
 const STATUS_META = {
@@ -37,10 +37,55 @@ export default function TableReservations() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [selectedRes, setSelectedRes] = useState(null);
   const [updating, setUpdating] = useState(false);
+  const [settings, setSettings] = useState({
+    is_enabled: false,
+    monday: false,
+    tuesday: false,
+    wednesday: false,
+    thursday: false,
+    friday: false,
+    saturday: false,
+    sunday: false
+  });
+  const [loadingSettings, setLoadingSettings] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [savingSettings, setSavingSettings] = useState(false);
 
   useEffect(() => {
     fetchReservations();
+    fetchSettings();
   }, []);
+
+  const fetchSettings = async () => {
+    try {
+      setLoadingSettings(true);
+      const res = await api.get("/table-reservation-settings");
+      if (res.data.status === 1) {
+        setSettings(res.data.data);
+      }
+    } catch (err) {
+      console.error("Error fetching settings:", err);
+    } finally {
+      setLoadingSettings(false);
+    }
+  };
+
+  const handleToggleSetting = (day) => {
+    setSettings(prev => ({ ...prev, [day]: !prev[day] }));
+  };
+
+  const handleSaveSettings = async () => {
+    try {
+      setSavingSettings(true);
+      await api.post("/table-reservation-settings", settings);
+      // alert("Settings updated successfully!");
+      setShowSettings(false);
+    } catch (err) {
+      console.error("Error saving settings:", err);
+    } finally {
+      setSavingSettings(false);
+    }
+  };
 
   const fetchReservations = async () => {
     try {
@@ -116,28 +161,116 @@ export default function TableReservations() {
                   <Utensils className="text-yellow-400" size={24} />
                 </div>
                 <div>
-                  <h1 className="text-2xl font-bold text-white tracking-tight leading-none">Table Reservations</h1>
-                  <p className="text-white/40 text-sm font-medium mt-1.5 uppercase tracking-widest">Real-time Booking Manager</p>
+                  <h1 className="text-2xl font-bold text-white tracking-tight leading-none">Table reservations</h1>
+                  <p className="text-white/40 text-sm font-medium mt-1.5 uppercase tracking-widest">Real-time booking manager</p>
                 </div>
               </div>
-              <button
-                onClick={fetchReservations}
-                disabled={loading}
-                className="px-5 py-2.5 bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-500 rounded-2xl border border-yellow-500/30 transition-all flex items-center gap-2 active:scale-95 disabled:opacity-50"
-              >
-                <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
-                Refresh
-              </button>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setShowSettings(!showSettings)}
+                  className={`px-5 py-2.5 rounded-2xl border transition-all flex items-center gap-2 active:scale-95 font-bold text-sm ${showSettings ? "bg-yellow-500 text-slate-900 border-yellow-500" : "bg-white/5 hover:bg-white/10 text-white/60 border-white/10"}`}
+                >
+                  <Settings size={14} className={loadingSettings ? "animate-spin" : ""} />
+                  Availability preferences
+                </button>
+                <button
+                  onClick={fetchReservations}
+                  disabled={loading}
+                  className="px-5 py-2.5 bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-500 rounded-2xl border border-yellow-500/30 transition-all flex items-center gap-2 active:scale-95 disabled:opacity-50"
+                >
+                  <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
+                  Refresh
+                </button>
+              </div>
             </div>
+
+            {/* Quick Settings Section */}
+            <AnimatePresence>
+              {showSettings && (
+                <motion.div
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  className="mb-8 p-6 bg-[#0b1a3d]/60 backdrop-blur-xl border border-yellow-500/20 rounded-3xl shadow-2xl relative overflow-hidden"
+                >
+                  {/* Background Glow */}
+                  <div className="absolute top-0 right-0 w-64 h-64 bg-yellow-500/5 blur-[80px] -mr-32 -mt-32 rounded-full" />
+
+                  <div className="relative z-10">
+                    <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 mb-8 pb-6 border-b border-white/5">
+                      <div className="flex items-center gap-4">
+                        <div className={`p-4 rounded-2xl border transition-all duration-500 ${settings.is_enabled ? "bg-yellow-500/20 border-yellow-500/40" : "bg-rose-500/10 border-rose-500/20"}`}>
+                          {settings.is_enabled ? <ToggleRight className="text-yellow-400" size={24} /> : <ToggleLeft className="text-rose-400" size={24} />}
+                        </div>
+                        <div>
+                          <h2 className="text-xl font-bold text-white tracking-tight">Availability manager</h2>
+                          <p className="text-white/40 text-xs font-medium uppercase tracking-widest mt-1">Master control and scheduled days</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-4 bg-white/5 p-2 rounded-2xl border border-white/5">
+                        <span className={`text-[10px] font-semibold uppercase tracking-[0.2em] px-3 ${settings.is_enabled ? "text-yellow-400" : "text-rose-400"}`}>
+                          {settings.is_enabled ? "System active" : "System deactivated"}
+                        </span>
+                        <button
+                          onClick={() => handleToggleSetting('is_enabled')}
+                          className={`relative w-14 h-8 rounded-full transition-all duration-300 ${settings.is_enabled ? "bg-yellow-500 shadow-[0_0_15px_rgba(234,179,8,0.3)]" : "bg-white/10"}`}
+                        >
+                          <motion.div
+                            animate={{ x: settings.is_enabled ? 26 : 4 }}
+                            className="absolute top-1 w-6 h-6 bg-white rounded-full shadow-lg"
+                          />
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3 mb-8">
+                      {['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].map((day) => (
+                        <button
+                          key={day}
+                          disabled={!settings.is_enabled}
+                          onClick={() => handleToggleSetting(day)}
+                          className={`flex flex-col items-center justify-center p-4 rounded-2xl border transition-all duration-300 group ${!settings.is_enabled ? "opacity-30 cursor-not-allowed border-white/5 bg-white/5" :
+                            settings[day]
+                              ? "bg-yellow-500/10 border-yellow-500/40 text-yellow-400 shadow-lg shadow-yellow-500/5 hover:border-yellow-500/60"
+                              : "bg-white/5 border-white/10 text-white/30 hover:border-white/20 hover:text-white/50"
+                            }`}
+                        >
+                          <span className="text-[10px] font-semibold uppercase tracking-widest mb-2 leading-none">{day.charAt(0).toUpperCase() + day.slice(1, 3)}</span>
+                          <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${settings[day] ? "bg-yellow-500 text-slate-900" : "bg-white/5 text-white/20"
+                            }`}>
+                            <Calendar size={14} strokeWidth={2.5} />
+                          </div>
+                          <span className={`text-[9px] font-bold mt-2.5 uppercase tracking-tighter ${settings[day] ? "opacity-100" : "opacity-40"}`}>
+                            {settings[day] ? "Available" : "Hidden"}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+
+                    <div className="flex justify-end pt-2">
+                      <button
+                        onClick={handleSaveSettings}
+                        disabled={savingSettings}
+                        className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-slate-900 font-bold text-sm rounded-2xl shadow-2xl shadow-yellow-500/20 active:scale-95 transition-all disabled:opacity-50"
+                      >
+                        {savingSettings ? <Loader2 className="animate-spin" size={14} /> : <Save size={14} />}
+                        Update preference
+                      </button>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {/* Quick Stats */}
             <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
               {[
-                { label: "Total Bookings", value: stats.total, icon: Calendar, color: "text-blue-400", bg: "bg-blue-400/10" },
-                { label: "Awaiting Confirmation", value: stats.pending, icon: AlertCircle, color: "text-amber-400", bg: "bg-amber-400/10" },
+                { label: "Total bookings", value: stats.total, icon: Calendar, color: "text-blue-400", bg: "bg-blue-400/10" },
+                { label: "Awaiting confirmation", value: stats.pending, icon: AlertCircle, color: "text-amber-400", bg: "bg-amber-400/10" },
                 { label: "Confirmed", value: stats.confirmed, icon: CheckCircle2, color: "text-emerald-400", bg: "bg-emerald-400/10" },
                 { label: "Completed", value: stats.completed, icon: UserCheck, color: "text-sky-400", bg: "bg-sky-400/10" },
-                { label: "Today's Guests", value: stats.today, icon: Clock, color: "text-indigo-400", bg: "bg-indigo-400/10" },
+                { label: "Today's guests", value: stats.today, icon: Clock, color: "text-indigo-400", bg: "bg-indigo-400/10" },
               ].map((s, i) => (
                 <div key={i} className="bg-[#0b1a3d]/60 backdrop-blur-xl border border-white/[0.08] rounded-2xl p-5 shadow-2xl shadow-black/20">
                   <div className="flex items-center justify-between mb-3">
@@ -168,7 +301,7 @@ export default function TableReservations() {
                 onChange={e => setStatusFilter(e.target.value)}
                 className="bg-[#0b1a3d]/40 border border-white/[0.08] rounded-xl px-4 py-3 text-sm text-white focus:outline-none"
               >
-                <option value="all" className="bg-[#0b1a3d]">All Statuses</option>
+                <option value="all" className="bg-[#0b1a3d]">All statuses</option>
                 {Object.keys(STATUS_META).map(k => (
                   <option key={k} value={k} className="bg-[#0b1a3d]">{STATUS_META[k].label}</option>
                 ))}
@@ -181,7 +314,7 @@ export default function TableReservations() {
                 <table className="w-full text-left">
                   <thead className="bg-white/5 border-b border-white/[0.08]">
                     <tr>
-                      <th className="px-6 py-4 text-sm font-bold text-white uppercase tracking-wider">Guest Info</th>
+                      <th className="px-6 py-4 text-sm font-bold text-white uppercase tracking-wider">Guest info</th>
                       <th className="px-6 py-4 text-sm font-bold text-white uppercase tracking-wider">Table</th>
                       <th className="px-6 py-4 text-sm font-bold text-white uppercase tracking-wider">Schedule</th>
                       <th className="px-6 py-4 text-sm font-bold text-white uppercase tracking-wider">Status</th>
@@ -277,7 +410,7 @@ export default function TableReservations() {
             >
               <div className="p-8 border-b border-white/[0.08] flex items-center justify-between bg-gradient-to-r from-[#071428] to-[#0d1f45] shrink-0">
                 <div>
-                  <h3 className="text-2xl font-semibold text-white tracking-tight">Reservation Details</h3>
+                  <h3 className="text-2xl font-semibold text-white tracking-tight">Reservation details</h3>
                   <p className="text-xs text-white/40 mt-2 font-medium tracking-wider leading-none">Booking ID: #{selectedRes.id}</p>
                 </div>
                 <button onClick={() => setSelectedRes(null)} className="p-2.5 bg-white/5 hover:bg-white/10 rounded-2xl text-white/40 hover:text-white transition-all border border-white/10">
@@ -289,7 +422,7 @@ export default function TableReservations() {
                 {/* Guest Info */}
                 <div className="grid grid-cols-2 gap-4">
                   <div className="p-4 bg-white/5 rounded-2xl border border-white/[0.05]">
-                    <p className="text-xs font-semibold text-white/30 mb-2 uppercase tracking-wide">Guest Name</p>
+                    <p className="text-xs font-semibold text-white/30 mb-2 uppercase tracking-wide">Guest name</p>
                     <p className="text-base font-semibold text-white">{selectedRes.customer_name}</p>
                   </div>
                   <div className="p-4 bg-white/5 rounded-2xl border border-white/[0.05]">
@@ -300,7 +433,7 @@ export default function TableReservations() {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="p-4 bg-white/5 rounded-2xl border border-white/[0.05]">
-                    <p className="text-xs font-semibold text-white/30 mb-2 uppercase tracking-wide">Table & Party</p>
+                    <p className="text-xs font-semibold text-white/30 mb-2 uppercase tracking-wide">Table & party</p>
                     <p className="text-base font-semibold text-white">Table: {selectedRes.table_number || "—"} ({selectedRes.party_size} Guests)</p>
                   </div>
                   <div className="p-4 bg-white/5 rounded-2xl border border-white/[0.05]">
@@ -328,7 +461,7 @@ export default function TableReservations() {
                   </div>
 
                   <div className="pt-4">
-                    <p className="text-xs font-bold text-white/30 mb-3 uppercase tracking-widest">Staff Notes</p>
+                    <p className="text-xs font-bold text-white/30 mb-3 uppercase tracking-widest">Staff notes</p>
                     <textarea
                       className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white/80 focus:outline-none focus:border-yellow-500/40"
                       rows={2}
@@ -341,7 +474,7 @@ export default function TableReservations() {
 
                 {/* Actions */}
                 <div className="pt-6 border-t border-white/[0.08]">
-                  <p className="text-xs font-bold text-white/30 mb-5 uppercase tracking-widest">Set Status</p>
+                  <p className="text-xs font-bold text-white/30 mb-5 uppercase tracking-widest">Set status</p>
                   <div className="grid grid-cols-3 gap-2">
                     {['confirmed', 'seated', 'completed', 'cancelled', 'no_show'].map(s => (
                       <button
@@ -349,8 +482,8 @@ export default function TableReservations() {
                         disabled={updating}
                         onClick={() => handleUpdateStatus(selectedRes.id, s)}
                         className={`px-3 py-3.5 rounded-2xl text-[13px] font-bold uppercase tracking-wider transition-all border ${selectedRes.status === s
-                            ? 'bg-yellow-500 text-slate-900 border-yellow-500 shadow-lg shadow-yellow-500/20'
-                            : 'bg-white/5 text-white/50 border-white/10 hover:bg-white/10'
+                          ? 'bg-yellow-500 text-slate-900 border-yellow-500 shadow-lg shadow-yellow-500/20'
+                          : 'bg-white/5 text-white/50 border-white/10 hover:bg-white/10'
                           }`}
                       >
                         {s.charAt(0).toUpperCase() + s.slice(1).replace('_', ' ')}
@@ -361,9 +494,9 @@ export default function TableReservations() {
 
                 <button
                   onClick={() => setSelectedRes(null)}
-                  className="w-full py-5 bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-slate-900 font-black text-sm uppercase tracking-widest rounded-2xl shadow-2xl shadow-yellow-500/20 active:scale-95 transition-all"
+                  className="w-full py-5 bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-slate-900 font-semibold text-sm uppercase tracking-widest rounded-2xl shadow-2xl shadow-yellow-500/20 active:scale-95 transition-all"
                 >
-                  Close Record
+                  Close record
                 </button>
               </div>
             </motion.div>
