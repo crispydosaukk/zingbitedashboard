@@ -204,13 +204,13 @@ export default function TableReservations() {
                         </div>
                         <div>
                           <h2 className="text-xl font-bold text-white tracking-tight">Availability manager</h2>
-                          <p className="text-white/40 text-xs font-medium uppercase tracking-widest mt-1">Master control and scheduled days</p>
+                          <p className="text-white/40 text-xs font-medium tracking-widest mt-1">Master Control and Scheduled Days</p>
                         </div>
                       </div>
 
                       <div className="flex items-center gap-4 bg-white/5 p-2 rounded-2xl border border-white/5">
-                        <span className={`text-[10px] font-semibold uppercase tracking-[0.2em] px-3 ${settings.is_enabled ? "text-yellow-400" : "text-rose-400"}`}>
-                          {settings.is_enabled ? "System active" : "System deactivated"}
+                        <span className={`text-sm font-bold px-4 ${settings.is_enabled ? "text-yellow-400" : "text-white"}`}>
+                          {settings.is_enabled ? "Table Reservation Enabled" : "Table Reservation Disabled"}
                         </span>
                         <button
                           onClick={() => handleToggleSetting('is_enabled')}
@@ -230,10 +230,10 @@ export default function TableReservations() {
                           key={day}
                           disabled={!settings.is_enabled}
                           onClick={() => handleToggleSetting(day)}
-                          className={`flex flex-col items-center justify-center p-4 rounded-2xl border transition-all duration-300 group ${!settings.is_enabled ? "opacity-30 cursor-not-allowed border-white/5 bg-white/5" :
+                          className={`flex flex-col items-center justify-center p-4 rounded-2xl border transition-all duration-300 group ${!settings.is_enabled ? "opacity-60 cursor-not-allowed border-white/5 bg-white/5" :
                             settings[day]
                               ? "bg-yellow-500/10 border-yellow-500/40 text-yellow-400 shadow-lg shadow-yellow-500/5 hover:border-yellow-500/60"
-                              : "bg-white/5 border-white/10 text-white/30 hover:border-white/20 hover:text-white/50"
+                              : "bg-white/5 border-white/10 text-white/60 hover:border-white/20 hover:text-white/80"
                             }`}
                         >
                           <span className="text-[10px] font-semibold uppercase tracking-widest mb-2 leading-none">{day.charAt(0).toUpperCase() + day.slice(1, 3)}</span>
@@ -241,9 +241,6 @@ export default function TableReservations() {
                             }`}>
                             <Calendar size={14} strokeWidth={2.5} />
                           </div>
-                          <span className={`text-[9px] font-bold mt-2.5 uppercase tracking-tighter ${settings[day] ? "opacity-100" : "opacity-40"}`}>
-                            {settings[day] ? "Available" : "Hidden"}
-                          </span>
                         </button>
                       ))}
                     </div>
