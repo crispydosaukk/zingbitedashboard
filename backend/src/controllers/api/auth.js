@@ -271,6 +271,13 @@ export const login = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
+    // 🔒 Block deactivated accounts
+    if (user.status === 0) {
+      return res.status(403).json({
+        message: "This account has been deactivated. Please contact support@zingbit.co.uk for assistance.",
+      });
+    }
+
     // 🔹 Compare password
     const match = await bcrypt.compare(password, user.password);
     if (!match) {
@@ -364,6 +371,21 @@ export const updateProfile = async (req, res) => {
     });
   } catch (err) {
     console.error("updateProfile error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// 🟢 Deactivate account (JWT protected)
+export const deleteAccount = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    await db.execute(
+      "UPDATE customers SET status = 0, updated_at = NOW() WHERE id = ?",
+      [userId]
+    );
+    return res.json({ message: "Account successfully deactivated" });
+  } catch (err) {
+    console.error("deleteAccount error:", err);
     res.status(500).json({ message: "Server error" });
   }
 };

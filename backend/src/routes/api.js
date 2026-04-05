@@ -1,5 +1,5 @@
 import express from "express";
-import { register, login, profile, updateProfile } from "../controllers/api/auth.js";
+import { register, login, profile, updateProfile, deleteAccount } from "../controllers/api/auth.js";
 import auth from "../middleware/auth.js";
 import { getRestaurants, getRestaurantById, getRestaurantTimings } from "../controllers/api/restaurantController.js";
 import { getCategories } from "../controllers/api/categoryController.js";
@@ -70,6 +70,7 @@ router.post("/notifications/read", auth, markNotificationRead);
 router.get("/payments/history", auth, getPaymentHistory);
 router.get("/profile", auth, getProfile);
 router.put("/profile", auth, updateProfile);
+router.delete("/profile", auth, deleteAccount);
 
 router.post("/loyalty/redeem", auth, redeemLoyaltyToWallet);
 
