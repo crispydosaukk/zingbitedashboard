@@ -5,8 +5,10 @@ import Footer from "../../components/common/footer.jsx";
 import api from "../../api.js";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, Plus, Edit, Trash2, X, Shield } from "lucide-react";
+import { usePopup } from "../../context/PopupContext";
 
 export default function AccessManagement() {
+  const { showPopup } = usePopup();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [openModal, setOpenModal] = useState(false); // create modal
   const [title, setTitle] = useState("");
@@ -74,17 +76,23 @@ export default function AccessManagement() {
     }
   }
 
-  async function handleDelete(id) {
-    const ok = window.confirm("Delete this permission?");
-    if (!ok) return;
-    try {
-      await api.delete(`/permissions/${id}`);
-      // optimistic update
-      setPermissions(prev => prev.filter(p => p.id !== id));
-    } catch (e) {
-      setError(e.message || "Failed to delete");
-    }
-  }
+  const handleDelete = (id) => {
+    showPopup({
+      title: "Delete Permission",
+      message: "Are you sure you want to delete this permission?",
+      type: "confirm",
+      onConfirm: async () => {
+        try {
+          await api.delete(`/permissions/${id}`);
+          setPermissions(prev => prev.filter(p => p.id !== id));
+          showPopup({ title: "Deleted", message: "Permission removed.", type: "success" });
+        } catch (e) {
+          setError(e.message || "Failed to delete");
+          showPopup({ title: "Error", message: "Could not delete permission.", type: "error" });
+        }
+      }
+    });
+  };
 
   const filtered = permissions.filter(p =>
     (p.title || "").toLowerCase().includes(search.toLowerCase().trim())

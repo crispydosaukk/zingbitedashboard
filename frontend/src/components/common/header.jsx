@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, Bell, Menu, User, LogOut, Settings, ChevronDown, X, MapPin, Check, Navigation, Phone, Mail, Calendar, MessageSquare } from "lucide-react";
+import { Search, Bell, Menu, User, LogOut, Settings, ChevronDown, X, MapPin, Check, Navigation, Phone, Mail, Calendar, MessageSquare, AlertCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import api from "../../api.js";
 import ReadyInModal from "./ReadyInModal.jsx";
@@ -427,6 +427,9 @@ export default function Header({ onToggleSidebar, darkMode = true }) {
             const additions = newlyAdded.filter(add => !currentToasts.find(ct => ct.order_number === add.order_number));
             return [...additions, ...currentToasts];
           });
+
+          // Global event to trigger refresh in other components
+          window.dispatchEvent(new CustomEvent('dashboard-refresh'));
         }
         return newOrders;
       });
@@ -467,6 +470,9 @@ export default function Header({ onToggleSidebar, darkMode = true }) {
             const additions = newResToasts.filter(add => !currentToasts.find(ct => ct.toastId === add.toastId));
             return [...additions, ...currentToasts];
           });
+
+          // Global event to trigger refresh in other components
+          window.dispatchEvent(new CustomEvent('dashboard-refresh'));
         }
         return pendingRows;
       });
@@ -780,8 +786,8 @@ export default function Header({ onToggleSidebar, darkMode = true }) {
                                 </div>
                               </div>
                               <div className="text-right">
-                                <p className="text-emerald-400 font-bold text-sm">£{Number(order.order_total).toFixed(2)}</p>
-                                <p className="text-[10px] text-white/30 uppercase tracking-tighter">Total Amount</p>
+                                <p className="text-emerald-400 font-bold text-sm">£{Number(order.paid_amount).toFixed(2)}</p>
+                                <p className="text-[10px] text-white/30 uppercase tracking-tighter">Amount Paid</p>
                               </div>
                             </div>
 
@@ -987,7 +993,7 @@ export default function Header({ onToggleSidebar, darkMode = true }) {
                             {toast.isRegistration || toast.isReservation ? "Action" : "Amount Paid"}
                           </span>
                           <span className="text-lg font-black text-white">
-                            {toast.isRegistration || toast.isReservation ? "Review" : `£${Number(toast.order_total).toFixed(2)}`}
+                            {toast.isRegistration || toast.isReservation ? "Review" : `£${Number(toast.paid_amount).toFixed(2)}`}
                           </span>
                         </div>
                         <div className="flex gap-2">

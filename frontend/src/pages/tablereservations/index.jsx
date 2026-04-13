@@ -9,6 +9,7 @@ import {
   MoreHorizontal, Trash2, RefreshCw, Loader2, X, Phone, Mail, MessageSquare,
   AlertCircle, CheckCircle2, UserCheck, Utensils, Settings, ToggleLeft, ToggleRight, Save, Bell
 } from "lucide-react";
+import { usePopup } from "../../context/PopupContext";
 
 const STATUS_META = {
   pending: { label: "Pending", color: "text-amber-400", bg: "bg-amber-500/10", border: "border-amber-500/20", dot: "bg-amber-400" },
@@ -30,6 +31,7 @@ function StatusBadge({ status }) {
 }
 
 export default function TableReservations() {
+  const { showPopup } = usePopup();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [reservations, setReservations] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -50,6 +52,14 @@ export default function TableReservations() {
   const [loadingSettings, setLoadingSettings] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [savingSettings, setSavingSettings] = useState(false);
+
+  useEffect(() => {
+    const handleAutoRefresh = () => {
+      fetchReservations();
+    };
+    window.addEventListener('dashboard-refresh', handleAutoRefresh);
+    return () => window.removeEventListener('dashboard-refresh', handleAutoRefresh);
+  }, []);
 
   useEffect(() => {
     fetchReservations();
@@ -112,14 +122,22 @@ export default function TableReservations() {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this reservation?")) return;
-    try {
-      await api.delete(`/table-reservations/${id}`);
-      fetchReservations();
-    } catch (err) {
-      console.error("Delete error:", err);
-    }
+  const handleDelete = (id) => {
+    showPopup({
+      title: "Confirm Deletion",
+      message: "Are you sure you want to delete this reservation?",
+      type: "confirm",
+      onConfirm: async () => {
+        try {
+          await api.delete(`/table-reservations/${id}`);
+          fetchReservations();
+          showPopup({ title: "Deleted", message: "Reservation deleted successfully.", type: "success" });
+        } catch (err) {
+          console.error("Delete error:", err);
+          showPopup({ title: "Error", message: "Failed to delete reservation.", type: "error" });
+        }
+      }
+    });
   };
 
   const filtered = useMemo(() => {

@@ -270,8 +270,10 @@ export const createOrder = async (req, res) => {
     }
 
     // ✅ Insert order rows
-    let firstRow = true;
+    let remainingWallet = walletDeducted;
+    let remainingLoyalty = loyaltyDeducted;
     let orderIdForLoyalty = null;
+    let isFirstRowForInsert = true;
 
     for (const item of items) {
       const {
@@ -281,25 +283,26 @@ export const createOrder = async (req, res) => {
         discount_amount,
         vat,
         quantity,
-        textfield,          // <--- GETTING TEXT FROM APP
+        textfield,
         special_instruction
       } = item;
 
-      // Use textfield coming from frontend
       const noteToSave = textfield || special_instruction || null;
-
       const totalPrice = Number(price) * Number(quantity);
       const totalDiscount = Number(discount_amount || 0);
       const totalVat = Number(vat || 0);
       const gross = totalPrice - totalDiscount + totalVat;
 
-      const walletAmountForThisRow = firstRow ? walletDeducted : 0;
-      const loyaltyAmountForThisRow = firstRow ? loyaltyDeducted : 0;
-      const paid = firstRow
-        ? Math.max(0, gross - walletDeducted - loyaltyDeducted)
-        : gross;
+      // Deduct wallet from this item
+      const walletForThisRow = Math.min(remainingWallet, gross);
+      remainingWallet -= walletForThisRow;
 
-      // ✅ ADDED `special_instruction` to INSERT
+      // Deduct loyalty from what's left
+      const loyaltyForThisRow = Math.min(remainingLoyalty, gross - walletForThisRow);
+      remainingLoyalty -= loyaltyForThisRow;
+
+      const paid = Math.max(0, gross - walletForThisRow - loyaltyForThisRow);
+
       const sql = `
         INSERT INTO orders 
         (user_id, order_number, customer_id, product_id, payment_mode, payment_request_id,
@@ -317,13 +320,13 @@ export const createOrder = async (req, res) => {
         payment_mode,
         payment_request_id || null,
         product_name,
-        noteToSave, // <--- SAVING THE NOTE HERE
+        noteToSave,
         price,
         totalDiscount,
         totalVat,
         gross,
-        walletAmountForThisRow,
-        loyaltyAmountForThisRow,
+        walletForThisRow,
+        loyaltyForThisRow,
         quantity,
         paid,
         0,
@@ -339,10 +342,10 @@ export const createOrder = async (req, res) => {
 
       const [orderInsertRes] = await conn.query(sql, values);
 
-      if (firstRow && orderInsertRes?.insertId) {
+      if (isFirstRowForInsert && orderInsertRes?.insertId) {
         orderIdForLoyalty = orderInsertRes.insertId;
       }
-      firstRow = false;
+      isFirstRowForInsert = false;
     }
 
     // ✅ LOYALTY EARNINGS

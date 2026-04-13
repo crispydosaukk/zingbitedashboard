@@ -136,7 +136,17 @@ export default function Orders() {
     } catch (err) { }
   };
 
-  useEffect(() => { loadOrders(); }, []);
+  useEffect(() => {
+    const handleAutoRefresh = () => {
+      loadOrders();
+    };
+    window.addEventListener('dashboard-refresh', handleAutoRefresh);
+    return () => window.removeEventListener('dashboard-refresh', handleAutoRefresh);
+  }, []);
+
+  useEffect(() => {
+    loadOrders();
+  }, []);
 
   useEffect(() => {
     let interval;

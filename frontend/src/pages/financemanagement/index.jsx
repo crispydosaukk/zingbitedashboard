@@ -4,10 +4,11 @@ import Header from "../../components/common/header.jsx";
 import Sidebar from "../../components/common/sidebar.jsx";
 import Footer from "../../components/common/footer.jsx";
 import api from "../../api.js";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   PoundSterling, TrendingUp, TrendingDown, Wallet,
   Activity, ArrowUpRight, ArrowDownRight, Search,
-  Calendar, FileText, History, CreditCard, RefreshCw, Loader2, Undo2
+  Calendar, FileText, History, CreditCard, RefreshCw, Loader2, Undo2, X, AlertCircle
 } from "lucide-react";
 import { usePopup } from "../../context/PopupContext";
 
@@ -15,7 +16,7 @@ import { usePopup } from "../../context/PopupContext";
 
 const getOrderType = (status) => {
   const s = Number(status);
-  if ([2, 5, 6].includes(s)) return "Refund";
+  if ([2, 5, 6, 7].includes(s)) return "Refund";
   return "Sales";
 };
 
@@ -28,6 +29,7 @@ const getStatusLabel = (status) => {
     case 4: return { label: "Collected", dot: "bg-emerald-500", text: "text-emerald-400" };
     case 5: return { label: "Cancelled", dot: "bg-rose-600",    text: "text-rose-500" };
     case 6: return { label: "Refunded",  dot: "bg-blue-500",    text: "text-blue-400" };
+    case 7: return { label: "Partial Refund", dot: "bg-indigo-500", text: "text-indigo-400" };
     default: return { label: "Unknown",  dot: "bg-white/20",    text: "text-white/40" };
   }
 };
@@ -91,6 +93,12 @@ const FinanceManagement = () => {
   const [loading, setLoading] = useState(false);
   const [statsLoading, setStatsLoading] = useState(false);
 
+  // Refund Modal State
+  const [refundModalOpen, setRefundModalOpen] = useState(false);
+  const [selectedTx, setSelectedTx] = useState(null);
+  const [refundAmountInput, setRefundAmountInput] = useState("");
+  const [refunding, setRefunding] = useState(false);
+
   const fetchData = useCallback(async () => {
     setLoading(true);
     if (page === 1) setStatsLoading(true);
@@ -122,37 +130,63 @@ const FinanceManagement = () => {
     }
   }, [startDate, endDate, search, page]);
 
-  const handleRefund = async (order_number) => {
-    if (!window.confirm(`Are you sure you want to refund order #${order_number}? This will initiate a Stripe refund if applicable and restore customer credits.`)) return;
+  const handleOpenRefundModal = (tx) => {
+    const gross = Number(tx.gross_amount || 0);
+    const refunded = Number(tx.refunded_amount || 0);
+    const remaining = Number((gross - refunded).toFixed(2));
+    
+    setSelectedTx({ ...tx, remaining });
+    setRefundAmountInput(remaining.toString());
+    setRefundModalOpen(true);
+  };
+
+  const processRefund = async () => {
+    if (!selectedTx) return;
+    const amount = parseFloat(refundAmountInput);
+    
+    if (isNaN(amount) || amount <= 0) {
+      showPopup({ title: "Invalid Amount", message: "Please enter an amount greater than zero.", type: "error" });
+      return;
+    }
+    
+    if (amount > selectedTx.remaining + 0.01) {
+      showPopup({ title: "Amount Exceeded", message: `Cannot refund more than the remaining balance (£${selectedTx.remaining}).`, type: "error" });
+      return;
+    }
 
     try {
-      setLoading(true);
-      const res = await api.post("/order/refund", { order_number });
+      setRefunding(true);
+      const res = await api.post("/order/refund", { 
+        order_number: selectedTx.order_number,
+        amount: amount
+      });
+      
       if (res.data.status === 1) {
         showPopup({
-          title: "Refund Processed",
-          message: `Order #${order_number} has been refunded successfully.`,
+          title: "Refund Successful",
+          message: `Issued £${amount.toFixed(2)} refund for order #${selectedTx.order_number}.`,
           type: "success"
         });
-        fetchData(); // Refresh summary and list
+        setRefundModalOpen(false);
+        fetchData();
       } else {
-        showPopup({
-          title: "Refund Failed",
-          message: res.data.message || "Could not process refund.",
-          type: "error"
-        });
+        showPopup({ title: "Refund Failed", message: res.data.message || "Failed to process refund.", type: "error" });
       }
     } catch (err) {
       console.error("Refund error:", err);
-      showPopup({
-        title: "System Error",
-        message: err.response?.data?.message || "Something went wrong while processing the refund.",
-        type: "error"
-      });
+      showPopup({ title: "System Error", message: err.response?.data?.message || "Something went wrong.", type: "error" });
     } finally {
-      setLoading(false);
+      setRefunding(false);
     }
   };
+
+  useEffect(() => {
+    const handleAutoRefresh = () => {
+      fetchData();
+    };
+    window.addEventListener('dashboard-refresh', handleAutoRefresh);
+    return () => window.removeEventListener('dashboard-refresh', handleAutoRefresh);
+  }, [fetchData]);
 
   useEffect(() => {
     fetchData();
@@ -162,11 +196,6 @@ const FinanceManagement = () => {
     e.preventDefault();
     setSearch(searchInput);
     setPage(1);
-  };
-
-  const handleDateApply = () => {
-    setPage(1);
-    fetchData();
   };
 
   return (
@@ -192,7 +221,6 @@ const FinanceManagement = () => {
                   </div>
                 </div>
                 <div className="flex items-center gap-3 flex-wrap">
-                  {/* Date Range Filters */}
                   <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl p-1">
                     <div className="relative">
                       <Calendar size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30 pointer-events-none" />
@@ -220,38 +248,14 @@ const FinanceManagement = () => {
                   >
                     <RefreshCw size={15} />
                   </button>
-                  <button className="px-5 py-3 bg-white/10 hover:bg-white/20 border border-white/20 rounded-2xl text-xs font-semibold text-white transition-all flex items-center gap-2">
-                    <FileText size={14} /> Export Report
-                  </button>
-                  <button className="px-5 py-3 bg-gradient-to-r from-yellow-500 to-amber-500 hover:scale-105 rounded-2xl text-xs font-semibold text-[#071428] shadow-xl shadow-yellow-500/20 transition-all flex items-center gap-2 active:scale-95">
-                    <History size={14} /> Transaction History
-                  </button>
                 </div>
               </div>
 
               {/* Stats Matrix */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <StatCard
-                  title="Gross Intake"
-                  value={formatAmount(summary.gross_intake)}
-                  color="bg-emerald-500"
-                  icon={TrendingUp}
-                  loading={statsLoading}
-                />
-                <StatCard
-                  title="Refund Outflow"
-                  value={formatAmount(summary.refund_outflow)}
-                  color="bg-rose-500"
-                  icon={TrendingDown}
-                  loading={statsLoading}
-                />
-                <StatCard
-                  title="Net Liquidity"
-                  value={formatAmount(summary.net_liquidity)}
-                  color="bg-yellow-500"
-                  icon={Activity}
-                  loading={statsLoading}
-                />
+                <StatCard title="Gross Intake" value={formatAmount(summary.gross_intake)} color="bg-emerald-500" icon={TrendingUp} loading={statsLoading} />
+                <StatCard title="Refund Outflow" value={formatAmount(summary.refund_outflow)} color="bg-rose-500" icon={TrendingDown} loading={statsLoading} />
+                <StatCard title="Net Liquidity" value={formatAmount(summary.net_liquidity)} color="bg-yellow-500" icon={Activity} loading={statsLoading} />
               </div>
 
               {/* Transaction Stream */}
@@ -259,7 +263,7 @@ const FinanceManagement = () => {
                 <div className="p-8 border-b border-white/[0.05] flex flex-col sm:flex-row sm:items-center justify-between gap-6 bg-white/[0.02]">
                   <div>
                     <h2 className="text-xl font-semibold text-white tracking-tight flex items-center gap-2">
-                      <CreditCard className="text-yellow-500" size={20} /> Transactions
+                       <CreditCard className="text-yellow-500" size={20} /> Transactions
                     </h2>
                     <p className="text-white/70 text-xs font-semibold mt-1">
                       {loading ? "Fetching data..." : `${pagination.total} transaction${pagination.total !== 1 ? "s" : ""} found`}
@@ -290,82 +294,55 @@ const FinanceManagement = () => {
                         <th className="px-8 py-5">Customer</th>
                         <th className="px-8 py-5">Date & Time</th>
                         <th className="px-8 py-5">Type</th>
-                        <th className="px-8 py-5">Payment Mode</th>
-                        <th className="px-8 py-5 text-right">Amount</th>
+                        <th className="px-8 py-5 text-right">Gross Total</th>
+                        <th className="px-8 py-5 text-right">Net Intake</th>
                         <th className="px-8 py-5 text-center">Status</th>
                         <th className="px-8 py-5 text-center">Action</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-white/[0.05]">
                       {loading ? (
-                        <tr>
-                          <td colSpan={7} className="px-8 py-16 text-center">
-                            <div className="flex flex-col items-center gap-3 opacity-40">
-                              <Loader2 size={32} className="animate-spin text-yellow-400" />
-                              <span className="text-xs font-semibold uppercase tracking-widest">Loading transactions...</span>
-                            </div>
-                          </td>
-                        </tr>
+                        <tr><td colSpan={8} className="px-8 py-16 text-center text-white/30 uppercase tracking-widest text-[10px] font-bold">Loading transactions...</td></tr>
                       ) : transactions.length === 0 ? (
-                        <tr>
-                          <td colSpan={7} className="px-8 py-16 text-center">
-                            <div className="flex flex-col items-center gap-3 opacity-30">
-                              <CreditCard size={36} strokeWidth={1} />
-                              <span className="text-xs font-semibold uppercase tracking-widest">No transactions found</span>
-                            </div>
-                          </td>
-                        </tr>
+                        <tr><td colSpan={8} className="px-8 py-16 text-center text-white/30 uppercase tracking-widest text-[10px] font-bold">No records found</td></tr>
                       ) : (
                         transactions.map((tx) => {
                           const txType = getOrderType(tx.order_status);
                           const statusInfo = getStatusLabel(tx.order_status);
-                          const createdAt = new Date(tx.created_at);
                           return (
                             <tr key={tx.order_number} className="hover:bg-white/[0.03] transition-colors group/row">
                               <td className="px-8 py-6">
-                                <span className="text-sm font-semibold text-white group-hover/row:text-yellow-500 transition-colors tracking-tight">#{tx.order_number}</span>
+                                <span className="text-sm font-semibold text-white tracking-tight">#{tx.order_number}</span>
                               </td>
                               <td className="px-8 py-6">
                                 <span className="text-sm font-semibold text-white/90">{tx.customer_name || "Guest"}</span>
                               </td>
-                              <td className="px-8 py-6">
-                                <div className="flex flex-col">
-                                  <span className="text-xs font-semibold text-white/80">{createdAt.toLocaleDateString("en-GB")}</span>
-                                  <span className="text-[10px] text-white/40 font-semibold">{createdAt.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })} UTC</span>
-                                </div>
+                              <td className="px-8 py-6 text-xs text-white/60">
+                                {new Date(tx.created_at).toLocaleDateString("en-GB")} {new Date(tx.created_at).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}
                               </td>
                               <td className="px-8 py-6">
-                                <span className={`px-2.5 py-1 rounded-lg text-xs font-semibold border ${txType === "Sales" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : "bg-rose-500/10 text-rose-400 border-rose-500/20"}`}>
+                                <span className={`px-2.5 py-1 rounded-lg text-xs font-semibold ${txType === "Sales" ? "bg-emerald-500/10 text-emerald-400" : "bg-rose-500/10 text-rose-400"}`}>
                                   {txType}
                                 </span>
                               </td>
+                              <td className="px-8 py-6 text-right font-medium text-white/40">£{formatAmount(tx.gross_amount)}</td>
+                              <td className="px-8 py-6 text-right font-semibold text-white">£{formatAmount(tx.amount - (tx.refunded_amount || 0))}</td>
                               <td className="px-8 py-6">
-                                <span className="text-xs font-semibold text-white/60">{getPaymentLabel(tx.payment_mode)}</span>
-                              </td>
-                              <td className="px-8 py-6 text-right">
-                                <span className="text-lg font-semibold text-white tracking-tight">
-                                  <span className="text-white/40 text-xs mr-1 font-semibold">£</span>
-                                  {formatAmount(tx.amount)}
-                                </span>
-                              </td>
-                              <td className="px-8 py-6 text-center">
                                 <div className="flex items-center justify-center gap-2.5">
-                                  <div className={`w-1.5 h-1.5 rounded-full shadow-[0_0_10px_rgba(255,255,255,0.2)] ${statusInfo.dot}`} />
+                                  <div className={`w-1.5 h-1.5 rounded-full ${statusInfo.dot}`} />
                                   <span className={`text-xs font-semibold ${statusInfo.text}`}>{statusInfo.label}</span>
                                 </div>
                               </td>
                               <td className="px-8 py-6 text-center">
-                                {![2, 5, 6].includes(Number(tx.order_status)) ? (
+                                {Number(tx.order_status) !== 6 && Number(tx.order_status) !== 2 && Number(tx.order_status) !== 5 ? (
                                   <button
-                                    onClick={() => handleRefund(tx.order_number)}
-                                    className="p-2 bg-rose-500/10 hover:bg-rose-500/30 text-rose-500 rounded-lg border border-rose-500/20 transition-all flex items-center gap-2 mx-auto"
-                                    title="Issue Full Refund"
+                                    onClick={() => handleOpenRefundModal(tx)}
+                                    className="p-2 bg-rose-500/10 hover:bg-rose-500/30 text-rose-500 rounded-lg border border-rose-500/20 transition-all active:scale-90"
                                   >
                                     <Undo2 size={14} />
-                                    <span className="text-[10px] font-bold uppercase tracking-wider">Refund</span>
                                   </button>
                                 ) : (
-                                  <span className="text-[10px] font-bold uppercase tracking-widest text-white/20 italic">Settled</span>
+                                  <span className="text-[10px] font-bold text-white/20 uppercase tracking-widest italic">Settled</span>
                                 )}
                               </td>
                             </tr>
@@ -376,50 +353,86 @@ const FinanceManagement = () => {
                   </table>
                 </div>
 
-                {/* Footer with pagination */}
-                <div className="p-8 border-t border-white/[0.05] bg-black/20 flex flex-col sm:flex-row items-center justify-between gap-6">
-                  <div className="text-xs font-semibold text-white/50">
-                    Showing {transactions.length} of {pagination.total} transactions
-                  </div>
+                <div className="p-8 border-t border-white/[0.05] bg-black/20 flex items-center justify-between">
+                  <div className="text-xs font-semibold text-white/40">Showing {transactions.length} entries</div>
                   <div className="flex gap-2">
-                    <button
-                      disabled={page <= 1 || loading}
-                      onClick={() => setPage((p) => Math.max(1, p - 1))}
-                      className="px-5 py-2.5 bg-white/10 border border-white/20 rounded-xl text-xs font-semibold text-white/70 hover:text-white transition-all disabled:opacity-30"
-                    >
-                      Previous
-                    </button>
-                    <span className="px-4 py-2.5 text-xs font-semibold text-white/40">
-                      {page} / {pagination.totalPages || 1}
-                    </span>
-                    <button
-                      disabled={page >= (pagination.totalPages || 1) || loading}
-                      onClick={() => setPage((p) => p + 1)}
-                      className="px-5 py-2.5 bg-white/10 border border-white/20 rounded-xl text-xs font-semibold text-white/70 hover:text-white transition-all disabled:opacity-30"
-                    >
-                      Next
-                    </button>
+                    <button onClick={() => setPage(p => Math.max(1, p-1))} disabled={page === 1} className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-white/60 text-xs">Prev</button>
+                    <button onClick={() => setPage(p => p+1)} disabled={page >= pagination.totalPages} className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-white/60 text-xs">Next</button>
                   </div>
                 </div>
               </div>
-
-              {/* Terminal Branding Footer */}
-              <div className="py-12 flex flex-col items-center justify-center opacity-60">
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="w-12 h-[1px] bg-gradient-to-r from-transparent to-white/40"></div>
-                  <div className="text-xs font-semibold text-white tracking-wide">ZingBite Finance</div>
-                  <div className="w-12 h-[1px] bg-gradient-to-l from-transparent to-white/40"></div>
-                </div>
-                <p className="text-xs font-semibold text-yellow-500/80 tracking-wide max-w-sm text-center leading-relaxed">
-                  "Architecture of growth is verified through every transmission"
-                </p>
-              </div>
-
             </div>
           </main>
           <Footer />
         </div>
       </div>
+
+      <AnimatePresence>
+        {refundModalOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setRefundModalOpen(false)} className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
+            <motion.div initial={{ scale: 0.9, opacity: 0, y: 30 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 30 }} className="bg-[#1a1c23] border border-white/[0.1] rounded-[2.5rem] w-full max-w-lg shadow-2xl relative z-10 overflow-hidden" onClick={e => e.stopPropagation()}>
+              <div className="p-8 border-b border-white/[0.08] flex items-center justify-between bg-gradient-to-r from-[#071428] to-[#0d1f45]">
+                <div>
+                  <h3 className="text-2xl font-semibold text-white tracking-tight italic">Issue Refund</h3>
+                  <p className="text-xs text-white/40 mt-1 uppercase tracking-widest font-bold">Order #{selectedTx?.order_number}</p>
+                </div>
+                <button onClick={() => setRefundModalOpen(false)} className="p-2 bg-white/5 hover:bg-white/10 rounded-xl text-white/40 transition-all"><X size={20} /></button>
+              </div>
+
+              <div className="p-8 space-y-8">
+                <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div className="p-4 bg-white/5 rounded-2xl border border-white/5 text-center">
+                    <p className="text-[10px] uppercase font-bold text-white/30 tracking-widest mb-1">Gross Total</p>
+                    <p className="text-xl font-semibold text-white italic">£{formatAmount(selectedTx?.gross_amount)}</p>
+                  </div>
+                  <div className="p-4 bg-white/5 rounded-2xl border border-white/5 text-center">
+                    <p className="text-[10px] uppercase font-bold text-emerald-400/60 tracking-widest mb-1">Credits Applied</p>
+                    <p className="text-xl font-semibold text-emerald-400/80 italic">£{formatAmount(selectedTx?.credit_amount)}</p>
+                  </div>
+                  <div className="p-4 bg-white/5 rounded-2xl border border-white/5 text-center font-bold">
+                    <p className="text-[10px] uppercase text-rose-400 tracking-widest mb-1">Already Refunded</p>
+                    <p className="text-xl font-semibold text-rose-500">£{formatAmount(selectedTx?.refunded_amount)}</p>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center px-1">
+                    <label className="text-[10px] font-bold text-white/60 uppercase tracking-widest">Refund Amount (£)</label>
+                    <span className="text-[10px] font-black text-emerald-400 uppercase tracking-widest">Max: £{selectedTx?.remaining}</span>
+                  </div>
+                  <div className="relative">
+                    <PoundSterling className="absolute left-6 top-1/2 -translate-y-1/2 text-white/20" size={20} />
+                    <input
+                      type="number"
+                      autoFocus
+                      step="0.01"
+                      value={refundAmountInput}
+                      onChange={(e) => setRefundAmountInput(e.target.value)}
+                      className="w-full bg-white/5 border border-white/10 rounded-2xl py-6 pl-14 pr-8 text-3xl font-bold text-white tabular-nums focus:outline-none focus:border-yellow-500/40"
+                      placeholder="0.00"
+                    />
+                  </div>
+                  <div className="flex items-start gap-3 p-4 bg-yellow-500/5 rounded-2xl border border-yellow-500/10">
+                    <AlertCircle className="text-yellow-500 shrink-0 mt-0.5" size={14} />
+                    <p className="text-[10px] font-medium text-yellow-500 uppercase tracking-wider leading-relaxed">
+                      Refunds are processed to the original payment method first (Stripe), then to the customer wallet.
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  onClick={processRefund}
+                  disabled={refunding}
+                  className="w-full py-6 bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-400 hover:to-rose-500 text-white font-bold text-sm uppercase tracking-[0.2em] rounded-2xl shadow-2xl transition-all flex items-center justify-center gap-3 active:scale-95 disabled:opacity-50"
+                >
+                  {refunding ? <Loader2 className="animate-spin" size={18} /> : <span>Confirm Refund Transmission</span>}
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

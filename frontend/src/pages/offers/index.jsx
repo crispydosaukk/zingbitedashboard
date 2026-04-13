@@ -8,8 +8,10 @@ import {
   Tag, Sparkles, Megaphone, Plus, Image as ImageIcon,
   Upload, X, Layers, ShoppingBag, Info, Save, Trash2, Edit
 } from "lucide-react";
+import { usePopup } from "../../context/PopupContext";
 
 export default function OffersPage() {
+  const { showPopup } = usePopup();
   const API = import.meta.env.VITE_API_URL;
   const API_BASE = API ? API.replace(/\/api\/?$/i, "") : "";
   const token = localStorage.getItem("token");
@@ -114,12 +116,21 @@ export default function OffersPage() {
     setForm(prev => ({ ...prev, [selectionTab === "categories" ? "target_categories" : "target_products"]: isAll ? [] : allIds }));
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Delete this offer?")) return;
-    try {
-      await fetch(`${API}/offers/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
-      loadData();
-    } catch (err) { }
+  const handleDelete = (id) => {
+    showPopup({
+      title: "Delete Offer",
+      message: "Are you sure you want to delete this offer?",
+      type: "confirm",
+      onConfirm: async () => {
+        try {
+          await fetch(`${API}/offers/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
+          loadData();
+          showPopup({ title: "Deleted", message: "Offer deleted successfully.", type: "success" });
+        } catch (err) {
+          showPopup({ title: "Error", message: "Failed to delete offer.", type: "error" });
+        }
+      }
+    });
   };
 
   const handleToggle = async (offer) => {

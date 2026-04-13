@@ -621,8 +621,11 @@ export const getFinanceSummary = async (req, res) => {
                     MAX(c.full_name) as customer_name,
                     MAX(o.created_at) as created_at,
                     SUM(o.grand_total) as amount,
+                    SUM(o.gross_total) as gross_amount,
+                    SUM(o.wallet_amount + o.loyalty_amount) as credit_amount,
                     MAX(o.order_status) as order_status,
-                    MAX(o.payment_mode) as payment_mode
+                    MAX(o.payment_mode) as payment_mode,
+                    (SELECT SUM(amount) FROM order_refunds WHERE order_number = o.order_number AND status = 'processed') as refunded_amount
                 FROM orders o
                 LEFT JOIN customers c ON o.customer_id = c.id
                 WHERE ${orderWhere}
@@ -689,16 +692,16 @@ export const getRestaurantsList = async (req, res) => {
 export const refundOrder = async (req, res) => {
     const conn = await db.getConnection();
     try {
-        const { order_number } = req.body;
+        const { order_number, amount } = req.body;
         if (!order_number) {
             return res.status(400).json({ status: 0, message: "Order number is required" });
         }
 
         await conn.beginTransaction();
 
-        // 1. Fetch Order Details
+        // 1. Fetch Order Rows
         const [orders] = await conn.query(
-            "SELECT id, grand_total, payment_request_id, customer_id, wallet_amount, loyalty_amount, order_status, payment_mode FROM orders WHERE order_number = ?",
+            "SELECT id, grand_total, payment_request_id, customer_id, wallet_amount, loyalty_amount, order_status, payment_mode, gross_total FROM orders WHERE order_number = ?",
             [order_number]
         );
 
@@ -707,90 +710,137 @@ export const refundOrder = async (req, res) => {
             return res.status(404).json({ status: 0, message: "Order not found" });
         }
 
-        const firstRow = orders[0];
-        const currentStatus = Number(firstRow.order_status);
+        const customer_id = orders[0].customer_id;
+        const pi_id = orders[0].payment_request_id;
+        const paymentMode = Number(orders[0].payment_mode); 
 
-        // If status is already refunded (6), don't process
-        if (currentStatus === 6) {
+        const totalGross = orders.reduce((sum, o) => sum + Number(o.gross_total), 0);
+        const totalPaidCash = orders.reduce((sum, o) => sum + Number(o.grand_total), 0);
+        const totalUsedWallet = orders.reduce((sum, o) => sum + Number(o.wallet_amount), 0);
+        const totalUsedLoyalty = orders.reduce((sum, o) => sum + Number(o.loyalty_amount), 0);
+
+        // 2. Check Existing Refunds
+        const [[refundSum]] = await conn.query(
+            "SELECT SUM(amount) as total_refunded FROM order_refunds WHERE order_number = ? AND status = 'processed'",
+            [order_number]
+        );
+        const alreadyRefunded = Number(refundSum?.total_refunded || 0);
+        const remainingRefundable = Number((totalGross - alreadyRefunded).toFixed(2));
+
+        if (remainingRefundable <= 0) {
             await conn.rollback();
-            return res.status(400).json({ status: 0, message: "Order is already refunded" });
+            return res.status(400).json({ status: 0, message: "Order is already fully refunded" });
         }
 
-        const totalPaidAmount = orders.reduce((sum, o) => sum + Number(o.grand_total), 0);
-        const pi_id = firstRow.payment_request_id;
-        const paymentMode = Number(firstRow.payment_mode); // Assume 1 is Online
+        const refundRequestAmount = amount ? Number(amount) : remainingRefundable;
 
-        // 2. Process Stripe Refund if applicable
+        if (refundRequestAmount <= 0) {
+            await conn.rollback();
+            return res.status(400).json({ status: 0, message: "Invalid refund amount" });
+        }
+
+        if (refundRequestAmount > remainingRefundable + 0.01) {
+            await conn.rollback();
+            return res.status(400).json({ status: 0, message: `Cannot refund more than remaining balance (£${remainingRefundable})` });
+        }
+
+        // 3. Process Stripe Refund if applicable (Prioritize cash refund)
         let stripeRefundId = null;
-        if (paymentMode === 1 && pi_id && totalPaidAmount > 0) {
-            const [settings] = await conn.query("SELECT stripe_secret_key FROM settings LIMIT 1");
-            const secretKey = settings[0]?.stripe_secret_key;
+        let amountFromCash = 0;
+        let amountFromCredits = 0;
 
-            if (!secretKey) {
-                await conn.rollback();
-                return res.status(500).json({ status: 0, message: "Stripe is not configured in settings." });
-            }
+        // How much of this refund can come from the online payment?
+        const alreadyCashRefunded = 0; // In a perfect system, we'd track this separately, but for now we assume credits are refunded last
+        const maxCashRefundable = Math.max(0, totalPaidCash); // Simplified: assume full cash is refundable if not already processed
 
-            const stripe = new Stripe(secretKey);
-            try {
-                const refund = await stripe.refunds.create({
-                    payment_intent: pi_id,
-                    amount: Math.round(totalPaidAmount * 100), // convert to pence
-                });
-                stripeRefundId = refund.id;
-            } catch (stripeErr) {
-                console.error("Stripe refund error:", stripeErr);
-                await conn.rollback();
-                return res.status(500).json({ status: 0, message: `Stripe Refund Error: ${stripeErr.message}` });
+        if (paymentMode === 1 && pi_id && totalPaidCash > 0) {
+            // We need to know how much cash has already been refunded
+            const [[cashRefundSum]] = await conn.query(
+                "SELECT SUM(amount) as cash_total FROM order_refunds WHERE order_number = ? AND payment_intent_id IS NOT NULL",
+                [order_number]
+            );
+            const cashAlreadyRefunded = Number(cashRefundSum?.cash_total || 0);
+            const cashAvailable = Math.max(0, totalPaidCash - cashAlreadyRefunded);
+            
+            amountFromCash = Math.min(refundRequestAmount, cashAvailable);
+            
+            if (amountFromCash > 0) {
+                const [settings] = await conn.query("SELECT stripe_secret_key FROM settings LIMIT 1");
+                const secretKey = settings[0]?.stripe_secret_key;
+
+                if (!secretKey) {
+                    await conn.rollback();
+                    return res.status(500).json({ status: 0, message: "Stripe configuration missing." });
+                }
+
+                const stripe = new Stripe(secretKey);
+                try {
+                    const refund = await stripe.refunds.create({
+                        payment_intent: pi_id,
+                        amount: Math.round(amountFromCash * 100),
+                    });
+                    stripeRefundId = refund.id;
+                } catch (stripeErr) {
+                    console.error("Stripe refund error:", stripeErr);
+                    await conn.rollback();
+                    return res.status(500).json({ status: 0, message: `Stripe Refund Error: ${stripeErr.message}` });
+                }
             }
         }
 
-        // 3. Internal Refund (Wallet/Loyalty restored to customer)
-        const totalWalletLoyalty = orders.reduce((sum, o) => sum + (Number(o.wallet_amount) + Number(o.loyalty_amount)), 0);
-        if (totalWalletLoyalty > 0) {
+        amountFromCredits = Math.max(0, refundRequestAmount - amountFromCash);
+
+        // 4. Handle Wallet/Loyalty Restoration
+        if (amountFromCredits > 0) {
             await conn.query(
                 "UPDATE customer_wallets SET balance = balance + ? WHERE customer_id = ?",
-                [totalWalletLoyalty, firstRow.customer_id]
+                [amountFromCredits, customer_id]
             );
 
-            const [[wRow]] = await conn.query("SELECT balance FROM customer_wallets WHERE customer_id = ?", [firstRow.customer_id]);
+            const [[wRow]] = await conn.query("SELECT balance FROM customer_wallets WHERE customer_id = ?", [customer_id]);
 
             await conn.query(
                 `INSERT INTO wallet_transactions
                  (customer_id, transaction_type, amount, balance_after, source, description, created_at)
                  VALUES (?, 'CREDIT', ?, ?, 'REFUND', ?, NOW())`,
                 [
-                    firstRow.customer_id,
-                    totalWalletLoyalty,
+                    customer_id,
+                    amountFromCredits,
                     wRow?.balance || 0,
-                    `Full refund for order ${order_number}`
+                    `Partial refund for order ${order_number}`
                 ]
             );
         }
 
-        // 4. Record the refund in order_refunds table
+        // 5. Record Refund
         await conn.query(
             `INSERT INTO order_refunds 
              (order_number, payment_intent_id, refund_id, amount, status) 
              VALUES (?, ?, ?, ?, ?)`,
-            [order_number, pi_id || null, stripeRefundId || null, totalPaidAmount + totalWalletLoyalty, 'processed']
+            [order_number, (amountFromCash > 0 ? pi_id : null), stripeRefundId || null, refundRequestAmount, 'processed']
         );
 
-        // 5. Update Order Status to 6 (Refunded)
-        await conn.query("UPDATE orders SET order_status = 6 WHERE order_number = ?", [order_number]);
+        // 6. Update Order Status
+        const totalNowRefunded = alreadyRefunded + refundRequestAmount;
+        // status 6 = Full Refund, status 7 = Partial Refund
+        const newStatus = totalNowRefunded >= totalGross - 0.01 ? 6 : 7;
+        
+        await conn.query("UPDATE orders SET order_status = ? WHERE order_number = ?", [newStatus, order_number]);
 
-        // 6. Void any loyalty earnings for this order
-        await conn.query(
-            "DELETE FROM loyalty_earnings WHERE order_id IN (SELECT id FROM orders WHERE order_number = ?)",
-            [order_number]
-        );
+        // 7. If full refund, void loyalty earnings
+        if (newStatus === 6) {
+            await conn.query(
+                "DELETE FROM loyalty_earnings WHERE order_id IN (SELECT id FROM orders WHERE order_number = ?)",
+                [order_number]
+            );
+        }
 
         await conn.commit();
-        return res.json({ status: 1, message: "Order refunded successfully" });
+        return res.json({ status: 1, message: `Refund of £${refundRequestAmount.toFixed(2)} processed successfully` });
 
     } catch (err) {
         if (conn) await conn.rollback();
-        console.error("Refund implementation error:", err);
+        console.error("Refund error:", err);
         return res.status(500).json({ status: 0, message: "Critical error during refund execution." });
     } finally {
         if (conn) conn.release();
